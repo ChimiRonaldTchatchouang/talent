@@ -3,7 +3,7 @@ export const dynamic = "force-dynamic";
 
 export async function GET() {
   const brute = process.env.URL_API;
-  const urlApi = (brute ?? "http://localhost:4000").replace(/\/+$/, "");
+  const urlApi = (brute ?? "http://localhost:4000").trim().replace(/[./]+$/, "");
   let sante: { statut: number | null; reponse: string };
   try {
     const r = await fetch(`${urlApi}/sante`, { cache: "no-store", signal: AbortSignal.timeout(60000) });

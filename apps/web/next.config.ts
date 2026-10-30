@@ -8,7 +8,8 @@ if (process.env.VERCEL && !process.env.URL_API) {
     "La variable URL_API est absente : renseignez l'adresse de l'API Render dans Vercel (Settings > Environment Variables), puis redéployez.",
   );
 }
-const URL_API = (process.env.URL_API ?? "http://localhost:4000").replace(/\/+$/, "");
+// Espaces, « / » ou « . » en fin d’adresse sont retirés : une faute de saisie ne doit pas casser le site.
+const URL_API = (process.env.URL_API ?? "http://localhost:4000").trim().replace(/[./]+$/, "");
 
 const config: NextConfig = {
   transpilePackages: ["@bdt/shared"],
