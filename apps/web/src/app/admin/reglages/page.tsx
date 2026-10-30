@@ -28,15 +28,35 @@ const STATUTS = {
 
 export default function PageReglages() {
   const [reglages, setReglages] = useState<Reglages | null>(null);
-  const [emails, setEmails] = useState<{ modeDemo: boolean; emails: Email[] } | null>(null);
+  const [emails, setEmails] = useState<{ modeDemo: boolean; expediteur: string | null; emails: Email[] } | null>(null);
+  const [test, setTest] = useState(false);
   const [erreurs, setErreurs] = useState<Record<string, string>>({});
   const [envoi, setEnvoi] = useState(false);
   const [ouvert, setOuvert] = useState<string | null>(null);
 
   useEffect(() => {
     api<Reglages>("/admin/reglages").then(setReglages).catch((e) => toaster.create({ type: "error", title: messageErreur(e) }));
-    api<{ modeDemo: boolean; emails: Email[] }>("/admin/emails").then(setEmails).catch(() => undefined);
+    chargerEmails();
   }, []);
+
+  function chargerEmails() {
+    api<{ modeDemo: boolean; expediteur: string | null; emails: Email[] }>("/admin/emails").then(setEmails).catch(() => undefined);
+  }
+
+  async function envoyerTest() {
+    setTest(true);
+    try {
+      const r = await api<{ statut: Email["statut"]; erreur: string | null; destinataire: string }>("/admin/emails/test", { methode: "POST" });
+      if (r.statut === "ENVOYE") toaster.create({ type: "success", title: `E-mail de test envoyé à ${r.destinataire}. Vérifiez votre boîte (et les spams).` });
+      else if (r.statut === "DEMO") toaster.create({ type: "info", title: "Mode démo : l'e-mail n'est pas parti. Configurez RESEND_API_KEY sur Render." });
+      else toaster.create({ type: "error", title: `Échec de l'envoi : ${r.erreur ?? "erreur inconnue"}` });
+      chargerEmails();
+    } catch (e) {
+      toaster.create({ type: "error", title: messageErreur(e) });
+    } finally {
+      setTest(false);
+    }
+  }
 
   async function enregistrer(e: FormEvent) {
     e.preventDefault();
@@ -91,14 +111,35 @@ export default function PageReglages() {
       </Carte>
 
       <Carte>
-        <Heading as="h2" size="md" color="nuit" mb="3">
-          E-mails envoyés
-        </Heading>
+        <Stack direction={{ base: "column", md: "row" }} justify="space-between" align={{ md: "center" }} mb="3" gap="2">
+          <Box>
+            <Heading as="h2" size="md" color="nuit">
+              E-mails envoyés
+            </Heading>
+            {emails?.expediteur && (
+              <Text fontSize="sm" color="gris">
+                Expéditeur : {emails.expediteur}
+              </Text>
+            )}
+          </Box>
+          <Button size="sm" variant="outline" colorPalette="emeraude" loading={test} onClick={envoyerTest}>
+            Envoyer un e-mail de test
+          </Button>
+        </Stack>
+        {emails?.expediteur?.includes("onboarding@resend.dev") && (
+          <Alert.Root status="warning" borderRadius="carte" mb="4">
+            <Alert.Indicator />
+            <Alert.Title>
+              Expéditeur de test de Resend : les e-mails ne partent que vers l&apos;adresse du titulaire du compte Resend. Vérifiez le
+              domaine du cabinet dans Resend, puis renseignez EMAIL_EXPEDITEUR sur Render.
+            </Alert.Title>
+          </Alert.Root>
+        )}
         {emails?.modeDemo && (
           <Alert.Root status="info" borderRadius="carte" mb="4">
             <Alert.Indicator />
             <Alert.Title>
-              Mode démo : aucun service d&apos;envoi n&apos;est configuré. Les e-mails ne partent pas, ils sont seulement listés ici.
+              Mode démo : la clé Resend (RESEND_API_KEY) n&apos;est pas configurée sur Render. Les e-mails ne partent pas, ils sont seulement listés ici.
             </Alert.Title>
           </Alert.Root>
         )}

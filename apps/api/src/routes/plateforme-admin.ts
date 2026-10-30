@@ -1,6 +1,8 @@
 import type { FastifyPluginAsyncZod } from "fastify-type-provider-zod";
 import { z } from "zod";
 import type { Config } from "../lib/config.js";
+import { envoyerEmail, expediteur } from "../lib/emails.js";
+import { erreurs } from "../lib/erreurs.js";
 import { journaliser } from "../lib/journal.js";
 import { ecrireReglages, lireReglages, schemaReglages } from "../lib/reglages.js";
 import { exigerRole, utilisateurDe } from "../plugins/authentification.js";
@@ -39,6 +41,7 @@ export const routesPlateformeAdmin = (config: Config): FastifyPluginAsyncZod => 
         response: {
           200: z.object({
             modeDemo: z.boolean(),
+            expediteur: z.string().nullable(),
             emails: z.array(
               z.object({
                 id: z.string(),
@@ -55,8 +58,32 @@ export const routesPlateformeAdmin = (config: Config): FastifyPluginAsyncZod => 
       },
     },
     async () => ({
-      modeDemo: !config.RESEND_API_KEY || !config.EMAIL_EXPEDITEUR,
+      modeDemo: !config.RESEND_API_KEY,
+      expediteur: config.RESEND_API_KEY ? expediteur(config) : null,
       emails: await app.prisma.emailEnvoye.findMany({ orderBy: { creeLe: "desc" }, take: 100 }),
     }),
+  );
+
+  app.post(
+    "/admin/emails/test",
+    {
+      onRequest: admin,
+      schema: {
+        tags: ["Réglages"],
+        summary: "Envoyer un e-mail de test à l'administrateur connecté (vérifie la configuration de Resend)",
+        response: { 200: z.object({ statut: z.enum(["ENVOYE", "ECHEC", "DEMO"]), erreur: z.string().nullable(), destinataire: z.string() }) },
+      },
+    },
+    async (request) => {
+      const acteur = utilisateurDe(request);
+      if (!acteur.email) throw erreurs.invalide("Votre compte n'a pas d'adresse e-mail.");
+      await envoyerEmail(app.prisma, config, {
+        a: acteur.email,
+        sujet: "E-mail de test",
+        texte: "Bonjour,\n\nCet e-mail confirme que l'envoi des e-mails de la plateforme fonctionne.",
+      });
+      const dernier = await app.prisma.emailEnvoye.findFirstOrThrow({ where: { destinataire: acteur.email }, orderBy: { creeLe: "desc" } });
+      return { statut: dernier.statut, erreur: dernier.erreur, destinataire: acteur.email };
+    },
   );
 };

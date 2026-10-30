@@ -40,17 +40,26 @@ Trois services gratuits, tous reliés au dépôt GitHub. Chaque fusion dans `mai
 
 ## 5. E-mails : Resend
 
-Sans configuration, la plateforme fonctionne en **mode démo** : les e-mails ne partent pas, ils sont listés dans
-Admin → Réglages (liens de confirmation compris).
+Tous les e-mails de la plateforme passent par Resend : confirmation de compte, mot de passe oublié, dossier
+envoyé, pièce refusée, grade, et notifications aux administrateurs. Sans clé, la plateforme est en **mode démo** :
+les e-mails ne partent pas, ils sont listés dans Admin → Réglages.
 
-1. Créer un compte sur resend.com.
-2. *Domains* → ajouter le domaine du client, puis copier les enregistrements DNS (SPF, DKIM) dans Hostinger → DNS.
-   Attendre que Resend affiche « Verified ».
-3. *API Keys* → créer une clé « Sending access ».
-4. Sur Render → *Environment* :
-   - `RESEND_API_KEY` = la clé (à saisir directement dans Render, jamais dans un message ni dans le dépôt)
-   - `EMAIL_EXPEDITEUR` = `Bassin de Talents <contact@domaine-du-client.cm>` (adresse du domaine vérifié)
-5. Sans domaine vérifié, Resend n'envoie qu'à l'adresse du titulaire du compte : utile pour tester seulement.
+**Étape 1 — activer l'envoi (5 minutes)**
+1. Render → *Environment* → ajouter `RESEND_API_KEY` = la clé Resend (commence par `re_`). La saisir directement
+   dans Render, jamais dans un message ni dans le dépôt.
+2. *Save Changes* (Render redéploie).
+3. Admin → **Réglages et e-mails** → **Envoyer un e-mail de test**. Le statut « Envoyé » ou « Échec » s'affiche,
+   avec la raison en cas d'échec.
+
+Tant que `EMAIL_EXPEDITEUR` est vide, l'expéditeur est `onboarding@resend.dev`, et **Resend ne livre qu'à
+l'adresse du titulaire du compte Resend**. Pour les candidats, il faut l'étape 2.
+
+**Étape 2 — écrire à tout le monde (domaine du cabinet)**
+1. resend.com → *Domains* → *Add domain* → le domaine du client (ex. `cabinet.cm`, ou un sous-domaine `mail.cabinet.cm`).
+2. Copier les enregistrements DNS affichés (MX, TXT SPF, TXT DKIM) dans Hostinger → *DNS / Zone DNS*.
+3. Attendre que Resend affiche **Verified** (de quelques minutes à quelques heures).
+4. Render → `EMAIL_EXPEDITEUR` = `Bassin de Talents <contact@cabinet.cm>` (une adresse de ce domaine) → *Save Changes*.
+5. Refaire un e-mail de test.
 
 ## 6. Dépôt des fichiers
 

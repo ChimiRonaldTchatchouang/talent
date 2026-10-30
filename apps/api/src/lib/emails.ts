@@ -9,12 +9,21 @@ export interface Email {
 }
 
 /**
- * Envoie un e-mail par Resend. Sans clé configurée (mode démo), l'e-mail n'est pas envoyé :
+ * Expéditeur de test fourni par Resend, utilisé tant qu'aucune adresse du domaine du cabinet
+ * n'est configurée. Attention : Resend ne livre alors qu'à l'adresse du titulaire du compte Resend.
+ */
+export const EXPEDITEUR_TEST_RESEND = `${MARQUE.nom} <onboarding@resend.dev>`;
+
+export const expediteur = (config: Config) => config.EMAIL_EXPEDITEUR || EXPEDITEUR_TEST_RESEND;
+
+/**
+ * Envoie un e-mail par Resend : tous les e-mails de la plateforme passent par ici (confirmation de
+ * compte, mot de passe, notifications). Sans clé configurée (mode démo), l'e-mail n'est pas envoyé :
  * il est seulement écrit dans le journal des e-mails, visible par les administrateurs.
  * Un échec d'envoi n'interrompt jamais l'action en cours : il est noté dans le journal.
  */
 export async function envoyerEmail(db: PrismaClient, config: Config, email: Email): Promise<void> {
-  if (!config.RESEND_API_KEY || !config.EMAIL_EXPEDITEUR) {
+  if (!config.RESEND_API_KEY) {
     await db.emailEnvoye.create({ data: { destinataire: email.a, sujet: email.sujet, texte: email.texte, statut: "DEMO" } });
     return;
   }
@@ -23,7 +32,7 @@ export async function envoyerEmail(db: PrismaClient, config: Config, email: Emai
     const reponse = await fetch("https://api.resend.com/emails", {
       method: "POST",
       headers: { Authorization: `Bearer ${config.RESEND_API_KEY}`, "Content-Type": "application/json" },
-      body: JSON.stringify({ from: config.EMAIL_EXPEDITEUR, to: [email.a], subject: email.sujet, text: email.texte }),
+      body: JSON.stringify({ from: expediteur(config), to: [email.a], subject: email.sujet, text: email.texte }),
       signal: AbortSignal.timeout(10000),
     });
     if (!reponse.ok) erreur = `Resend a répondu ${reponse.status} : ${(await reponse.text()).slice(0, 300)}`;
