@@ -1,0 +1,163 @@
+// Schéma de la base Bassin de Talents.
+// Lot 1 : comptes, sessions, journal, listes de référence, paramètres du classement.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DATABASE_URL_DIRECTE")
+}
+
+enum Role {
+  CANDIDAT
+  ADMIN
+  RECRUTEUR
+}
+
+enum EtatCompte {
+  ACTIF
+  DESACTIVE
+}
+
+enum StatutCompetence {
+  VALIDEE
+  PROPOSEE
+  REJETEE
+}
+
+enum ElementComblable {
+  TEST_LANGUE
+  COACHING
+  NIVEAU
+}
+
+model Utilisateur {
+  id                 String     @id @default(uuid()) @db.Uuid
+  role               Role
+  nom                String?
+  email              String?    @unique
+  telephone          String?    @unique
+  motDePasseHash     String     @map("mot_de_passe_hash")
+  etat               EtatCompte @default(ACTIF)
+  estPrincipal       Boolean    @default(false) @map("est_principal")
+  emailVerifieLe     DateTime?  @map("email_verifie_le")
+  tentativesEchouees Int        @default(0) @map("tentatives_echouees")
+  bloqueJusquA       DateTime?  @map("bloque_jusqu_a")
+  derniereConnexion  DateTime?  @map("derniere_connexion")
+  creeLe             DateTime   @default(now()) @map("cree_le")
+  modifieLe          DateTime   @updatedAt @map("modifie_le")
+  creeParId          String?    @map("cree_par_id") @db.Uuid
+
+  sessions               Session[]
+  competencesProposees   Competence[]            @relation("CompetenceProposee")
+  versionsParametres     ParametresClassement[]
+
+  @@map("utilisateurs")
+}
+
+model Session {
+  // Empreinte SHA-256 du jeton : le jeton lui-même n'est jamais stocké.
+  id            String      @id
+  utilisateurId String      @map("utilisateur_id") @db.Uuid
+  utilisateur   Utilisateur @relation(fields: [utilisateurId], references: [id], onDelete: Cascade)
+  expireLe      DateTime    @map("expire_le")
+  creeLe        DateTime    @default(now()) @map("cree_le")
+
+  @@index([utilisateurId])
+  @@map("sessions")
+}
+
+/// Journal des actions. Ajout seulement : un déclencheur SQL refuse toute modification ou suppression.
+model Journal {
+  id        BigInt   @id @default(autoincrement())
+  acteurId  String?  @map("acteur_id") @db.Uuid
+  role      Role?
+  action    String
+  cibleType String?  @map("cible_type")
+  cibleId   String?  @map("cible_id")
+  details   Json?
+  ip        String?
+  creeLe    DateTime @default(now()) @map("cree_le")
+
+  @@index([creeLe])
+  @@index([cibleType, cibleId])
+  @@map("journal")
+}
+
+model Domaine {
+  id          String       @id @default(uuid()) @db.Uuid
+  nom         String       @unique
+  actif       Boolean      @default(true)
+  creeLe      DateTime     @default(now()) @map("cree_le")
+  modifieLe   DateTime     @updatedAt @map("modifie_le")
+  competences Competence[]
+
+  @@map("domaines")
+}
+
+model Competence {
+  id             String           @id @default(uuid()) @db.Uuid
+  nom            String
+  domaineId      String           @map("domaine_id") @db.Uuid
+  domaine        Domaine          @relation(fields: [domaineId], references: [id])
+  statut         StatutCompetence @default(VALIDEE)
+  actif          Boolean          @default(true)
+  proposeeParId  String?          @map("proposee_par_id") @db.Uuid
+  proposeePar    Utilisateur?     @relation("CompetenceProposee", fields: [proposeeParId], references: [id], onDelete: SetNull)
+  creeLe         DateTime         @default(now()) @map("cree_le")
+  modifieLe      DateTime         @updatedAt @map("modifie_le")
+
+  @@unique([domaineId, nom])
+  @@index([statut])
+  @@map("competences")
+}
+
+model TestLangue {
+  id           String   @id @default(uuid()) @db.Uuid
+  nom          String   @unique
+  /// Score minimum accepté. Vide : pas de comparaison automatique (vérification par l'administrateur).
+  scoreMinimum Decimal? @map("score_minimum") @db.Decimal(7, 1)
+  actif        Boolean  @default(true)
+  creeLe       DateTime @default(now()) @map("cree_le")
+  modifieLe    DateTime @updatedAt @map("modifie_le")
+
+  @@map("tests_langue")
+}
+
+model Service {
+  id            String            @id @default(uuid()) @db.Uuid
+  nom           String            @unique
+  description   String            @default("")
+  duree         String            @default("")
+  elementComble ElementComblable? @map("element_comble")
+  actif         Boolean           @default(true)
+  creeLe        DateTime          @default(now()) @map("cree_le")
+  modifieLe     DateTime          @updatedAt @map("modifie_le")
+
+  @@map("services")
+}
+
+model Diplome {
+  id        String   @id @default(uuid()) @db.Uuid
+  nom       String   @unique
+  ordre     Int
+  actif     Boolean  @default(true)
+  creeLe    DateTime @default(now()) @map("cree_le")
+  modifieLe DateTime @updatedAt @map("modifie_le")
+
+  @@map("diplomes")
+}
+
+/// Chaque modification crée une nouvelle version ; la plus récente est en vigueur.
+model ParametresClassement {
+  id        Int          @id @default(autoincrement())
+  valeurs   Json
+  creeParId String?      @map("cree_par_id") @db.Uuid
+  creePar   Utilisateur? @relation(fields: [creeParId], references: [id], onDelete: SetNull)
+  creeLe    DateTime     @default(now()) @map("cree_le")
+
+  @@map("parametres_classement")
+}

@@ -1,0 +1,45 @@
+{
+  "name": "@bdt/api",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "tsx watch --env-file-if-exists=.env src/server.ts",
+    "build": "pnpm --filter @bdt/shared build && prisma generate && tsc -p tsconfig.build.json",
+    "start": "node dist/server.js",
+    "demarrage": "prisma migrate deploy && node dist/scripts/initialiser.js && node dist/server.js",
+    "initialiser": "tsx --env-file-if-exists=.env src/scripts/initialiser.ts",
+    "test": "vitest run",
+    "lint": "eslint .",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "prisma:migrer": "prisma migrate dev",
+    "postinstall": "prisma generate"
+  },
+  "dependencies": {
+    "@bdt/shared": "workspace:*",
+    "@fastify/cookie": "11.1.5",
+    "@fastify/cors": "11.3.1",
+    "@fastify/helmet": "13.2.0",
+    "@fastify/rate-limit": "11.2.1",
+    "@fastify/swagger": "9.9.2",
+    "@fastify/swagger-ui": "6.1.2",
+    "@node-rs/argon2": "2.2.2",
+    "@prisma/client": "6.19.3",
+    "fastify": "5.12.7",
+    "fastify-plugin": "5.1.0",
+    "fastify-type-provider-zod": "4.0.2",
+    "prisma": "6.19.3",
+    "zod": "3.25.76"
+  },
+  "devDependencies": {
+    "@eslint/js": "9.39.5",
+    "@types/node": "22.20.5",
+    "@types/pg": "^8.23.1",
+    "eslint": "9.39.5",
+    "pg": "^8.23.1",
+    "tsx": "4.23.15",
+    "typescript": "5.9.3",
+    "typescript-eslint": "8.72.1",
+    "vitest": "3.2.7"
+  }
+}
