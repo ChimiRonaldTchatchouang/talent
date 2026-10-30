@@ -51,7 +51,7 @@ export function routesRecruteursAdmin(config: Config): FastifyPluginAsyncZod {
       domainesVisibles: a.domainesVisibles,
       dateFin: a.dateFin.toISOString().slice(0, 10),
       ouvert: accesOuvert(a) && a.utilisateur.etat === "ACTIF",
-      profilsVisibles: await app.prisma.dossier.count({ where: perimetre(a) }),
+      profilsVisibles: await app.prisma.dossier.count({ where: perimetre(a, a.utilisateur.estDemo) }),
       derniereConnexion: a.utilisateur.derniereConnexion,
       creeLe: a.creeLe,
     });

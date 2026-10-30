@@ -16,8 +16,10 @@ export function signer(secret: string, contenu: object, dureeSecondes: number): 
 export function verifier<T extends object>(secret: string, jeton: string): T | null {
   const [charge, signature] = jeton.split(".");
   if (!charge || !signature) return null;
-  const attendue = createHmac("sha256", secret).update(charge).digest();
-  const recue = Buffer.from(signature, "base64url");
+  // Comparaison du texte exact de la signature (et non des octets décodés : en base64, le dernier
+  // caractère porte des bits ignorés, deux écritures différentes donneraient les mêmes octets).
+  const attendue = Buffer.from(createHmac("sha256", secret).update(charge).digest("base64url"));
+  const recue = Buffer.from(signature);
   if (recue.length !== attendue.length || !timingSafeEqual(recue, attendue)) return null;
   try {
     const contenu = JSON.parse(Buffer.from(charge, "base64url").toString("utf8")) as T & { exp: number };

@@ -20,6 +20,7 @@ export async function demarrer(): Promise<{ app: App; prisma: PrismaClient }> {
 export async function viderBase(prisma: PrismaClient): Promise<void> {
   await prisma.session.deleteMany();
   await prisma.serviceCandidat.deleteMany();
+  await prisma.demandeSuppression.deleteMany();
   await prisma.accesRecruteur.deleteMany();
   await prisma.noteInterne.deleteMany();
   await prisma.piece.deleteMany();

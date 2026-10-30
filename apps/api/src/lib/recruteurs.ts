@@ -15,11 +15,15 @@ export function accesOuvert(acces: Pick<AccesRecruteur, "dateFin">): boolean {
  * R-14 : un recruteur ne voit que les profils envoyés, au grade confirmé (ou corrigé), dans son
  * périmètre (grades et domaines), dont le candidat a accepté d'être présenté aux recruteurs.
  */
-export function perimetre(acces: Pick<AccesRecruteur, "gradesVisibles" | "domainesVisibles">): Prisma.DossierWhereInput {
+export function perimetre(
+  acces: Pick<AccesRecruteur, "gradesVisibles" | "domainesVisibles">,
+  demo = false,
+): Prisma.DossierWhereInput {
   return {
     statut: "ENVOYE",
     consentementRecruteursLe: { not: null },
-    utilisateur: { etat: "ACTIF" },
+    // Un vrai recruteur ne voit jamais les profils de démonstration, et inversement.
+    utilisateur: { etat: "ACTIF", estDemo: demo },
     grade: { etat: { in: ["CONFIRME", "CORRIGE"] }, grade: { in: acces.gradesVisibles } },
     ...(acces.domainesVisibles.length ? { aTravaille: true, domaineId: { in: acces.domainesVisibles } } : {}),
   };

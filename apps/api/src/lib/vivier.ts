@@ -47,6 +47,7 @@ const inclusion = {
   domaine: { select: { nom: true } },
   pieces: { select: { type: true, etat: true } },
   competences: { select: { competenceId: true } },
+  utilisateur: { select: { estDemo: true } },
 } satisfies Prisma.DossierInclude;
 type DossierVivier = Prisma.DossierGetPayload<{ include: typeof inclusion }>;
 
@@ -86,6 +87,7 @@ export function resume(d: DossierVivier) {
     justificatifs: etatJustificatifs(d),
     passeportValide: d.aPasseport === true && !!d.passeportExpiration && d.passeportExpiration >= aujourdHui(),
     envoyeLe: d.envoyeLe,
+    demo: d.utilisateur.estDemo,
   };
 }
 export type ResumeCandidat = ReturnType<typeof resume>;

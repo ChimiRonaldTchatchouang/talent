@@ -10,6 +10,7 @@ import { erreurs } from "../lib/erreurs.js";
 import { journaliser } from "../lib/journal.js";
 import { lienFichier } from "../lib/liens.js";
 import { hacherMotDePasse } from "../lib/mots-de-passe.js";
+import { creerDonneesDemo, effacerDonneesDemo, etatDemo } from "../lib/demo.js";
 import { rechercherVivier, schemaFiltres, versCsv } from "../lib/vivier.js";
 import { exigerRole, utilisateurDe } from "../plugins/authentification.js";
 import { vueClassement } from "./classement.js";
@@ -49,6 +50,7 @@ export function routesAdmin(config: Config & { SECRET_LIENS: string }): FastifyP
           gradesAConfirmer: aConfirmer,
           alertes,
           servicesInteresses: interesses,
+          suppressionsEnAttente: await db.demandeSuppression.count({ where: { statut: "EN_ATTENTE" } }),
           selectionsRecues: await db.selectionEnvoyee.count({ where: { remplaceeLe: null, lignes: { some: { statut: "A_CONTACTER" } } } }),
           derniers: derniers.map((d) => ({
             id: d.id,
@@ -117,7 +119,7 @@ export function routesAdmin(config: Config & { SECRET_LIENS: string }): FastifyP
         const acteur = utilisateurDe(request);
         const d = await app.prisma.dossier.findUnique({
           where: { id: request.params.id },
-          include: { ...inclusionDossier, utilisateur: { select: { id: true, email: true, telephone: true, emailVerifieLe: true, creeLe: true, derniereConnexion: true } } },
+          include: { ...inclusionDossier, utilisateur: { select: { id: true, email: true, telephone: true, emailVerifieLe: true, creeLe: true, derniereConnexion: true, estDemo: true } } },
         });
         if (!d) throw erreurs.introuvable("Ce dossier");
         const [notes, journal, suivis] = await Promise.all([
@@ -148,6 +150,7 @@ export function routesAdmin(config: Config & { SECRET_LIENS: string }): FastifyP
             emailConfirme: d.utilisateur.emailVerifieLe !== null,
             creeLe: d.utilisateur.creeLe,
             derniereConnexion: d.utilisateur.derniereConnexion,
+            demo: d.utilisateur.estDemo,
           },
           consentements: { traitementLe: d.consentementTraitementLe, recruteursLe: d.consentementRecruteursLe },
           classement: await vueClassement(app.prisma, config, d.id),
@@ -367,6 +370,40 @@ export function routesAdmin(config: Config & { SECRET_LIENS: string }): FastifyP
             modifieLe: l.modifieLe,
           })),
         };
+      },
+    );
+
+    // ---------- Données de démonstration (lot 6) ----------
+
+    app.get(
+      "/admin/demo",
+      { onRequest: admin, schema: { tags: ["Démonstration"], summary: "Données de démonstration présentes ?" } },
+      async () => etatDemo(app.prisma),
+    );
+
+    app.post(
+      "/admin/demo",
+      {
+        onRequest: admin,
+        schema: { tags: ["Démonstration"], summary: "Créer ~20 candidats fictifs, un compte candidat et un compte recruteur de test (mots de passe affichés une fois)" },
+      },
+      async (request, reply) => {
+        const acteur = utilisateurDe(request);
+        if ((await etatDemo(app.prisma)).actif) throw erreurs.conflit("Les données de démonstration existent déjà. Effacez-les d'abord.");
+        const comptes = await creerDonneesDemo(app.prisma, config, acteur.id);
+        await journaliser(app.prisma, { acteurId: acteur.id, role: "ADMIN", action: "DEMO_CREEE", cibleType: "demo", ip: request.ip });
+        return reply.code(201).send({ ...(await etatDemo(app.prisma)), comptes });
+      },
+    );
+
+    app.delete(
+      "/admin/demo",
+      { onRequest: admin, schema: { tags: ["Démonstration"], summary: "Effacer toutes les données de démonstration" } },
+      async (request) => {
+        const acteur = utilisateurDe(request);
+        const nombre = await effacerDonneesDemo(app.prisma);
+        await journaliser(app.prisma, { acteurId: acteur.id, role: "ADMIN", action: "DEMO_EFFACEE", cibleType: "demo", details: { comptes: nombre }, ip: request.ip });
+        return { comptesEffaces: nombre, ...(await etatDemo(app.prisma)) };
       },
     );
   };

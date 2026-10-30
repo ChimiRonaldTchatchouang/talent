@@ -52,8 +52,16 @@ describe("Justificatifs (M4)", () => {
 
   it("refuse un lien de dépôt falsifié", async () => {
     const chemin = await autoriser("CV");
-    const r = await deposer(chemin.replace(/.$/, (c) => (c === "A" ? "B" : "A")), JPEG);
-    expect(r.statusCode).toBe(401);
+    // Dernier caractère modifié (cas qui passait inaperçu avec une comparaison des octets décodés).
+    for (const remplacant of ["A", "B", "C", "D"]) {
+      const falsifie = chemin.replace(/.$/, (c) => (c === remplacant ? "E" : remplacant));
+      expect((await deposer(falsifie, JPEG)).statusCode).toBe(401);
+    }
+    // Contenu modifié (autre type de pièce) : refusé.
+    const [base, jeton] = chemin.split("jeton=");
+    const [charge, signature] = jeton!.split(".");
+    const autre = Buffer.from(JSON.stringify({ ...JSON.parse(Buffer.from(charge!, "base64url").toString()), t: "DIPLOME" })).toString("base64url");
+    expect((await deposer(`${base}jeton=${autre}.${signature}`, JPEG)).statusCode).toBe(401);
   });
 
   it("une pièce refusée peut être redéposée : elle repasse en attente et garde l'historique du refus", async () => {

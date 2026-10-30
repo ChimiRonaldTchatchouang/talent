@@ -43,6 +43,8 @@ model Utilisateur {
   motDePasseHash     String     @map("mot_de_passe_hash")
   etat               EtatCompte @default(ACTIF)
   estPrincipal       Boolean    @default(false) @map("est_principal")
+  /// Compte de démonstration : effaçable d'un clic (lot 6).
+  estDemo            Boolean    @default(false) @map("est_demo")
   emailVerifieLe     DateTime?  @map("email_verifie_le")
   tentativesEchouees Int        @default(0) @map("tentatives_echouees")
   bloqueJusquA       DateTime?  @map("bloque_jusqu_a")
@@ -633,4 +635,26 @@ model ConsultationRecruteur {
 
   @@index([dossierId])
   @@map("consultations_recruteurs")
+}
+
+// ---------- Lot 6 : suppression et démonstration ----------
+
+enum StatutSuppression {
+  EN_ATTENTE
+  TRAITEE
+  ANNULEE
+}
+
+/// Demande de suppression d'un dossier (M11, W10). Une fois traitée, il n'en reste qu'une trace anonyme :
+/// le lien vers le compte est effacé, seules les dates et l'état sont gardés.
+model DemandeSuppression {
+  id            String            @id @default(uuid()) @db.Uuid
+  utilisateurId String?           @map("utilisateur_id") @db.Uuid
+  statut        StatutSuppression @default(EN_ATTENTE)
+  demandeLe     DateTime          @default(now()) @map("demande_le")
+  traiteLe      DateTime?         @map("traite_le")
+  traiteParId   String?           @map("traite_par_id") @db.Uuid
+
+  @@index([statut])
+  @@map("demandes_suppression")
 }

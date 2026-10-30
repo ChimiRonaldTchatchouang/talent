@@ -23,7 +23,8 @@ export const expediteur = (config: Config) => config.EMAIL_EXPEDITEUR || EXPEDIT
  * Un échec d'envoi n'interrompt jamais l'action en cours : il est noté dans le journal.
  */
 export async function envoyerEmail(db: PrismaClient, config: Config, email: Email): Promise<void> {
-  if (!config.RESEND_API_KEY) {
+  // Comptes de démonstration (domaine réservé « .invalid ») : jamais d'envoi réel.
+  if (!config.RESEND_API_KEY || email.a.endsWith("@demo.invalid")) {
     await db.emailEnvoye.create({ data: { destinataire: email.a, sujet: email.sujet, texte: email.texte, statut: "DEMO" } });
     return;
   }

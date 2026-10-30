@@ -21,17 +21,21 @@ export function routesRecruteur(config: Config): FastifyPluginAsyncZod {
   return async (app) => {
     const recruteur = exigerRole("RECRUTEUR");
 
-    const accesDe = async (request: FastifyRequest): Promise<AccesRecruteur> => {
-      const acces = await app.prisma.accesRecruteur.findUnique({ where: { utilisateurId: utilisateurDe(request).id } });
+    const accesDe = async (request: FastifyRequest): Promise<AccesRecruteur & { demo: boolean }> => {
+      const acces = await app.prisma.accesRecruteur.findUnique({
+        where: { utilisateurId: utilisateurDe(request).id },
+        include: { utilisateur: { select: { estDemo: true } } },
+      });
       if (!acces) throw erreurs.accesRefuse();
-      return acces;
+      return { ...acces, demo: acces.utilisateur.estDemo };
     };
+    const perimetreDe = (acces: AccesRecruteur & { demo: boolean }) => perimetre(acces, acces.demo);
 
     /** Sélection en cours ; les profils sortis du périmètre en sont retirés (W8). */
-    const selectionDe = async (acces: AccesRecruteur) => {
+    const selectionDe = async (acces: AccesRecruteur & { demo: boolean }) => {
       const selection = await app.prisma.selection.upsert({ where: { accesId: acces.id }, create: { accesId: acces.id }, update: {}, include: { lignes: true } });
       const visibles = await app.prisma.dossier.findMany({
-        where: { AND: [perimetre(acces), { id: { in: selection.lignes.map((l) => l.dossierId) } }] },
+        where: { AND: [perimetreDe(acces), { id: { in: selection.lignes.map((l) => l.dossierId) } }] },
         include: inclusionProfil,
       });
       const sortis = selection.lignes.filter((l) => !visibles.some((v) => v.id === l.dossierId));
@@ -52,8 +56,8 @@ export function routesRecruteur(config: Config): FastifyPluginAsyncZod {
       };
     };
 
-    const profilVisible = async (request: FastifyRequest, acces: AccesRecruteur, id: string) => {
-      const d = await app.prisma.dossier.findFirst({ where: { AND: [perimetre(acces), { id }] }, include: inclusionProfil });
+    const profilVisible = async (request: FastifyRequest, acces: AccesRecruteur & { demo: boolean }, id: string) => {
+      const d = await app.prisma.dossier.findFirst({ where: { AND: [perimetreDe(acces), { id }] }, include: inclusionProfil });
       if (!d) {
         // Lien direct vers un profil hors périmètre : refusé et journalisé (W8).
         await journaliser(app.prisma, { acteurId: acces.utilisateurId, role: "RECRUTEUR", action: "ACCES_HORS_PERIMETRE", cibleType: "dossier", cibleId: id, ip: request.ip });
@@ -100,7 +104,7 @@ export function routesRecruteur(config: Config): FastifyPluginAsyncZod {
       async (request) => {
         const acces = await accesDe(request);
         const f = request.query;
-        const et: Prisma.DossierWhereInput[] = [perimetre(acces)];
+        const et: Prisma.DossierWhereInput[] = [perimetreDe(acces)];
         if (f.grades.length) et.push({ grade: { grade: { in: f.grades } } });
         if (f.domaineId) et.push({ aTravaille: true, domaineId: f.domaineId });
         if (f.tranches.length) et.push({ aTravaille: true, trancheExperience: { in: f.tranches } });
