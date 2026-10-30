@@ -9,7 +9,7 @@
 - **API du cabinet** (écrans au lot 4) : évaluer le niveau, faire avancer un service, confirmer un grade (refusé pour un A sans pièces vérifiées), corriger un grade avec une raison, libérer un grade. Le candidat est prévenu par e-mail.
 - **Espace candidat** : carte du grade (lettre et couleur, provisoire ou confirmé), « Ce qui te manque », services suggérés, et écran « Pourquoi ce grade ? ».
 
-**Tests** : 18 tests du moteur (T1 à T8 et règles détaillées) et 12 tests d'intégration (T7, T9, T14, T15, services, correction, historique). 98 tests d'API au total.
+**Tests** : 18 tests du moteur (T1 à T8 et règles détaillées) et 12 tests d'intégration (T7, T9, T14, T15, services, correction, historique). 97 tests d'API au total.
 
 
 ## Lot 2 — Espace candidat (30/10/2026)
