@@ -4,7 +4,8 @@ services:
     name: bassin-de-talents-api
     runtime: node
     plan: free
-    region: frankfurt
+    # Même région que la base Neon (AWS US East 2, Ohio) pour limiter la latence.
+    region: ohio
     branch: main
     autoDeploy: true
     buildCommand: corepack enable && pnpm install --frozen-lockfile && pnpm --filter @bdt/api build

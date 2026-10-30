@@ -4,7 +4,7 @@ Trois services gratuits, tous reliés au dépôt GitHub. Chaque fusion dans `mai
 
 ## 1. Base de données : Neon
 
-1. Créer un projet Neon (région Europe, Francfort de préférence, proche de Render).
+1. Créer un projet Neon. Région retenue : AWS US East 2 (Ohio). Render est placé dans la même région (`render.yaml`).
 2. Récupérer deux chaînes de connexion :
    - **avec pooler** (« Pooled connection ») → `DATABASE_URL`
    - **sans pooler** (« Direct connection ») → `DATABASE_URL_DIRECTE` (sert aux migrations)
