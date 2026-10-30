@@ -1,0 +1,25 @@
+# Dépendances
+node_modules/
+.pnpm-store/
+
+# Builds
+dist/
+.next/
+out/
+*.tsbuildinfo
+coverage/
+
+# Secrets : seul .env.example est versionné
+.env
+.env.*
+!.env.example
+
+# Fichiers déposés par les utilisateurs (stockage local de développement)
+uploads/
+apps/api/stockage/
+
+# Divers
+.DS_Store
+*.log
+.vercel
+.turbo
