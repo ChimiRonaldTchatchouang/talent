@@ -203,7 +203,11 @@ export function routesPieces(config: Config & { SECRET_LIENS: string }): Fastify
         if (!lien) throw new ErreurMetier(403, "ACCES_REFUSE", "Ce lien a expiré. Rouvre le document depuis la plateforme.");
         const fichier = await app.prisma.fichier.findUnique({ where: { id: lien.f } });
         if (!fichier) throw erreurs.introuvable("Ce document");
+        // Le site (autre domaine que l'API) doit pouvoir afficher l'aperçu : image ou PDF intégré.
+        reply.removeHeader("x-frame-options");
         return reply
+          .header("Cross-Origin-Resource-Policy", "cross-origin")
+          .header("Content-Security-Policy", `frame-ancestors 'self' ${config.URL_SITE.replace(/\/+$/, "")}`)
           .header("Content-Type", fichier.typeMime)
           .header("Content-Disposition", "inline")
           .header("Cache-Control", "private, no-store")

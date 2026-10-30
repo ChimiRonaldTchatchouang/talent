@@ -172,3 +172,22 @@ export interface Classement {
   elements: ElementExplique[];
   services: ServicePropose[];
 }
+
+export interface ResumeCandidat {
+  id: string;
+  nomComplet: string;
+  initiales: string;
+  metier: string | null;
+  domaine: string | null;
+  ville: string | null;
+  telephone: string | null;
+  grade: Classement["grade"] | null;
+  etatGrade: Classement["etat"] | null;
+  alerte: boolean;
+  manques: string[];
+  piecesAVerifier: number;
+  piecesManquantes: number;
+  justificatifs: string[];
+  passeportValide: boolean;
+  envoyeLe: string | null;
+}

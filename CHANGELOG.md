@@ -1,5 +1,24 @@
 # Journal des livraisons
 
+## Lot 4 — Espace administrateur (30/10/2026)
+
+**Livré**
+- **Tableau de bord** : profils par grade, brouillons, pièces à vérifier, grades provisoires à confirmer, grades à revoir, candidats intéressés par un service, derniers dossiers reçus. Chaque compteur mène à la liste correspondante.
+- **Vivier** en colonnes A, B, C, D et hors bassin, ou en liste. Les cartes affichent les initiales, le métier, la ville, l'état du grade, ce qui manque et les pièces à vérifier.
+- **Filtres combinables** : grade, état du grade, domaine, compétences (validées), ville, langue, test de langue validé, passeport valide, années d'expérience, état des justificatifs, grade à revoir, recherche par nom ou téléphone. Le bouton « Effacer les filtres » apparaît quand il n'y a aucun résultat.
+- **Export Excel (CSV)** de la liste filtrée, sans les pièces, inscrit au journal.
+- **Fiche candidat** :
+  - onglets Personnel, Académique, Professionnel, Matrimonial, Justificatifs, Services et Historique ;
+  - bloc « Pourquoi ce grade » et notes internes ;
+  - confirmer, corriger (raison obligatoire) ou libérer le grade, et évaluer le niveau ;
+  - faire avancer les services et réinitialiser le mot de passe ;
+  - chaque consultation est inscrite au journal.
+- **File de vérification** : aperçu du document à côté des informations déclarées. « Vérifiée », ou « Refusée » avec un motif (choix rapide ou texte libre), qui prévient le candidat par e-mail. L'historique des refus est affiché et le grade est recalculé.
+- **Suivi des services** : demandes par état, avancement en un clic.
+
+**Tests** : 108 tests d'API, dont la recherche de la section 14 (« tous les A et B en BTP avec passeport valide ») et l'export. Parcours complet vérifié dans un navigateur sur des données de démonstration.
+
+
 ## Lot 3 — Moteur de classement (30/10/2026)
 
 **Livré**

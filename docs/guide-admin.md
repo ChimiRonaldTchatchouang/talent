@@ -1,10 +1,40 @@
 # Guide d'utilisation administrateur
 
-Ce guide sera complété au lot 6. Il couvre pour l'instant ce qui est disponible au lot 1.
+Ce guide sera complété au lot 6.
 
 ## Se connecter
 Ouvrez `/connexion` et saisissez votre e-mail et votre mot de passe. Après 5 essais incorrects, le compte est
 bloqué 15 minutes.
+
+## Tableau de bord
+La page d'accueil de l'espace administrateur. Elle montre le nombre de profils par grade et les tâches à faire :
+pièces à vérifier, grades à confirmer, grades à revoir et demandes de services. Cliquez sur un compteur pour
+ouvrir la liste correspondante.
+
+## Vivier
+- **Colonnes** : un profil par carte, rangé par grade. **Liste** : un tableau plus détaillé.
+- **Filtres** : combinez-les librement. Exemple : grade A et B, domaine BTP, « Passeport valide ».
+- **Exporter (Excel)** : télécharge la liste affichée (filtres compris), sans les documents.
+- Cliquez sur un candidat pour ouvrir sa fiche.
+
+## Fiche candidat
+- **Actions sur le grade** :
+  - **Confirmer** : un grade A n'est confirmé que si la pièce d'identité, le diplôme et l'attestation de langue sont vérifiés ;
+  - **Corriger** : choisissez le grade et écrivez la raison ;
+  - **Libérer** : le grade redevient le grade calculé, provisoire.
+- **Niveau dans le domaine** : non évalué, insuffisant ou suffisant. Le grade est recalculé aussitôt.
+- **Services** : faites avancer chaque service (accepté, en cours, réalisé). Un service réalisé met le grade à jour.
+- **Notes internes** : visibles uniquement par le cabinet.
+- **Réinitialiser le mot de passe** (onglet Personnel) : pour un candidat sans e-mail. Le mot de passe provisoire
+  n'est affiché qu'une fois.
+
+## Pièces à vérifier
+Chaque document s'affiche à côté de ce que le candidat a déclaré. Cliquez sur **Vérifiée**, ou sur **Refuser** :
+choisissez un motif ou écrivez-le. Le candidat reçoit le motif par e-mail et peut déposer une nouvelle pièce, qui
+revient dans la file.
+
+## Services
+La liste des candidats intéressés par un service, et des services en cours. Un clic fait passer à l'étape suivante.
 
 ## Listes de référence
 Menu **Listes de référence** : domaines, compétences, tests de langue, services et diplômes.

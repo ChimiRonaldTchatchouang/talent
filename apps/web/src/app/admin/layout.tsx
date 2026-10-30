@@ -4,13 +4,16 @@ import { Box, Button, Flex, HStack, Spinner, Stack, Text } from "@chakra-ui/reac
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import type { ReactNode } from "react";
-import { LuLayoutDashboard, LuListChecks, LuLogOut, LuSettings, LuSlidersHorizontal, LuUsers } from "react-icons/lu";
+import { LuFileCheck, LuHandHelping, LuLayoutDashboard, LuListChecks, LuLogOut, LuSettings, LuSlidersHorizontal, LuUsers, LuUsersRound } from "react-icons/lu";
 import { Logo } from "@/components/marque";
 import { api } from "@/lib/api";
 import { useSession } from "@/lib/session";
 
 const MENU = [
   { href: "/admin", libelle: "Tableau de bord", icone: LuLayoutDashboard },
+  { href: "/admin/vivier", libelle: "Vivier", icone: LuUsersRound },
+  { href: "/admin/verifications", libelle: "Pièces à vérifier", icone: LuFileCheck },
+  { href: "/admin/services", libelle: "Services", icone: LuHandHelping },
   { href: "/admin/referentiels", libelle: "Listes de référence", icone: LuListChecks },
   { href: "/admin/parametres", libelle: "Paramètres", icone: LuSlidersHorizontal },
   { href: "/admin/administrateurs", libelle: "Administrateurs", icone: LuUsers },
@@ -54,7 +57,8 @@ export default function MiseEnPageAdmin({ children }: { children: ReactNode }) {
         </Box>
         <Stack gap="1" direction={{ base: "row", lg: "column" }} overflowX="auto" px={{ base: "4", lg: "0" }}>
           {MENU.map(({ href, libelle, icone: Icone }) => {
-            const actif = href === "/admin" ? chemin === "/admin" : chemin.startsWith(href);
+            const actif =
+              href === "/admin" ? chemin === "/admin" : chemin.startsWith(href) || (href === "/admin/vivier" && chemin.startsWith("/admin/candidats"));
             return (
               <Link key={href} href={href}>
                 <HStack

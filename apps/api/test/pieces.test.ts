@@ -92,6 +92,10 @@ describe("Justificatifs (M4)", () => {
     expect(fichier.statusCode).toBe(200);
     expect(fichier.headers["content-type"]).toBe("application/pdf");
     expect(fichier.headers["cache-control"]).toBe("private, no-store");
+    // Aperçu possible depuis le site (autre domaine), mais pas depuis n'importe quel site.
+    expect(fichier.headers["cross-origin-resource-policy"]).toBe("cross-origin");
+    expect(fichier.headers["x-frame-options"]).toBeUndefined();
+    expect(fichier.headers["content-security-policy"]).toContain("frame-ancestors 'self' http://localhost:3000");
     expect(fichier.body).toContain("%PDF-");
 
     // Lien modifié : refusé.
