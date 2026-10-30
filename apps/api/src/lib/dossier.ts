@@ -67,9 +67,12 @@ export function champsManquants(d: DossierComplet, etape: EtapeFormulaire): Manq
   return m;
 }
 
-/** Champs propres à chaque étape, pour savoir si une étape est « en cours ». */
+/**
+ * Champs propres à chaque étape, pour savoir si une étape est « en cours ».
+ * Le téléphone et l'e-mail de contact sont préremplis à l'inscription : ils ne comptent pas.
+ */
 const CHAMPS_ETAPE: Record<EtapeFormulaire, string[]> = {
-  PERSONNEL: ["nom", "prenoms", "dateNaissance", "sexe", "nationalite", "ville", "telephoneContact", "emailContact", "aPasseport"],
+  PERSONNEL: ["nom", "prenoms", "dateNaissance", "sexe", "nationalite", "ville", "aPasseport"],
   DIPLOME: ["aDiplome"],
   LANGUES: ["aTestLangue"],
   TRAVAIL: ["aTravaille"],

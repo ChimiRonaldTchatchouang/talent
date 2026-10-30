@@ -1,5 +1,21 @@
 # Journal des livraisons
 
+## Lot 2 — Espace candidat (30/10/2026)
+
+**Livré**
+- **Page d'accueil** pensée pour le téléphone : présentation, quatre étapes, les grades, les services du cabinet, avertissement « ni emploi, ni visa, ni départ ». Illustrations provisoires en attendant les photos (D-22).
+- **Inscription** par e-mail (ou téléphone) et mot de passe, avec les deux consentements datés. Confirmation de l'e-mail et mot de passe oublié par lien, ou renvoi vers le cabinet pour un compte sans e-mail.
+- **Sommaire du dossier** : progression, état de chaque étape (à faire, en cours, terminé, sauté), « Reprendre où je me suis arrêté », accord recruteurs modifiable.
+- **Dossier en 5 étapes**, une question ou un petit groupe par écran. Questions filtres (diplôme, test de langue, expérience) : la section masquée est gardée mais ignorée, et réapparaît si la réponse repasse à Oui. Expériences sur plusieurs lignes, compétences de la liste ou proposées par le candidat.
+- **Enregistrement automatique** à chaque écran, et reprise après une nouvelle connexion.
+- **Justificatifs** : seules les pièces utiles sont demandées. Photo (appareil du téléphone) ou fichier JPG, PNG, PDF jusqu'à 10 Mo, photos compressées avant l'envoi. États déposée, vérifiée, refusée (avec motif), redépôt possible. Sans réseau, le fichier est envoyé automatiquement au retour du réseau. Fichiers privés, ouverts par lien temporaire.
+- **Récapitulatif** avec « Modifier » par section, case « je certifie l'exactitude » et envoi. L'envoi est possible avec des pièces manquantes, qui sont listées.
+- **E-mails** (Resend, ou mode démo sans clé) : compte créé, confirmation, mot de passe oublié, dossier envoyé (candidat et administrateurs). Journal des e-mails visible dans Admin → Réglages.
+- **Admin → Réglages** : téléphone et e-mail du cabinet.
+
+**Tests** : 67 tests d'API, dont T12 (reprise à la dernière étape) et T13 (même numéro refusé). Parcours complet vérifié dans un navigateur au format téléphone, de l'inscription à la réception par l'administrateur.
+
+
 ## Lot 1 — Fondations (30/10/2026)
 
 **Livré**

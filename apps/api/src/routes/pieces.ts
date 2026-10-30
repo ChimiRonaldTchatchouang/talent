@@ -31,7 +31,7 @@ export function detecterFormat(contenu: Buffer): "image/jpeg" | "image/png" | "a
   return null;
 }
 
-export function routesPieces(config: Config): FastifyPluginAsyncZod {
+export function routesPieces(config: Config & { SECRET_LIENS: string }): FastifyPluginAsyncZod {
   /**
    * Adresse à utiliser par le navigateur. Absolue quand l'adresse publique de l'API est connue
    * (téléversement direct, sans passer par le relais du site) ; sinon relative au site (/api/…).

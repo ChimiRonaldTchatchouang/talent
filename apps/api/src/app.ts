@@ -17,6 +17,7 @@ import {
 } from "fastify-type-provider-zod";
 import type { Config } from "./lib/config.js";
 import { ErreurMetier } from "./lib/erreurs.js";
+import { secretLiens } from "./lib/reglages.js";
 import { pluginAuthentification } from "./plugins/authentification.js";
 import { routesAdministrateurs } from "./routes/administrateurs.js";
 import { routesAuth } from "./routes/auth.js";
@@ -32,7 +33,11 @@ function corps(code: string, message: string, details?: Record<string, string>):
   return { erreur: { code, message, ...(details ? { details } : {}) } };
 }
 
-export async function construireApp(config: Config, prisma: PrismaClient) {
+export async function construireApp(configBrute: Config, prisma: PrismaClient) {
+  const config: Config & { SECRET_LIENS: string } = {
+    ...configBrute,
+    SECRET_LIENS: configBrute.SECRET_LIENS ?? (await secretLiens(prisma)),
+  };
   const app = Fastify({
     logger: config.NODE_ENV === "test" ? false : { level: "info", redact: ["req.headers.cookie"] },
     trustProxy: true,

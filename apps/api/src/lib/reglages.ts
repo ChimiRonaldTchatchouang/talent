@@ -1,3 +1,4 @@
+import { randomBytes } from "node:crypto";
 import type { PrismaClient } from "@prisma/client";
 import { z } from "zod";
 
@@ -17,4 +18,12 @@ export async function lireReglages(db: PrismaClient): Promise<Reglages> {
 
 export async function ecrireReglages(db: PrismaClient, valeurs: Reglages): Promise<void> {
   await db.reglage.upsert({ where: { cle: "plateforme" }, create: { cle: "plateforme", valeur: valeurs }, update: { valeur: valeurs } });
+}
+
+/** Clé de signature des liens : créée au hasard une seule fois, puis réutilisée à chaque démarrage. */
+export async function secretLiens(db: PrismaClient): Promise<string> {
+  const nouveau = randomBytes(48).toString("base64url");
+  await db.reglage.upsert({ where: { cle: "secret_liens" }, create: { cle: "secret_liens", valeur: nouveau }, update: {} });
+  const ligne = await db.reglage.findUniqueOrThrow({ where: { cle: "secret_liens" } });
+  return ligne.valeur as string;
 }

@@ -100,11 +100,12 @@ export function routesCandidat(config: Config): FastifyPluginAsyncZod {
         if (competenceIds) {
           const deja = new Set(avant.competences.map((c) => c.competenceId));
           const nouvelles = [...new Set(competenceIds)].filter((id) => !deja.has(id));
-          // Autorisées : compétences validées et actives, ou proposées par le candidat lui-même.
+          // Autorisées : compétences validées et actives, ou en attente de validation (plusieurs candidats
+          // peuvent proposer la même). Les compétences rejetées ou désactivées sont refusées.
           const valides = await app.prisma.competence.count({
             where: {
               id: { in: nouvelles },
-              OR: [{ statut: "VALIDEE", actif: true }, { statut: "PROPOSEE", proposeeParId: moi.id }],
+              OR: [{ statut: "VALIDEE", actif: true }, { statut: "PROPOSEE" }],
             },
           });
           if (valides !== nouvelles.length) throw erreurs.invalide("Une compétence choisie n'est pas disponible.", { competenceIds: "Choix invalide." });

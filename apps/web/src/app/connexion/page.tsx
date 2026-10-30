@@ -3,6 +3,7 @@
 import { Alert, Box, Button, Field, Heading, Input, Stack, Text } from "@chakra-ui/react";
 import { useRouter } from "next/navigation";
 import { type FormEvent, useState } from "react";
+import { Lien } from "@/components/cadre-compte";
 import { Carte } from "@/components/carte";
 import { Logo } from "@/components/marque";
 import { api, ErreurClient } from "@/lib/api";
@@ -89,9 +90,13 @@ export default function Connexion() {
               <Button type="submit" size="lg" colorPalette="emeraude" loading={envoi} loadingText="Connexion…">
                 Se connecter
               </Button>
+              <Lien href="/mot-de-passe-oublie">Mot de passe oublié ?</Lien>
             </Stack>
           </form>
         </Carte>
+        <Text textAlign="center" color="gris">
+          Pas encore de compte ? <Lien href="/inscription">Créer mon profil</Lien>
+        </Text>
       </Stack>
     </Box>
   );

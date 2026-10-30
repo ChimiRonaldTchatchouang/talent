@@ -23,8 +23,10 @@ const LIBELLES_PIECES = {
   CV: "CV",
 } as const;
 
-function basculer<T>(liste: T[], valeur: T): T[] {
-  return liste.includes(valeur) ? liste.filter((v) => v !== valeur) : [...liste, valeur];
+/** Ajoute ou retire selon l'état de la case (et non en inversant : l'événement peut arriver deux fois). */
+function selon<T>(liste: T[], valeur: T, coche: boolean): T[] {
+  if (coche) return liste.includes(valeur) ? liste : [...liste, valeur];
+  return liste.filter((v) => v !== valeur);
 }
 
 export default function PageParametres() {
@@ -127,8 +129,8 @@ export default function PageParametres() {
                 key={e}
                 colorPalette="emeraude"
                 checked={valeurs.elementsSuggeresGradeD.includes(e)}
-                onCheckedChange={() =>
-                  setValeurs({ ...valeurs, elementsSuggeresGradeD: basculer(valeurs.elementsSuggeresGradeD, e) })
+                onCheckedChange={(c) =>
+                  setValeurs({ ...valeurs, elementsSuggeresGradeD: selon(valeurs.elementsSuggeresGradeD, e, !!c.checked) })
                 }
               >
                 <Checkbox.HiddenInput />
@@ -152,8 +154,8 @@ export default function PageParametres() {
                 key={p}
                 colorPalette="emeraude"
                 checked={valeurs.piecesRequisesGradeA.includes(p)}
-                onCheckedChange={() =>
-                  setValeurs({ ...valeurs, piecesRequisesGradeA: basculer(valeurs.piecesRequisesGradeA, p) })
+                onCheckedChange={(c) =>
+                  setValeurs({ ...valeurs, piecesRequisesGradeA: selon(valeurs.piecesRequisesGradeA, p, !!c.checked) })
                 }
               >
                 <Checkbox.HiddenInput />

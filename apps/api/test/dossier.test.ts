@@ -133,9 +133,21 @@ describe("Étapes du dossier (W2)", () => {
     expect(r.dossier.experiences).toHaveLength(2);
     expect(r.dossier.competences.map((c: { nom: string }) => c.nom).sort()).toEqual(["Maçonnerie", "Échafaudage"].sort());
 
-    // La compétence proposée par un autre candidat n'est pas utilisable.
+    // Un autre candidat qui propose la même compétence obtient la même et peut l'utiliser.
     const autre = await inscrire(app, "autre@exemple.cm");
-    const refus = await enregistrer("TRAVAIL", { competenceIds: [proposee.json().competence.id] }, false, autre);
+    const meme = await app.inject({
+      method: "POST",
+      url: "/candidat/competences",
+      payload: { domaineId: btp.id, nom: "échafaudage" },
+      headers: { cookie: autre },
+    });
+    expect(meme.json().competence.id).toBe(proposee.json().competence.id);
+    expect((await enregistrer("TRAVAIL", { competenceIds: [meme.json().competence.id] }, false, autre)).statusCode).toBe(200);
+
+    // Une compétence rejetée par le cabinet n'est plus utilisable.
+    await prisma.competence.update({ where: { id: proposee.json().competence.id }, data: { statut: "REJETEE" } });
+    const troisieme = await inscrire(app, "trois@exemple.cm");
+    const refus = await enregistrer("TRAVAIL", { competenceIds: [proposee.json().competence.id] }, false, troisieme);
     expect(refus.statusCode).toBe(400);
   });
 
@@ -183,5 +195,14 @@ describe("Étapes du dossier (W2)", () => {
     const cookieAdmin = await connecter(app, admin.email!);
     expect((await app.inject({ method: "GET", url: "/candidat/dossier", headers: { cookie: cookieAdmin } })).statusCode).toBe(403);
     expect((await app.inject({ method: "GET", url: "/admin/emails", headers: { cookie } })).statusCode).toBe(403);
+  });
+});
+
+describe("Nouveau dossier", () => {
+  it("toutes les étapes sont « à faire » juste après l'inscription, malgré le contact prérempli", async () => {
+    const d = await dossier();
+    expect(d.etapes.every((e: { etat: string }) => e.etat === "A_FAIRE")).toBe(true);
+    expect(d.etapeReprise).toBe("PERSONNEL");
+    expect(d.dossier.emailContact).toBe("awa@exemple.cm");
   });
 });

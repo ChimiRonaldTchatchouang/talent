@@ -19,3 +19,10 @@ nouvelle version et est inscrit au journal.
 
 ## Administrateurs
 Seul l'administrateur principal peut créer, désactiver ou réactiver un compte administrateur.
+
+## Réglages et e-mails
+Menu **Réglages et e-mails** :
+- **Coordonnées du cabinet** : le téléphone saisi ici est affiché aux candidats sans e-mail qui ont oublié leur mot de passe.
+- **E-mails envoyés** : les 100 derniers e-mails. Cliquez sur un e-mail pour lire son contenu.
+  Tant que le service d'envoi (Resend) n'est pas configuré, les e-mails ne partent pas : ils sont seulement listés ici (« mode démo »).
+

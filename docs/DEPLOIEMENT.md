@@ -38,7 +38,21 @@ Trois services gratuits, tous reliés au dépôt GitHub. Chaque fusion dans `mai
 2. Dans Hostinger → *DNS* : créer l'enregistrement indiqué par Vercel (CNAME `cname.vercel-dns.com`, ou A `76.76.21.21` pour le domaine racine).
 3. HTTPS est automatique. Mettre ensuite `URL_SITE` à jour sur Render.
 
-## 5. E-mails : Resend (lot 2)
+## 5. E-mails : Resend
 
-1. Créer un compte Resend, ajouter le domaine du client et copier les enregistrements DNS dans Hostinger (SPF, DKIM).
-2. Renseigner `RESEND_API_KEY` et `EMAIL_EXPEDITEUR` sur Render.
+Sans configuration, la plateforme fonctionne en **mode démo** : les e-mails ne partent pas, ils sont listés dans
+Admin → Réglages (liens de confirmation compris).
+
+1. Créer un compte sur resend.com.
+2. *Domains* → ajouter le domaine du client, puis copier les enregistrements DNS (SPF, DKIM) dans Hostinger → DNS.
+   Attendre que Resend affiche « Verified ».
+3. *API Keys* → créer une clé « Sending access ».
+4. Sur Render → *Environment* :
+   - `RESEND_API_KEY` = la clé (à saisir directement dans Render, jamais dans un message ni dans le dépôt)
+   - `EMAIL_EXPEDITEUR` = `Bassin de Talents <contact@domaine-du-client.cm>` (adresse du domaine vérifié)
+5. Sans domaine vérifié, Resend n'envoie qu'à l'adresse du titulaire du compte : utile pour tester seulement.
+
+## 6. Dépôt des fichiers
+
+Le téléphone envoie les pièces directement à l'API Render (adresse fournie automatiquement par Render). Il faut
+seulement que `URL_SITE`, sur Render, soit exactement l'adresse du site : elle autorise ces envois (CORS).

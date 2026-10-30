@@ -109,3 +109,13 @@ describe("Justificatifs (M4)", () => {
     expect(await prisma.fichier.count()).toBe(0);
   });
 });
+
+describe("Clé des liens temporaires", () => {
+  it("est créée une seule fois et réutilisée à chaque démarrage", async () => {
+    const { secretLiens } = await import("../src/lib/reglages.js");
+    const a = await secretLiens(prisma);
+    const b = await secretLiens(prisma);
+    expect(a).toBe(b);
+    expect(a.length).toBeGreaterThanOrEqual(32);
+  });
+});

@@ -24,7 +24,7 @@ export async function viderBase(prisma: PrismaClient): Promise<void> {
   await prisma.dossier.deleteMany();
   await prisma.jeton.deleteMany();
   await prisma.emailEnvoye.deleteMany();
-  await prisma.reglage.deleteMany();
+  await prisma.reglage.deleteMany({ where: { cle: { not: "secret_liens" } } });
   await prisma.parametresClassement.deleteMany();
   await prisma.competence.deleteMany();
   await prisma.domaine.deleteMany();

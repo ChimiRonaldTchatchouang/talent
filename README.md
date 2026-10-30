@@ -14,7 +14,8 @@ Réalisation : Nextiaa. La spécification complète est dans [`SPECIFICATION.md`
 5. **E-mails : Resend** (3 000 e-mails par mois gratuits). Sans clé configurée, les e-mails sont écrits dans un journal (mode démo).
 6. Le navigateur appelle `/api/...` sur le domaine du site, et Vercel relaie vers Render. Les cookies de session restent sécurisés (HttpOnly, SameSite).
 7. Domaine Hostinger (déjà payé) : il pointe vers Vercel, avec HTTPS automatique.
-8. **Coût mensuel : 0 FCFA** avec les offres gratuites. Limites à connaître : voir [`DECISIONS.md`](DECISIONS.md) (D-03 et D-04).
+8. Pièces justificatives : stockées dans la base, privées, ouvertes par lien temporaire (voir D-18).
+9. **Coût mensuel : 0 FCFA** avec les offres gratuites. Limites à connaître : voir [`DECISIONS.md`](DECISIONS.md) (D-03 et D-04).
 
 ## Structure
 
@@ -52,7 +53,7 @@ pnpm dev:api
 pnpm dev:web
 ```
 
-- Site : http://localhost:3000 (connexion : `/connexion`, charte : `/charte`)
+- Site : http://localhost:3000 (inscription : `/inscription`, connexion : `/connexion`, charte : `/charte`)
 - Documentation de l'API (OpenAPI) : http://localhost:4000/documentation
 
 ## Vérifications
