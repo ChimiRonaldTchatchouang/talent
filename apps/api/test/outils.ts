@@ -19,6 +19,12 @@ export async function demarrer(): Promise<{ app: App; prisma: PrismaClient }> {
 /** Vide les tables (sauf le journal, qui ne peut pas être vidé) et recharge les listes de départ. */
 export async function viderBase(prisma: PrismaClient): Promise<void> {
   await prisma.session.deleteMany();
+  await prisma.piece.deleteMany();
+  await prisma.fichier.deleteMany();
+  await prisma.dossier.deleteMany();
+  await prisma.jeton.deleteMany();
+  await prisma.emailEnvoye.deleteMany();
+  await prisma.reglage.deleteMany();
   await prisma.parametresClassement.deleteMany();
   await prisma.competence.deleteMany();
   await prisma.domaine.deleteMany();
@@ -55,4 +61,38 @@ export async function connecter(app: App, identifiant: string, motDePasse = MOT_
   const cookie = rep.cookies.find((c) => c.name === "bdt_session");
   if (!cookie) throw new Error("Cookie de session absent");
   return `bdt_session=${cookie.value}`;
+}
+
+/** Corps multipart/form-data contenant un seul fichier. */
+export function corpsMultipart(contenu: Buffer, nom = "document.jpg", type = "image/jpeg") {
+  const limite = "----bdt" + Math.random().toString(16).slice(2);
+  const corps = Buffer.concat([
+    Buffer.from(`--${limite}\r\nContent-Disposition: form-data; name="fichier"; filename="${nom}"\r\nContent-Type: ${type}\r\n\r\n`),
+    contenu,
+    Buffer.from(`\r\n--${limite}--\r\n`),
+  ]);
+  return { payload: corps, headers: { "content-type": `multipart/form-data; boundary=${limite}` } };
+}
+
+export const JPEG = Buffer.concat([Buffer.from([0xff, 0xd8, 0xff, 0xe0]), Buffer.alloc(2000, 7)]);
+export const PDF = Buffer.from("%PDF-1.4\n% faux document de test\n");
+
+/** Inscrit un candidat et renvoie le cookie de session. */
+export async function inscrire(app: App, identifiant: string, recruteurs = true): Promise<string> {
+  const rep = await app.inject({
+    method: "POST",
+    url: "/auth/inscription",
+    payload: { identifiant, motDePasse: MOT_DE_PASSE, consentementTraitement: true, consentementRecruteurs: recruteurs },
+  });
+  if (rep.statusCode !== 201) throw new Error(`Inscription impossible : ${rep.body}`);
+  const cookie = rep.cookies.find((c) => c.name === "bdt_session");
+  return `bdt_session=${cookie!.value}`;
+}
+
+/** Extrait le jeton d'un lien (…?jeton=XXX) contenu dans le dernier e-mail envoyé à cette adresse. */
+export async function jetonDuDernierEmail(prisma: PrismaClient, destinataire: string): Promise<string> {
+  const email = await prisma.emailEnvoye.findFirstOrThrow({ where: { destinataire }, orderBy: { creeLe: "desc" } });
+  const trouve = /jeton=([A-Za-z0-9_-]+)/.exec(email.texte);
+  if (!trouve?.[1]) throw new Error("Aucun lien dans l'e-mail");
+  return trouve[1];
 }

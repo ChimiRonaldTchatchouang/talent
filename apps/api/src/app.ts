@@ -1,10 +1,11 @@
 import cookie from "@fastify/cookie";
 import cors from "@fastify/cors";
 import helmet from "@fastify/helmet";
+import multipart from "@fastify/multipart";
 import rateLimit from "@fastify/rate-limit";
 import swagger from "@fastify/swagger";
 import swaggerUi from "@fastify/swagger-ui";
-import { CODES_ERREUR, MARQUE, type ErreurApi } from "@bdt/shared";
+import { CODES_ERREUR, MARQUE, TAILLE_MAX_FICHIER, type ErreurApi } from "@bdt/shared";
 import type { PrismaClient } from "@prisma/client";
 import Fastify, { type FastifyError } from "fastify";
 import {
@@ -19,6 +20,10 @@ import { ErreurMetier } from "./lib/erreurs.js";
 import { pluginAuthentification } from "./plugins/authentification.js";
 import { routesAdministrateurs } from "./routes/administrateurs.js";
 import { routesAuth } from "./routes/auth.js";
+import { routesCandidat } from "./routes/candidat.js";
+import { routesComptesCandidat } from "./routes/comptes-candidat.js";
+import { routesPieces } from "./routes/pieces.js";
+import { routesPlateformeAdmin } from "./routes/plateforme-admin.js";
 import { routesJournal } from "./routes/journal.js";
 import { routesParametres } from "./routes/parametres.js";
 import { routesReferentiels } from "./routes/referentiels.js";
@@ -41,7 +46,10 @@ export async function construireApp(config: Config, prisma: PrismaClient) {
   await app.register(helmet, { contentSecurityPolicy: false });
   await app.register(cors, { origin: config.URL_SITE, credentials: true });
   await app.register(cookie);
+  await app.register(multipart, { limits: { fileSize: TAILLE_MAX_FICHIER, files: 1, fields: 5 } });
   await app.register(rateLimit, {
+    // Pas de limite de débit pendant les tests automatiques (ils enchaînent des dizaines de demandes).
+    allowList: () => config.NODE_ENV === "test",
     max: 300,
     timeWindow: "1 minute",
     errorResponseBuilder: () => ({
@@ -100,6 +108,10 @@ export async function construireApp(config: Config, prisma: PrismaClient) {
   await app.register(routesParametres);
   await app.register(routesAdministrateurs);
   await app.register(routesJournal);
+  await app.register(routesComptesCandidat(config));
+  await app.register(routesCandidat(config));
+  await app.register(routesPieces(config));
+  await app.register(routesPlateformeAdmin(config));
 
   return app;
 }

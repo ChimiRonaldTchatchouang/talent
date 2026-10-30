@@ -51,9 +51,11 @@ model Utilisateur {
   modifieLe          DateTime   @updatedAt @map("modifie_le")
   creeParId          String?    @map("cree_par_id") @db.Uuid
 
-  sessions               Session[]
-  competencesProposees   Competence[]            @relation("CompetenceProposee")
-  versionsParametres     ParametresClassement[]
+  sessions             Session[]
+  dossier              Dossier?
+  jetons               Jeton[]
+  competencesProposees Competence[]           @relation("CompetenceProposee")
+  versionsParametres   ParametresClassement[]
 
   @@map("utilisateurs")
 }
@@ -94,21 +96,24 @@ model Domaine {
   creeLe      DateTime     @default(now()) @map("cree_le")
   modifieLe   DateTime     @updatedAt @map("modifie_le")
   competences Competence[]
+  dossiers    Dossier[]
 
   @@map("domaines")
 }
 
 model Competence {
-  id             String           @id @default(uuid()) @db.Uuid
-  nom            String
-  domaineId      String           @map("domaine_id") @db.Uuid
-  domaine        Domaine          @relation(fields: [domaineId], references: [id])
-  statut         StatutCompetence @default(VALIDEE)
-  actif          Boolean          @default(true)
-  proposeeParId  String?          @map("proposee_par_id") @db.Uuid
-  proposeePar    Utilisateur?     @relation("CompetenceProposee", fields: [proposeeParId], references: [id], onDelete: SetNull)
-  creeLe         DateTime         @default(now()) @map("cree_le")
-  modifieLe      DateTime         @updatedAt @map("modifie_le")
+  id            String           @id @default(uuid()) @db.Uuid
+  nom           String
+  domaineId     String           @map("domaine_id") @db.Uuid
+  domaine       Domaine          @relation(fields: [domaineId], references: [id])
+  statut        StatutCompetence @default(VALIDEE)
+  actif         Boolean          @default(true)
+  proposeeParId String?          @map("proposee_par_id") @db.Uuid
+  proposeePar   Utilisateur?     @relation("CompetenceProposee", fields: [proposeeParId], references: [id], onDelete: SetNull)
+  creeLe        DateTime         @default(now()) @map("cree_le")
+  modifieLe     DateTime         @updatedAt @map("modifie_le")
+
+  dossiers DossierCompetence[]
 
   @@unique([domaineId, nom])
   @@index([statut])
@@ -116,13 +121,14 @@ model Competence {
 }
 
 model TestLangue {
-  id           String   @id @default(uuid()) @db.Uuid
-  nom          String   @unique
+  id           String    @id @default(uuid()) @db.Uuid
+  nom          String    @unique
   /// Score minimum accepté. Vide : pas de comparaison automatique (vérification par l'administrateur).
-  scoreMinimum Decimal? @map("score_minimum") @db.Decimal(7, 1)
-  actif        Boolean  @default(true)
-  creeLe       DateTime @default(now()) @map("cree_le")
-  modifieLe    DateTime @updatedAt @map("modifie_le")
+  scoreMinimum Decimal?  @map("score_minimum") @db.Decimal(7, 1)
+  actif        Boolean   @default(true)
+  creeLe       DateTime  @default(now()) @map("cree_le")
+  modifieLe    DateTime  @updatedAt @map("modifie_le")
+  dossiers     Dossier[]
 
   @@map("tests_langue")
 }
@@ -141,12 +147,13 @@ model Service {
 }
 
 model Diplome {
-  id        String   @id @default(uuid()) @db.Uuid
-  nom       String   @unique
+  id        String    @id @default(uuid()) @db.Uuid
+  nom       String    @unique
   ordre     Int
-  actif     Boolean  @default(true)
-  creeLe    DateTime @default(now()) @map("cree_le")
-  modifieLe DateTime @updatedAt @map("modifie_le")
+  actif     Boolean   @default(true)
+  creeLe    DateTime  @default(now()) @map("cree_le")
+  modifieLe DateTime  @updatedAt @map("modifie_le")
+  dossiers  Dossier[]
 
   @@map("diplomes")
 }
@@ -160,4 +167,248 @@ model ParametresClassement {
   creeLe    DateTime     @default(now()) @map("cree_le")
 
   @@map("parametres_classement")
+}
+
+// ---------- Lot 2 : espace candidat ----------
+
+enum StatutDossier {
+  BROUILLON
+  ENVOYE
+}
+
+enum Sexe {
+  FEMME
+  HOMME
+}
+
+enum TrancheExperience {
+  ANS_0_2
+  ANS_3_5
+  ANS_6_10
+  ANS_10_PLUS
+}
+
+enum NiveauBureautique {
+  DEBUTANT
+  MOYEN
+  BON
+}
+
+enum Situation {
+  CELIBATAIRE
+  MARIE
+  UNION_LIBRE
+  AUTRE
+}
+
+enum Enfants {
+  AUCUN
+  UN
+  DEUX
+  TROIS_PLUS
+}
+
+enum TypePiece {
+  IDENTITE
+  DIPLOME
+  ATTESTATION_LANGUE
+  CERTIFICAT_TRAVAIL
+  CV
+}
+
+enum EtatPiece {
+  DEPOSEE
+  VERIFIEE
+  REFUSEE
+}
+
+enum TypeJeton {
+  CONFIRMATION_EMAIL
+  REINITIALISATION
+}
+
+enum StatutEmail {
+  ENVOYE
+  ECHEC
+  DEMO
+}
+
+/// Dossier du candidat. Les réponses d'une section masquée (filtre passé à Non) sont conservées
+/// mais ignorées ; elles réapparaissent si le filtre repasse à Oui.
+model Dossier {
+  id                       String        @id @default(uuid()) @db.Uuid
+  utilisateurId            String        @unique @map("utilisateur_id") @db.Uuid
+  utilisateur              Utilisateur   @relation(fields: [utilisateurId], references: [id], onDelete: Cascade)
+  statut                   StatutDossier @default(BROUILLON)
+  derniereEtape            String?       @map("derniere_etape")
+  envoyeLe                 DateTime?     @map("envoye_le")
+  certifieLe               DateTime?     @map("certifie_le")
+  consentementTraitementLe DateTime      @map("consentement_traitement_le")
+  consentementRecruteursLe DateTime?     @map("consentement_recruteurs_le")
+
+  // Informations personnelles
+  nom                 String?
+  prenoms             String?
+  dateNaissance       DateTime? @map("date_naissance") @db.Date
+  sexe                Sexe?
+  nationalite         String?
+  ville               String?
+  telephoneContact    String?   @map("telephone_contact")
+  emailContact        String?   @map("email_contact")
+  languesParlees      String[]  @default([]) @map("langues_parlees")
+  aPasseport          Boolean?  @map("a_passeport")
+  passeportExpiration DateTime? @map("passeport_expiration") @db.Date
+
+  // Études
+  aDiplome        Boolean? @map("a_diplome")
+  diplomeId       String?  @map("diplome_id") @db.Uuid
+  diplome         Diplome? @relation(fields: [diplomeId], references: [id])
+  diplomeIntitule String?  @map("diplome_intitule")
+  filiere         String?
+  etablissement   String?
+  diplomeAnnee    Int?     @map("diplome_annee")
+  diplomePays     String?  @map("diplome_pays")
+
+  // Langues
+  aTestLangue  Boolean?    @map("a_test_langue")
+  testLangueId String?     @map("test_langue_id") @db.Uuid
+  testLangue   TestLangue? @relation(fields: [testLangueId], references: [id])
+  testScore    Decimal?    @map("test_score") @db.Decimal(7, 1)
+  testDate     DateTime?   @map("test_date") @db.Date
+
+  // Expérience professionnelle
+  aTravaille        Boolean?           @map("a_travaille")
+  domaineId         String?            @map("domaine_id") @db.Uuid
+  domaine           Domaine?           @relation(fields: [domaineId], references: [id])
+  metier            String?
+  trancheExperience TrancheExperience? @map("tranche_experience")
+  bureautique       NiveauBureautique?
+
+  // Situation familiale
+  situation             Situation?
+  conjointNom           String?    @map("conjoint_nom")
+  conjointProfession    String?    @map("conjoint_profession")
+  conjointPasseport     Boolean?   @map("conjoint_passeport")
+  enfants               Enfants?
+  partAvecAccompagnants Boolean?   @map("part_avec_accompagnants")
+  nombreAccompagnants   Int?       @map("nombre_accompagnants")
+
+  creeLe    DateTime @default(now()) @map("cree_le")
+  modifieLe DateTime @updatedAt @map("modifie_le")
+
+  experiences Experience[]
+  competences DossierCompetence[]
+  pieces      Piece[]
+
+  @@index([statut])
+  @@map("dossiers")
+}
+
+model Experience {
+  id        String  @id @default(uuid()) @db.Uuid
+  dossierId String  @map("dossier_id") @db.Uuid
+  dossier   Dossier @relation(fields: [dossierId], references: [id], onDelete: Cascade)
+  ordre     Int
+  employeur String
+  poste     String
+  debut     String?
+  fin       String?
+  ville     String?
+
+  @@index([dossierId])
+  @@map("experiences")
+}
+
+model DossierCompetence {
+  dossierId    String     @map("dossier_id") @db.Uuid
+  dossier      Dossier    @relation(fields: [dossierId], references: [id], onDelete: Cascade)
+  competenceId String     @map("competence_id") @db.Uuid
+  competence   Competence @relation(fields: [competenceId], references: [id])
+
+  @@id([dossierId, competenceId])
+  @@map("dossier_competences")
+}
+
+model Piece {
+  id           String           @id @default(uuid()) @db.Uuid
+  dossierId    String           @map("dossier_id") @db.Uuid
+  dossier      Dossier          @relation(fields: [dossierId], references: [id], onDelete: Cascade)
+  type         TypePiece
+  etat         EtatPiece        @default(DEPOSEE)
+  motifRefus   String?          @map("motif_refus")
+  fichierId    String           @unique @map("fichier_id") @db.Uuid
+  fichier      Fichier          @relation(fields: [fichierId], references: [id])
+  nomFichier   String           @map("nom_fichier")
+  deposeLe     DateTime         @default(now()) @map("depose_le")
+  verifieLe    DateTime?        @map("verifie_le")
+  verifieParId String?          @map("verifie_par_id") @db.Uuid
+  evenements   PieceEvenement[]
+
+  @@index([dossierId])
+  @@index([etat])
+  @@map("pieces")
+}
+
+/// Historique d'une pièce (dépôts, refus avec motif, vérifications).
+model PieceEvenement {
+  id       BigInt    @id @default(autoincrement())
+  pieceId  String    @map("piece_id") @db.Uuid
+  piece    Piece     @relation(fields: [pieceId], references: [id], onDelete: Cascade)
+  etat     EtatPiece
+  motif    String?
+  acteurId String?   @map("acteur_id") @db.Uuid
+  creeLe   DateTime  @default(now()) @map("cree_le")
+
+  @@index([pieceId])
+  @@map("pieces_evenements")
+}
+
+/// Fichiers déposés : stockés en base, privés, servis uniquement par lien temporaire signé.
+model Fichier {
+  id        String   @id @default(uuid()) @db.Uuid
+  contenu   Bytes
+  typeMime  String   @map("type_mime")
+  taille    Int
+  empreinte String
+  creeLe    DateTime @default(now()) @map("cree_le")
+  piece     Piece?
+
+  @@map("fichiers")
+}
+
+/// Jeton à usage unique (confirmation d'e-mail, réinitialisation du mot de passe). Seule l'empreinte est stockée.
+model Jeton {
+  id            String      @id
+  type          TypeJeton
+  utilisateurId String      @map("utilisateur_id") @db.Uuid
+  utilisateur   Utilisateur @relation(fields: [utilisateurId], references: [id], onDelete: Cascade)
+  expireLe      DateTime    @map("expire_le")
+  utiliseLe     DateTime?   @map("utilise_le")
+  creeLe        DateTime    @default(now()) @map("cree_le")
+
+  @@index([utilisateurId])
+  @@map("jetons")
+}
+
+/// Journal des e-mails (M10). En mode démo (sans clé Resend), l'e-mail n'est pas envoyé, seulement écrit ici.
+model EmailEnvoye {
+  id           String      @id @default(uuid()) @db.Uuid
+  destinataire String
+  sujet        String
+  texte        String
+  statut       StatutEmail
+  erreur       String?
+  creeLe       DateTime    @default(now()) @map("cree_le")
+
+  @@index([creeLe])
+  @@map("emails")
+}
+
+/// Réglages de la plateforme modifiables par l'administrateur (ex. téléphone du cabinet).
+model Reglage {
+  cle       String   @id
+  valeur    Json
+  modifieLe DateTime @updatedAt @map("modifie_le")
+
+  @@map("reglages")
 }

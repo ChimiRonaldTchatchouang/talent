@@ -4,8 +4,26 @@ import { ELEMENTS_GRADE } from "./referentiels.js";
 export const NIVEAUX_BUREAUTIQUE = ["DEBUTANT", "MOYEN", "BON"] as const;
 export type NiveauBureautique = (typeof NIVEAUX_BUREAUTIQUE)[number];
 
-export const TRANCHES_EXPERIENCE = ["0-2", "3-5", "6-10", "10+"] as const;
+export const TRANCHES_EXPERIENCE = ["ANS_0_2", "ANS_3_5", "ANS_6_10", "ANS_10_PLUS"] as const;
 export type TrancheExperience = (typeof TRANCHES_EXPERIENCE)[number];
+export const LIBELLES_TRANCHES: Record<TrancheExperience, string> = {
+  ANS_0_2: "0 à 2 ans",
+  ANS_3_5: "3 à 5 ans",
+  ANS_6_10: "6 à 10 ans",
+  ANS_10_PLUS: "Plus de 10 ans",
+};
+/** Nombre d'années minimum garanti par chaque tranche (comparé au seuil des paramètres). */
+export const ANNEES_MIN_TRANCHE: Record<TrancheExperience, number> = {
+  ANS_0_2: 0,
+  ANS_3_5: 3,
+  ANS_6_10: 6,
+  ANS_10_PLUS: 10,
+};
+export const LIBELLES_BUREAUTIQUE: Record<NiveauBureautique, string> = {
+  DEBUTANT: "Débutant",
+  MOYEN: "Moyen",
+  BON: "Bon",
+};
 
 export const TYPES_PIECE = [
   "IDENTITE",
@@ -15,6 +33,13 @@ export const TYPES_PIECE = [
   "CV",
 ] as const;
 export type TypePiece = (typeof TYPES_PIECE)[number];
+export const LIBELLES_PIECES: Record<TypePiece, string> = {
+  IDENTITE: "Pièce d'identité ou passeport",
+  DIPLOME: "Dernier diplôme",
+  ATTESTATION_LANGUE: "Attestation de test de langue",
+  CERTIFICAT_TRAVAIL: "Certificat de travail",
+  CV: "CV",
+};
 
 /**
  * Paramètres du classement (section 6). Valeurs par défaut proposées par Nextiaa,

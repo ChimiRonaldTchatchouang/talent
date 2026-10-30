@@ -14,10 +14,19 @@ export const schemaUtilisateurPublic = z.object({
   email: z.string().nullable(),
   telephone: z.string().nullable(),
   estPrincipal: z.boolean(),
+  emailConfirme: z.boolean(),
 });
 
-function versPublic(u: UtilisateurConnecte): z.infer<typeof schemaUtilisateurPublic> {
-  return { id: u.id, role: u.role, nom: u.nom, email: u.email, telephone: u.telephone, estPrincipal: u.estPrincipal };
+export function versPublic(u: UtilisateurConnecte): z.infer<typeof schemaUtilisateurPublic> {
+  return {
+    id: u.id,
+    role: u.role,
+    nom: u.nom,
+    email: u.email,
+    telephone: u.telephone,
+    estPrincipal: u.estPrincipal,
+    emailConfirme: u.emailVerifieLe !== null,
+  };
 }
 
 const MESSAGE_IDENTIFIANTS = "Identifiant ou mot de passe incorrect.";
