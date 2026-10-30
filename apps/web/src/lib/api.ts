@@ -31,11 +31,15 @@ export async function api<T>(chemin: string, options: { methode?: Methode; corps
   const donnees: unknown = await reponse.json().catch(() => null);
   if (!reponse.ok) {
     const e = (donnees as ErreurApi | null)?.erreur;
+    if (e) throw new ErreurClient(reponse.status, e.code, e.message, e.details);
+    // Pas de réponse de l'API : serveur en cours de réveil (502/503/504) ou mauvaise configuration.
+    const reveil = reponse.status >= 502 && reponse.status <= 504;
     throw new ErreurClient(
       reponse.status,
-      e?.code ?? "INCONNU",
-      e?.message ?? "Le service est momentanément indisponible. Réessayez dans un instant.",
-      e?.details,
+      reveil ? "SERVEUR_EN_DEMARRAGE" : "SERVICE_INJOIGNABLE",
+      reveil
+        ? "Le serveur démarre, cela peut prendre une minute. Réessayez dans un instant."
+        : `Le service est momentanément indisponible (code ${reponse.status}). Réessayez dans un instant.`,
     );
   }
   return donnees as T;
