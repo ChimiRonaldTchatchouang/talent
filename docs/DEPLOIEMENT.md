@@ -8,7 +8,10 @@ Trois services gratuits, tous reliés au dépôt GitHub. Chaque fusion dans `mai
 2. Récupérer deux chaînes de connexion :
    - **avec pooler** (« Pooled connection ») → `DATABASE_URL`
    - **sans pooler** (« Direct connection ») → `DATABASE_URL_DIRECTE` (sert aux migrations)
-3. Rien d'autre à faire : les tables sont créées au premier démarrage de l'API.
+3. À la fin des deux chaînes, ajouter `&connect_timeout=30` et retirer `&channel_binding=require`.
+   Sur l'offre gratuite, Neon met la base en veille. Sans délai suffisant, le réveil provoque l'erreur
+   `P1001: Can't reach database server`.
+4. Rien d'autre à faire : les tables sont créées au premier démarrage de l'API.
 
 ## 2. API : Render
 
