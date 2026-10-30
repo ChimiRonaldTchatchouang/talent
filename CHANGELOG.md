@@ -1,5 +1,17 @@
 # Journal des livraisons
 
+## Lot 3 — Moteur de classement (30/10/2026)
+
+**Livré**
+- **Moteur de classement** (`apps/api/src/classement/moteur.ts`) : fonctions pures, sans base de données ni IA, avec tous les seuils lus dans les paramètres. Il évalue les quatre éléments (diplôme, test de langue, coaching, niveau), applique les règles R-01 à R-05, R-12 et R-13, et produit l'explication (fait, en attente de vérification, manquant).
+- **Grade en base** : grade calculé et grade affiché, état provisoire, confirmé ou corrigé, historique complet. Recalcul automatique à chaque changement : étape, envoi, pièce, service réalisé, évaluation du niveau, paramètres.
+- **Services** : suggestion automatique pour chaque élément manquant, bouton « Je suis intéressé(e) » avec e-mail aux administrateurs. Les états vont de Suggéré à Réalisé ; un service réalisé relance le calcul (R-11).
+- **API du cabinet** (écrans au lot 4) : évaluer le niveau, faire avancer un service, confirmer un grade (refusé pour un A sans pièces vérifiées), corriger un grade avec une raison, libérer un grade. Le candidat est prévenu par e-mail.
+- **Espace candidat** : carte du grade (lettre et couleur, provisoire ou confirmé), « Ce qui te manque », services suggérés, et écran « Pourquoi ce grade ? ».
+
+**Tests** : 18 tests du moteur (T1 à T8 et règles détaillées) et 12 tests d'intégration (T7, T9, T14, T15, services, correction, historique). 98 tests d'API au total.
+
+
 ## Lot 2 — Espace candidat (30/10/2026)
 
 **Livré**

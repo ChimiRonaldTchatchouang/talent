@@ -143,3 +143,32 @@ export interface ListesReference {
   services: Service[];
   diplomes: Diplome[];
 }
+
+export interface ElementExplique {
+  element: "DIPLOME" | "TEST_LANGUE" | "COACHING" | "NIVEAU";
+  etat: "FAIT" | "EN_ATTENTE" | "MANQUANT";
+  acquis: boolean;
+  bloquant: boolean;
+  raison: string;
+}
+export interface ServicePropose {
+  id: string;
+  nom: string;
+  description: string;
+  duree: string;
+  elementComble: "TEST_LANGUE" | "COACHING" | "NIVEAU" | null;
+  suggere: boolean;
+  etat: "SUGGERE" | "INTERESSE" | "ACCEPTE" | "EN_COURS" | "REALISE" | "ANNULE";
+}
+export interface Classement {
+  disponible?: boolean;
+  grade: "A" | "B" | "C" | "D" | "HORS_BASSIN";
+  gradeCalcule: Classement["grade"];
+  etat: "PROVISOIRE" | "CONFIRME" | "CORRIGE";
+  regle: string;
+  raison: string | null;
+  alerte: boolean;
+  niveauEvalue: "NON_EVALUE" | "INSUFFISANT" | "SUFFISANT";
+  elements: ElementExplique[];
+  services: ServicePropose[];
+}

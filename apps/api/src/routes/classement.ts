@@ -98,7 +98,8 @@ export function routesClassement(config: Config): FastifyPluginAsyncZod {
         const service = await app.prisma.service.findFirst({ where: { id: request.params.serviceId, actif: true } });
         if (!service) throw erreurs.introuvable("Ce service");
         const suivi = await app.prisma.serviceCandidat.findUnique({ where: { dossierId_serviceId: { dossierId: d.id, serviceId: service.id } } });
-        if (suivi && suivi.etat !== "ANNULE") return vueClassement(app.prisma, config, d.id);
+        const vue = async () => ({ disponible: sommaire(d).pretAEnvoyer, ...(await vueClassement(app.prisma, config, d.id)) });
+        if (suivi && suivi.etat !== "ANNULE") return vue();
         await app.prisma.serviceCandidat.upsert({
           where: { dossierId_serviceId: { dossierId: d.id, serviceId: service.id } },
           create: { dossierId: d.id, serviceId: service.id, etat: "INTERESSE", interesseLe: new Date() },
@@ -110,7 +111,7 @@ export function routesClassement(config: Config): FastifyPluginAsyncZod {
           sujet: `Intérêt pour « ${service.nom} » : ${nom}`,
           texte: `Bonjour,\n\n${nom} est intéressé(e) par le service « ${service.nom} ».\n${config.URL_SITE.replace(/\/+$/, "")}/admin`,
         });
-        return vueClassement(app.prisma, config, d.id);
+        return vue();
       },
     );
 

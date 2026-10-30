@@ -84,6 +84,8 @@ describe("Services (W4)", () => {
     const r = await app.inject({ method: "POST", url: `/candidat/services/${coaching.id}/interet`, headers: { cookie } });
     expect(r.statusCode).toBe(200);
     expect(r.json().services.find((s: { id: string }) => s.id === coaching.id).etat).toBe("INTERESSE");
+    // La réponse garde le grade affichable (même forme que GET /candidat/classement).
+    expect(r.json().disponible).toBe(true);
     expect(await prisma.emailEnvoye.count({ where: { destinataire: "michel@cabinet.cm", sujet: { contains: "Intérêt" } } })).toBe(1);
   });
 

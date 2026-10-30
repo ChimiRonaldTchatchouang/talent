@@ -7,18 +7,21 @@ import { useEffect, useState } from "react";
 import { LuChevronRight } from "react-icons/lu";
 import { Carte } from "@/components/carte";
 import { BadgeEtatEtape } from "@/components/candidat/etat-etape";
+import { CarteGrade, CarteService } from "@/components/candidat/grade";
 import { toaster } from "@/components/toaster";
 import { api, messageErreur } from "@/lib/api";
 import { adresseEtape, useDossier } from "@/lib/dossier";
-import type { UtilisateurPublic } from "@/lib/types";
+import type { Classement, UtilisateurPublic } from "@/lib/types";
 
 export default function Sommaire() {
   const { reponse, setReponse } = useDossier();
   const [moi, setMoi] = useState<UtilisateurPublic | null>(null);
   const [renvoi, setRenvoi] = useState(false);
+  const [classement, setClassement] = useState<Classement | null>(null);
 
   useEffect(() => {
     api<{ utilisateur: UtilisateurPublic }>("/auth/moi").then((r) => setMoi(r.utilisateur)).catch(() => undefined);
+    api<Classement>("/candidat/classement").then(setClassement).catch(() => undefined);
   }, []);
 
   if (!reponse) return <Spinner color="emeraude.600" />;
@@ -74,6 +77,37 @@ export default function Sommaire() {
             </Alert.Description>
           </Alert.Content>
         </Alert.Root>
+      )}
+
+      {classement?.disponible && (
+        <Carte>
+          <Stack gap="4">
+            <CarteGrade c={classement} />
+            {classement.elements.some((e) => !e.acquis) && (
+              <Box>
+                <Text fontWeight="600" color="nuit" mb="1">
+                  Ce qui te manque
+                </Text>
+                <Stack as="ul" pl="5" gap="1" listStyleType="disc" fontSize="sm" color="gris">
+                  {classement.elements
+                    .filter((e) => !e.acquis)
+                    .map((e) => (
+                      <li key={e.element}>{e.raison}</li>
+                    ))}
+                </Stack>
+              </Box>
+            )}
+            {classement.services
+              .filter((x) => x.suggere && x.etat === "SUGGERE")
+              .slice(0, 2)
+              .map((x) => (
+                <CarteService key={x.id} s={x} onChange={setClassement} />
+              ))}
+            <Button asChild variant="outline" colorPalette="emeraude">
+              <Link href="/candidat/grade">Pourquoi ce grade ?</Link>
+            </Button>
+          </Stack>
+        </Carte>
       )}
 
       <Carte bg="nuit" color="white">
