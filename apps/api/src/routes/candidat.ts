@@ -8,6 +8,7 @@ import {
 import type { Prisma } from "@prisma/client";
 import type { FastifyPluginAsyncZod } from "fastify-type-provider-zod";
 import { z } from "zod";
+import { recalculerGrade } from "../lib/classement.js";
 import type { Config } from "../lib/config.js";
 import {
   champsManquants,
@@ -136,6 +137,7 @@ export function routesCandidat(config: Config): FastifyPluginAsyncZod {
           });
         });
 
+        await recalculerGrade(app.prisma, config, avant.id, "CANDIDAT", `Dossier modifié : ${LIBELLES_ETAPES[etape]}`, moi.id);
         const apres = await chargerDossier(app, moi.id);
         const manques = champsManquants(apres, etape);
         if (request.body.terminer && Object.keys(manques).length > 0) {
@@ -256,6 +258,7 @@ export function routesCandidat(config: Config): FastifyPluginAsyncZod {
           cibleId: dossier.id,
           details: { piecesManquantes: piecesManquantes(envoye) },
         });
+        await recalculerGrade(app.prisma, config, dossier.id, "CANDIDAT", "Dossier envoyé", moi.id);
         const site = config.URL_SITE.replace(/\/+$/, "");
         const email = moi.email ?? envoye.emailContact;
         if (email) await envoyerEmail(app.prisma, config, { a: email, ...modeles.dossierEnvoyeCandidat(`${site}/candidat`) });

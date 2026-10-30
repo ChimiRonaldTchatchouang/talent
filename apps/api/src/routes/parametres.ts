@@ -1,6 +1,8 @@
 import { schemaParametresClassement } from "@bdt/shared";
 import type { FastifyPluginAsyncZod } from "fastify-type-provider-zod";
 import { z } from "zod";
+import { recalculerTousLesGrades } from "../lib/classement.js";
+import type { Config } from "../lib/config.js";
 import { journaliser } from "../lib/journal.js";
 import { parametresEnVigueur } from "../lib/parametres.js";
 import { exigerRole, utilisateurDe } from "../plugins/authentification.js";
@@ -11,7 +13,7 @@ const sVersion = z.object({
   creeLe: z.date().nullable(),
 });
 
-export const routesParametres: FastifyPluginAsyncZod = async (app) => {
+export const routesParametres = (config: Config): FastifyPluginAsyncZod => async (app) => {
   const admin = exigerRole("ADMIN");
 
   app.get(
@@ -52,7 +54,8 @@ export const routesParametres: FastifyPluginAsyncZod = async (app) => {
         });
         return version;
       });
-      // Le recalcul de tous les grades provisoires (T15) est branché au lot 3, avec le moteur de classement.
+      // T15 : tous les grades provisoires sont recalculés avec les nouveaux seuils.
+      await recalculerTousLesGrades(app.prisma, config, acteur.id);
       return { version: cree.id, valeurs: request.body, creeLe: cree.creeLe };
     },
   );

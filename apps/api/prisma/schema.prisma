@@ -142,6 +142,7 @@ model Service {
   actif         Boolean           @default(true)
   creeLe        DateTime          @default(now()) @map("cree_le")
   modifieLe     DateTime          @updatedAt @map("modifie_le")
+  candidats     ServiceCandidat[]
 
   @@map("services")
 }
@@ -296,9 +297,17 @@ model Dossier {
   creeLe    DateTime @default(now()) @map("cree_le")
   modifieLe DateTime @updatedAt @map("modifie_le")
 
-  experiences Experience[]
-  competences DossierCompetence[]
-  pieces      Piece[]
+  // Évaluation du niveau dans le domaine par l'administrateur (M8)
+  niveauEvalue      NiveauEvalue @default(NON_EVALUE) @map("niveau_evalue")
+  niveauEvalueLe    DateTime?    @map("niveau_evalue_le")
+  niveauEvalueParId String?      @map("niveau_evalue_par_id") @db.Uuid
+
+  experiences      Experience[]
+  competences      DossierCompetence[]
+  pieces           Piece[]
+  grade            GradeDossier?
+  historiqueGrades GradeHistorique[]
+  services         ServiceCandidat[]
 
   @@index([statut])
   @@map("dossiers")
@@ -411,4 +420,96 @@ model Reglage {
   modifieLe DateTime @updatedAt @map("modifie_le")
 
   @@map("reglages")
+}
+
+// ---------- Lot 3 : classement ----------
+
+enum NiveauEvalue {
+  NON_EVALUE
+  INSUFFISANT
+  SUFFISANT
+}
+
+enum ValeurGrade {
+  A
+  B
+  C
+  D
+  HORS_BASSIN
+}
+
+enum EtatGrade {
+  PROVISOIRE
+  CONFIRME
+  CORRIGE
+}
+
+enum EtatService {
+  SUGGERE
+  INTERESSE
+  ACCEPTE
+  EN_COURS
+  REALISE
+  ANNULE
+}
+
+/// Grade actuel d'un dossier (R-06 : un seul grade à la fois).
+model GradeDossier {
+  dossierId    String      @id @map("dossier_id") @db.Uuid
+  dossier      Dossier     @relation(fields: [dossierId], references: [id], onDelete: Cascade)
+  /// Grade calculé par le moteur (toujours à jour).
+  gradeCalcule ValeurGrade @map("grade_calcule")
+  /// Grade affiché : le grade calculé, ou le grade corrigé par l'administrateur.
+  grade        ValeurGrade
+  etat         EtatGrade   @default(PROVISOIRE)
+  regle        String
+  explication  Json
+  suggestions  String[]    @default([])
+  raison       String?
+  auteurId     String?     @map("auteur_id") @db.Uuid
+  /// Grade confirmé ou corrigé remis en provisoire par une modification du candidat : à revoir.
+  alerte       Boolean     @default(false)
+  calculeLe    DateTime    @default(now()) @map("calcule_le")
+  modifieLe    DateTime    @updatedAt @map("modifie_le")
+
+  @@index([grade, etat])
+  @@map("grades")
+}
+
+/// Historique complet des grades (calculs, confirmations, corrections).
+model GradeHistorique {
+  id           BigInt      @id @default(autoincrement())
+  dossierId    String      @map("dossier_id") @db.Uuid
+  dossier      Dossier     @relation(fields: [dossierId], references: [id], onDelete: Cascade)
+  grade        ValeurGrade
+  gradeCalcule ValeurGrade @map("grade_calcule")
+  etat         EtatGrade
+  cause        String
+  raison       String?
+  auteurId     String?     @map("auteur_id") @db.Uuid
+  creeLe       DateTime    @default(now()) @map("cree_le")
+
+  @@index([dossierId])
+  @@map("grades_historique")
+}
+
+/// Service du cabinet pour un candidat (M6). Sans ligne : le service est seulement « suggéré ».
+model ServiceCandidat {
+  id          String      @id @default(uuid()) @db.Uuid
+  dossierId   String      @map("dossier_id") @db.Uuid
+  dossier     Dossier     @relation(fields: [dossierId], references: [id], onDelete: Cascade)
+  serviceId   String      @map("service_id") @db.Uuid
+  service     Service     @relation(fields: [serviceId], references: [id])
+  etat        EtatService
+  interesseLe DateTime?   @map("interesse_le")
+  accepteLe   DateTime?   @map("accepte_le")
+  enCoursLe   DateTime?   @map("en_cours_le")
+  realiseLe   DateTime?   @map("realise_le")
+  annuleLe    DateTime?   @map("annule_le")
+  creeLe      DateTime    @default(now()) @map("cree_le")
+  modifieLe   DateTime    @updatedAt @map("modifie_le")
+
+  @@unique([dossierId, serviceId])
+  @@index([etat])
+  @@map("services_candidats")
 }

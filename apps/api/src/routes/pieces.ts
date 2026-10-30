@@ -3,6 +3,7 @@ import { LIBELLES_PIECES, schemaTypePiece, TAILLE_MAX_FICHIER, type TypePiece } 
 import type { FastifyPluginAsyncZod } from "fastify-type-provider-zod";
 import type { FastifyRequest } from "fastify";
 import { z } from "zod";
+import { recalculerGrade } from "../lib/classement.js";
 import type { Config } from "../lib/config.js";
 import { ErreurMetier, erreurs } from "../lib/erreurs.js";
 import { journaliser } from "../lib/journal.js";
@@ -145,6 +146,7 @@ export function routesPieces(config: Config & { SECRET_LIENS: string }): Fastify
           details: { type: piece.type, taille: contenu.length },
           ip: request.ip,
         });
+        await recalculerGrade(app.prisma, config, autorisation.d, "CANDIDAT", "Pièce déposée", autorisation.u);
         return reply.code(201).send({
           piece: { id: piece.id, type: piece.type, etat: piece.etat, nomFichier: piece.nomFichier },
           message: `${LIBELLES_PIECES[piece.type]} bien reçu(e).`,
@@ -168,6 +170,7 @@ export function routesPieces(config: Config & { SECRET_LIENS: string }): Fastify
           app.prisma.fichier.delete({ where: { id: piece.fichierId } }),
         ]);
         await journaliser(app.prisma, { acteurId: utilisateurDe(request).id, role: "CANDIDAT", action: "PIECE_RETIREE", cibleType: "piece", cibleId: piece.id });
+        await recalculerGrade(app.prisma, config, dossier.id, "CANDIDAT", "Pièce retirée", utilisateurDe(request).id);
         return reply.code(204).send();
       },
     );

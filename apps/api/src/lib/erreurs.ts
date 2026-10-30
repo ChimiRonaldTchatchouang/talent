@@ -19,7 +19,7 @@ export const erreurs = {
     new ErreurMetier(403, CODES_ERREUR.ACCES_REFUSE, "Vous n'avez pas le droit d'effectuer cette action."),
   introuvable: (quoi = "L'élément demandé") =>
     new ErreurMetier(404, CODES_ERREUR.INTROUVABLE, `${quoi} est introuvable.`),
-  conflit: (message: string) => new ErreurMetier(409, CODES_ERREUR.CONFLIT, message),
+  conflit: (message: string, details?: Record<string, string>) => new ErreurMetier(409, CODES_ERREUR.CONFLIT, message, details),
   invalide: (message: string, details?: Record<string, string>) =>
     new ErreurMetier(400, CODES_ERREUR.DONNEES_INVALIDES, message, details),
 };

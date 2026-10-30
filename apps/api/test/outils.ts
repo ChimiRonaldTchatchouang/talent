@@ -19,6 +19,7 @@ export async function demarrer(): Promise<{ app: App; prisma: PrismaClient }> {
 /** Vide les tables (sauf le journal, qui ne peut pas être vidé) et recharge les listes de départ. */
 export async function viderBase(prisma: PrismaClient): Promise<void> {
   await prisma.session.deleteMany();
+  await prisma.serviceCandidat.deleteMany();
   await prisma.piece.deleteMany();
   await prisma.fichier.deleteMany();
   await prisma.dossier.deleteMany();
