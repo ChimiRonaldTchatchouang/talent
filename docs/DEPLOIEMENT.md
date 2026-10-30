@@ -65,3 +65,48 @@ l'adresse du titulaire du compte Resend**. Pour les candidats, il faut l'étape 
 
 Le téléphone envoie les pièces directement à l'API Render (adresse fournie automatiquement par Render). Il faut
 seulement que `URL_SITE`, sur Render, soit exactement l'adresse du site : elle autorise ces envois (CORS).
+
+## 7. Sauvegarde hebdomadaire (GitHub Actions)
+
+Le fichier `.github/workflows/sauvegarde.yml` copie la base chaque dimanche, la chiffre et la garde 90 jours.
+
+**Mise en place (une fois)**
+1. GitHub → dépôt `talent` → *Settings* → *Secrets and variables* → *Actions* → *New repository secret* :
+   - `SAUVEGARDE_DATABASE_URL` = la chaîne Neon **sans** `-pooler`, avec `?sslmode=require`
+   - `SAUVEGARDE_PHRASE` = une phrase longue (ex. 5 mots au hasard). **Notez-la aussi ailleurs** (gestionnaire de mots de
+     passe) : sans elle, la sauvegarde est illisible.
+2. Onglet *Actions* → « Sauvegarde hebdomadaire » → *Run workflow* pour tester. Le fichier apparaît en bas de la page
+   du lancement, dans *Artifacts*.
+
+**Restaurer une sauvegarde**
+1. Télécharger l'artefact (fichier `.zip`), l'extraire : `bassin-de-talents-AAAA-MM-JJ.dump.gpg`.
+2. Déchiffrer :
+
+```bash
+gpg --decrypt bassin-de-talents-AAAA-MM-JJ.dump.gpg > sauvegarde.dump
+```
+
+3. Restaurer dans une base **vide** (créez d'abord une branche ou une base neuve dans Neon) :
+
+```bash
+pg_restore --no-owner --no-privileges --dbname "postgresql://…sans-pooler…?sslmode=require" sauvegarde.dump
+```
+
+4. Pointer `DATABASE_URL` (Render) vers cette base, puis redémarrer.
+
+Neon permet aussi de revenir en arrière de quelques heures sans sauvegarde : *Branches* → *Restore*.
+
+## 8. Mise en production : liste de contrôle
+
+- [ ] Neon : mot de passe changé depuis sa diffusion dans une conversation ; `DATABASE_URL` à jour sur Render.
+- [ ] Render : `URL_SITE` = adresse finale du site (domaine du client), sans `/` final.
+- [ ] Render : `RESEND_API_KEY` (clé renouvelée) et `EMAIL_EXPEDITEUR` (adresse du domaine vérifié dans Resend).
+- [ ] Vercel : `URL_API` = adresse Render ; domaine du client ajouté ; HTTPS actif.
+- [ ] Hostinger : enregistrements DNS de Vercel (site) et de Resend (SPF, DKIM).
+- [ ] UptimeRobot (ou équivalent) : `/sante` toutes les 5 à 10 minutes (D-04).
+- [ ] Offre Vercel compatible avec un usage commercial (D-03).
+- [ ] Sauvegarde : secrets GitHub créés, un lancement manuel réussi.
+- [ ] Admin → Réglages : téléphone du cabinet ; e-mail de test reçu.
+- [ ] Données de démonstration effacées avant l'ouverture au public.
+- [ ] `ADMIN_PRINCIPAL_MOT_DE_PASSE` retiré de Render après la première connexion.
+

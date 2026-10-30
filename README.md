@@ -8,7 +8,7 @@ Réalisation : Nextiaa. La spécification complète est dans [`SPECIFICATION.md`
 ## Technologie choisie et pourquoi
 
 1. **Une seule base de code TypeScript** (monorepo pnpm) pour les trois espaces : candidat, administrateur, recruteur.
-2. **Site : Next.js + Chakra UI**, sur **Vercel**. Pages légères, pensées d'abord pour le téléphone, installables (PWA) au lot 6.
+2. **Site : Next.js + Chakra UI**, sur **Vercel**. Pages légères, pensées d'abord pour le téléphone, installables sur l'écran d'accueil (PWA).
 3. **API : Fastify**, sur **Render**. Tous les droits et toutes les règles métier sont vérifiés ici, jamais dans le navigateur.
 4. **Base : PostgreSQL sur Neon**, avec Prisma pour les migrations.
 5. **E-mails : Resend** (3 000 e-mails par mois gratuits). Sans clé configurée, les e-mails sont écrits dans un journal (mode démo).
@@ -75,10 +75,23 @@ le site (Vercel). Les migrations de base s'appliquent au démarrage de l'API. Ne
 
 ## Sauvegarde
 
-La procédure hebdomadaire sera décrite au lot 6. En attendant, Neon garde un historique de restauration
-(24 h sur l'offre gratuite).
+Chaque dimanche, GitHub Actions copie la base Neon, la chiffre et la garde 90 jours
+(`.github/workflows/sauvegarde.yml`). Mise en place et restauration : [`docs/DEPLOIEMENT.md`](docs/DEPLOIEMENT.md),
+section 7. Neon garde en plus un historique de restauration de 24 heures.
 
 ## Comptes de démonstration
 
-Ils arrivent au lot 6 (données fictives marquées « démo », effaçables d'un clic). Le compte administrateur
-principal est créé à partir des variables d'environnement : aucun mot de passe n'est écrit dans le dépôt.
+Admin → **Réglages et e-mails** → **Créer les données de démonstration** : environ 20 candidats fictifs marqués
+« DÉMO », un compte candidat et un compte recruteur de test. Leurs mots de passe sont générés au hasard et affichés
+une seule fois : aucun mot de passe n'est écrit dans le dépôt. Un clic les efface tous.
+
+Le compte administrateur principal est créé à partir des variables d'environnement (`ADMIN_PRINCIPAL_*`).
+
+## Documentation
+
+- [`SPECIFICATION.md`](SPECIFICATION.md) : la spécification du client
+- [`docs/guide-admin.md`](docs/guide-admin.md) : guide d'utilisation de l'espace administrateur
+- [`docs/DEPLOIEMENT.md`](docs/DEPLOIEMENT.md) : déploiement, e-mails, sauvegarde, liste de contrôle de mise en production
+- [`DECISIONS.md`](DECISIONS.md) : choix faits par défaut, à confirmer par le client
+- [`CHANGELOG.md`](CHANGELOG.md) : ce qui a été livré à chaque lot
+- Documentation de l'API (OpenAPI) : `/documentation` sur l'adresse de l'API

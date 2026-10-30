@@ -165,6 +165,11 @@ export default function Sommaire() {
             Mon profil peut être présenté à des recruteurs, sans mes coordonnées ni mes documents.
           </Switch.Label>
         </Switch.Root>
+        <Text fontSize="sm" mt="4">
+          <Link href="/candidat/suppression" style={{ color: "#B42318", textDecoration: "underline" }}>
+            Demander la suppression de mon dossier
+          </Link>
+        </Text>
         {consultations && consultations.nombre > 0 && (
           <Text fontSize="sm" color="gris" mt="3">
             Ton profil a été consulté {consultations.nombre} fois par des recruteurs (dernière fois le{" "}

@@ -19,6 +19,7 @@ interface Tableau {
   alertes: number;
   servicesInteresses: number;
   selectionsRecues: number;
+  suppressionsEnAttente: number;
   derniers: { id: string; nomComplet: string; ville: string | null; metier: string | null; envoyeLe: string; grade: ResumeCandidat["grade"]; etatGrade: ResumeCandidat["etatGrade"] }[];
 }
 
@@ -76,12 +77,13 @@ export default function TableauDeBord() {
         </Carte>
       </SimpleGrid>
 
-      <SimpleGrid columns={{ base: 1, sm: 2, lg: 5 }} gap="3">
+      <SimpleGrid columns={{ base: 1, sm: 2, lg: 3, xl: 6 }} gap="3">
         <Tuile titre="Pièces à vérifier" valeur={t.piecesAVerifier} href="/admin/verifications" accent />
         <Tuile titre="Grades provisoires à confirmer" valeur={t.gradesAConfirmer} href="/admin/vivier?etatGrade=PROVISOIRE&vue=liste" accent />
         <Tuile titre="Grades à revoir (dossier modifié)" valeur={t.alertes} href="/admin/vivier?alerte=true&vue=liste" accent />
         <Tuile titre="Candidats intéressés par un service" valeur={t.servicesInteresses} href="/admin/services" accent />
         <Tuile titre="Sélections de recruteurs à traiter" valeur={t.selectionsRecues} href="/admin/selections" accent />
+        <Tuile titre="Demandes de suppression" valeur={t.suppressionsEnAttente} href="/admin/suppressions" accent />
       </SimpleGrid>
 
       <Carte>

@@ -25,6 +25,7 @@ import { LigneElement } from "@/components/candidat/grade";
 import { EtatGrade } from "@/components/admin/communs";
 import { DecisionPiece, ouvrirPiece } from "@/components/admin/decision-piece";
 import { toaster } from "@/components/toaster";
+import { libelleAction } from "@/lib/actions-journal";
 import { api, ErreurClient, messageErreur } from "@/lib/api";
 import type { Classement, Dossier, PieceDeposee } from "@/lib/types";
 
@@ -61,32 +62,6 @@ function Lignes({ lignes }: { lignes: [string, React.ReactNode][] }) {
   );
 }
 
-const ACTIONS: Record<string, string> = {
-  INSCRIPTION: "Inscription",
-  CONNEXION: "Connexion",
-  DOSSIER_MODIFIE: "Dossier modifié",
-  DOSSIER_MODIFIE_APRES_ENVOI: "Dossier modifié après envoi",
-  DOSSIER_ENVOYE: "Dossier envoyé",
-  DOSSIER_CONSULTE: "Dossier consulté",
-  PIECE_DEPOSEE: "Pièce déposée",
-  PIECE_REDEPOSEE: "Pièce redéposée",
-  PIECE_RETIREE: "Pièce retirée",
-  PIECE_VERIFIEE: "Pièce vérifiée",
-  PIECE_REFUSEE: "Pièce refusée",
-  PIECE_CONSULTEE: "Pièce consultée",
-  GRADE_CONFIRME: "Grade confirmé",
-  GRADE_CORRIGE: "Grade corrigé",
-  GRADE_LIBERE: "Grade libéré",
-  GRADE_REMIS_EN_PROVISOIRE: "Grade remis en provisoire",
-  NIVEAU_EVALUE: "Niveau évalué",
-  SERVICE_INTERESSE: "Intérêt pour un service",
-  SERVICE_ETAT_MODIFIE: "Service mis à jour",
-  NOTE_AJOUTEE: "Note ajoutée",
-  CONSENTEMENT_RECRUTEURS_DONNE: "Accord recruteurs donné",
-  CONSENTEMENT_RECRUTEURS_RETIRE: "Accord recruteurs retiré",
-  EMAIL_CONFIRME: "E-mail confirmé",
-  MOT_DE_PASSE_REINITIALISE_PAR_ADMIN: "Mot de passe réinitialisé par le cabinet",
-};
 
 export default function FicheCandidat() {
   const { id } = useParams<{ id: string }>();
@@ -412,7 +387,7 @@ export default function FicheCandidat() {
                           <Text as="span" color="gris">
                             {new Date(h.creeLe).toLocaleString("fr-FR")}
                           </Text>{" "}
-                          · {ACTIONS[h.action] ?? h.action} · {h.acteur}
+                          · {libelleAction(h.action)} · {h.acteur}
                         </Text>
                       ))}
                     </Stack>

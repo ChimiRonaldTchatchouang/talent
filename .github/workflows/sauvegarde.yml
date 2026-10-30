@@ -1,0 +1,40 @@
+name: Sauvegarde hebdomadaire
+
+# Copie complète de la base Neon, chiffrée, gardée 90 jours dans les « artefacts » GitHub.
+# Secrets à créer (Settings → Secrets and variables → Actions) :
+#   SAUVEGARDE_DATABASE_URL : chaîne Neon SANS « -pooler » (connexion directe)
+#   SAUVEGARDE_PHRASE       : phrase secrète de chiffrement (à garder aussi hors de GitHub)
+on:
+  schedule:
+    - cron: "17 2 * * 0" # chaque dimanche à 02 h 17 (UTC)
+  workflow_dispatch: # lancement manuel possible depuis l'onglet Actions
+
+jobs:
+  sauvegarder:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Installer pg_dump 17 (compatible avec les bases 14 à 17)
+        run: |
+          sudo install -d /usr/share/postgresql-common/pgdg
+          sudo curl -fsSL -o /usr/share/postgresql-common/pgdg/apt.postgresql.org.asc https://www.postgresql.org/media/keys/ACCC4CF8.asc
+          echo "deb [signed-by=/usr/share/postgresql-common/pgdg/apt.postgresql.org.asc] https://apt.postgresql.org/pub/repos/apt $(lsb_release -cs)-pgdg main" | sudo tee /etc/apt/sources.list.d/pgdg.list
+          sudo apt-get update -qq && sudo apt-get install -y -qq postgresql-client-17
+      - name: Copier et chiffrer la base
+        env:
+          URL: ${{ secrets.SAUVEGARDE_DATABASE_URL }}
+          PHRASE: ${{ secrets.SAUVEGARDE_PHRASE }}
+        run: |
+          test -n "$URL" || { echo "Secret SAUVEGARDE_DATABASE_URL manquant"; exit 1; }
+          test -n "$PHRASE" || { echo "Secret SAUVEGARDE_PHRASE manquant"; exit 1; }
+          FICHIER="bassin-de-talents-$(date -u +%Y-%m-%d).dump.gpg"
+          /usr/lib/postgresql/17/bin/pg_dump --format=custom --no-owner --no-privileges "$URL" \
+            | gpg --batch --yes --symmetric --cipher-algo AES256 --passphrase "$PHRASE" -o "$FICHIER"
+          ls -lh "$FICHIER"
+          echo "FICHIER=$FICHIER" >> "$GITHUB_ENV"
+      - name: Garder la sauvegarde 90 jours
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ env.FICHIER }}
+          path: ${{ env.FICHIER }}
+          retention-days: 90

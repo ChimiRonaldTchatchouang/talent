@@ -4,7 +4,7 @@ import { Box, Button, Flex, HStack, Spinner, Stack, Text } from "@chakra-ui/reac
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import type { ReactNode } from "react";
-import { LuBriefcase, LuFileCheck, LuHandHelping, LuInbox, LuLayoutDashboard, LuListChecks, LuLogOut, LuSettings, LuSlidersHorizontal, LuUsers, LuUsersRound } from "react-icons/lu";
+import { LuBriefcase, LuScrollText, LuTrash2, LuFileCheck, LuHandHelping, LuInbox, LuLayoutDashboard, LuListChecks, LuLogOut, LuSettings, LuSlidersHorizontal, LuUsers, LuUsersRound } from "react-icons/lu";
 import { Logo } from "@/components/marque";
 import { api } from "@/lib/api";
 import { useSession } from "@/lib/session";
@@ -20,6 +20,8 @@ const MENU = [
   { href: "/admin/parametres", libelle: "Paramètres", icone: LuSlidersHorizontal },
   { href: "/admin/administrateurs", libelle: "Administrateurs", icone: LuUsers },
   { href: "/admin/reglages", libelle: "Réglages et e-mails", icone: LuSettings },
+  { href: "/admin/journal", libelle: "Journal", icone: LuScrollText },
+  { href: "/admin/suppressions", libelle: "Suppressions", icone: LuTrash2 },
 ];
 
 export default function MiseEnPageAdmin({ children }: { children: ReactNode }) {

@@ -30,6 +30,10 @@ export default function PageReglages() {
   const [reglages, setReglages] = useState<Reglages | null>(null);
   const [emails, setEmails] = useState<{ modeDemo: boolean; expediteur: string | null; emails: Email[] } | null>(null);
   const [test, setTest] = useState(false);
+  const [demo, setDemo] = useState<{ candidats: number; recruteurs: number; actif: boolean } | null>(null);
+  const [comptesDemo, setComptesDemo] = useState<{ candidat: { identifiant: string; motDePasse: string }; recruteur: { identifiant: string; motDePasse: string } } | null>(null);
+  const [effacerDemo, setEffacerDemo] = useState(false);
+  const [occupeDemo, setOccupeDemo] = useState(false);
   const [erreurs, setErreurs] = useState<Record<string, string>>({});
   const [envoi, setEnvoi] = useState(false);
   const [ouvert, setOuvert] = useState<string | null>(null);
@@ -37,7 +41,23 @@ export default function PageReglages() {
   useEffect(() => {
     api<Reglages>("/admin/reglages").then(setReglages).catch((e) => toaster.create({ type: "error", title: messageErreur(e) }));
     chargerEmails();
+    api<{ candidats: number; recruteurs: number; actif: boolean }>("/admin/demo").then(setDemo).catch(() => undefined);
   }, []);
+
+  async function actionDemo(methode: "POST" | "DELETE") {
+    setOccupeDemo(true);
+    try {
+      const r = await api<{ candidats: number; recruteurs: number; actif: boolean; comptes?: typeof comptesDemo }>("/admin/demo", { methode });
+      setDemo(r);
+      setComptesDemo(r.comptes ?? null);
+      setEffacerDemo(false);
+      toaster.create({ type: "success", title: methode === "POST" ? "Données de démonstration créées." : "Données de démonstration effacées." });
+    } catch (e) {
+      toaster.create({ type: "error", title: messageErreur(e) });
+    } finally {
+      setOccupeDemo(false);
+    }
+  }
 
   function chargerEmails() {
     api<{ modeDemo: boolean; expediteur: string | null; emails: Email[] }>("/admin/emails").then(setEmails).catch(() => undefined);
@@ -108,6 +128,54 @@ export default function PageReglages() {
         <Button type="submit" colorPalette="emeraude" loading={envoi}>
           Enregistrer
         </Button>
+      </Carte>
+
+      <Carte>
+        <Heading as="h2" size="md" color="nuit" mb="1">
+          Données de démonstration
+        </Heading>
+        <Text color="gris" mb="4">
+          Environ 20 candidats fictifs, marqués « DÉMO », de tous les grades, avec un compte candidat et un compte recruteur de test.
+          Ils ne sont jamais montrés aux vrais recruteurs et ne reçoivent aucun e-mail.
+        </Text>
+        {comptesDemo && (
+          <Alert.Root status="warning" borderRadius="carte" mb="4">
+            <Alert.Indicator />
+            <Alert.Content>
+              <Alert.Title>Comptes de test (mots de passe affichés une seule fois)</Alert.Title>
+              <Alert.Description>
+                Candidat : {comptesDemo.candidat.identifiant} / {comptesDemo.candidat.motDePasse}
+                <br />
+                Recruteur : {comptesDemo.recruteur.identifiant} / {comptesDemo.recruteur.motDePasse}
+              </Alert.Description>
+            </Alert.Content>
+          </Alert.Root>
+        )}
+        {demo?.actif ? (
+          <Stack direction={{ base: "column", md: "row" }} gap="3" align={{ md: "center" }}>
+            <Text fontSize="sm">
+              {demo.candidats} candidat(s) et {demo.recruteurs} recruteur(s) de démonstration présents.
+            </Text>
+            {effacerDemo ? (
+              <Stack direction="row" gap="2">
+                <Button size="sm" variant="ghost" onClick={() => setEffacerDemo(false)}>
+                  Annuler
+                </Button>
+                <Button size="sm" bg="etat.refuseTexte" color="white" loading={occupeDemo} onClick={() => actionDemo("DELETE")}>
+                  Oui, tout effacer
+                </Button>
+              </Stack>
+            ) : (
+              <Button size="sm" variant="outline" color="etat.refuseTexte" onClick={() => setEffacerDemo(true)}>
+                Effacer les données de démonstration
+              </Button>
+            )}
+          </Stack>
+        ) : (
+          <Button size="sm" colorPalette="emeraude" loading={occupeDemo} onClick={() => actionDemo("POST")}>
+            Créer les données de démonstration
+          </Button>
+        )}
       </Carte>
 
       <Carte>

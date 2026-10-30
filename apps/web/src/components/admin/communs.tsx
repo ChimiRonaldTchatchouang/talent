@@ -21,6 +21,15 @@ export function EnTete({ titre, sousTitre, actions }: { titre: string; sousTitre
   );
 }
 
+/** Marque bien visible des données de démonstration. */
+export function BadgeDemo() {
+  return (
+    <Box as="span" bg="#FEF3C7" color="#92400E" borderRadius="full" px="2" py="0.5" fontSize="xs" fontWeight="700" ml="1">
+      DÉMO
+    </Box>
+  );
+}
+
 export function libelleGrade(g: ResumeCandidat["grade"]) {
   if (!g) return "Sans grade";
   return g === "HORS_BASSIN" ? "Hors bassin" : `Grade ${g}`;
@@ -58,6 +67,7 @@ export function CarteCandidat({ c }: { c: ResumeCandidat }) {
           <Box minW="0">
             <Text fontWeight="700" color="nuit" truncate>
               {c.nomComplet}
+              {c.demo && <BadgeDemo />}
             </Text>
             <Text fontSize="xs" color="gris" truncate>
               {[c.metier, c.ville].filter(Boolean).join(" · ") || "—"}

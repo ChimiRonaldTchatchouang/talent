@@ -16,7 +16,7 @@ import { Suspense, useEffect, useMemo, useState } from "react";
 import { LuColumns3, LuDownload, LuList, LuSearch, LuX } from "react-icons/lu";
 import { PastilleGrade } from "@/components/badges";
 import { Carte } from "@/components/carte";
-import { CarteCandidat, EnTete, EtatGrade, libelleGrade, TitreGrade } from "@/components/admin/communs";
+import { BadgeDemo, CarteCandidat, EnTete, EtatGrade, libelleGrade, TitreGrade } from "@/components/admin/communs";
 import { api, messageErreur } from "@/lib/api";
 import type { ListesReference, ResumeCandidat } from "@/lib/types";
 
@@ -268,6 +268,7 @@ function Vivier() {
                       <Link href={`/admin/candidats/${c.id}`}>
                         <Text fontWeight="600" color="nuit">
                           {c.nomComplet}
+                          {c.demo && <BadgeDemo />}
                         </Text>
                         <Text fontSize="xs" color="gris">
                           {c.telephone}

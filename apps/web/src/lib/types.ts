@@ -190,6 +190,7 @@ export interface ResumeCandidat {
   justificatifs: string[];
   passeportValide: boolean;
   envoyeLe: string | null;
+  demo: boolean;
 }
 
 /** Profil anonymisé, tel que le voit un recruteur : jamais de coordonnées. */

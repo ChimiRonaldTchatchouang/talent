@@ -1,5 +1,26 @@
 # Journal des livraisons
 
+## Lot 6 — Finitions et mise en ligne (30/10/2026)
+
+**Livré**
+- **Notifications e-mail (M10)** : les 8 événements de la spécification, plus la confirmation de suppression, passent
+  par Resend. Un bouton envoie un e-mail de test. Les comptes de démonstration ne reçoivent jamais d'e-mail.
+- **Journal des actions** : écran en lecture seule, avec des libellés en français. Le journal reste protégé par la base.
+- **Suppression d'un dossier (W10)** : demande du candidat avec confirmation, annulable. Validation par le cabinet,
+  qui efface le compte, le dossier, les documents, les sélections et les consultations, ainsi que l'adresse et le nom
+  dans les e-mails. Une trace anonyme est gardée, et le candidat reçoit une confirmation par e-mail.
+- **Application installable (PWA)** : manifeste, icônes, service worker qui met en cache les fichiers statiques (jamais
+  les données), page « Pas de connexion ».
+- **Données de démonstration** : 20 candidats fictifs « DÉMO » de tous les grades, un compte candidat et un compte
+  recruteur de test, créés et effacés d'un clic. Ils sont cloisonnés : un vrai recruteur ne les voit jamais.
+- **Sauvegarde hebdomadaire chiffrée** (GitHub Actions) et procédure de restauration.
+- **Guide administrateur complet**, liste de contrôle de mise en production.
+- **Sécurité** : la vérification des liens signés compare désormais le texte exact de la signature (un dernier
+  caractère modifié pouvait passer inaperçu).
+
+**Tests** : 131 tests d'API (dont suppression, démonstration, liens falsifiés).
+
+
 ## Lot 5 — Espace recruteur (30/10/2026)
 
 **Livré**

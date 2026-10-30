@@ -14,6 +14,8 @@ const poppins = Poppins({
 export const metadata: Metadata = {
   title: { default: MARQUE.nom, template: `%s · ${MARQUE.nom}` },
   description: MARQUE.accroche,
+  appleWebApp: { capable: true, title: MARQUE.nomCourt, statusBarStyle: "default" },
+  icons: { icon: "/icons/icone-192.png", apple: "/icons/apple-touch-icon.png" },
 };
 
 export const viewport: Viewport = { themeColor: "#0F2A4A", width: "device-width", initialScale: 1 };
