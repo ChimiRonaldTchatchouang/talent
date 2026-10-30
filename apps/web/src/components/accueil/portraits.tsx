@@ -1,6 +1,6 @@
 import { Box, type BoxProps } from "@chakra-ui/react";
 import Image from "next/image";
-import { PHOTOS_ACCUEIL } from "./photos";
+import { type EmplacementPhoto, PHOTOS_ACCUEIL } from "./photos";
 
 interface Personne {
   peau: string;
@@ -20,7 +20,7 @@ const PERSONNES: Personne[] = [
 
 function Illustration({ p }: { p: Personne }) {
   return (
-    <svg viewBox="0 0 200 240" width="100%" height="100%" role="img" aria-hidden preserveAspectRatio="xMidYMax slice">
+    <svg viewBox="0 0 200 240" width="100%" height="100%" role="img" aria-hidden preserveAspectRatio="xMidYMax meet">
       <rect width="200" height="240" fill={p.fond} />
       {p.coiffure === "longue" && <path d="M58 92 Q60 40 100 38 Q140 40 142 92 L146 168 L54 168 Z" fill={p.cheveux} />}
       {p.coiffure === "tresses" && (
@@ -46,15 +46,30 @@ function Illustration({ p }: { p: Personne }) {
   );
 }
 
-/** Portrait n° i : photo si elle a été fournie, sinon illustration. */
-export function Portrait({ index, ...props }: { index: number } & BoxProps) {
-  const photo = PHOTOS_ACCUEIL[index % Math.max(PHOTOS_ACCUEIL.length, 1)];
+const ILLUSTRATION_PAR_EMPLACEMENT: Record<EmplacementPhoto, number> = {
+  accueil: 0,
+  equipe: 1,
+  groupe: 2,
+  entretien: 3,
+  echange: 1,
+  metier: 2,
+  formation: 0,
+};
+
+/**
+ * Photo d'un emplacement de la page d'accueil (voir photos.ts) ; tant qu'elle n'est pas fournie,
+ * une illustration provisoire de personnes variées s'affiche.
+ */
+export function Photo({ emplacement, prioritaire = false, ...props }: { emplacement: EmplacementPhoto; prioritaire?: boolean } & BoxProps) {
+  const photo = PHOTOS_ACCUEIL[emplacement];
+  const personne = PERSONNES[ILLUSTRATION_PAR_EMPLACEMENT[emplacement] % PERSONNES.length]!;
   return (
-    <Box position="relative" overflow="hidden" borderRadius="24px" boxShadow="carte" {...props}>
+    // Le fond reprend la couleur de l'illustration : elle reste entière quel que soit le format de l'emplacement.
+    <Box position="relative" overflow="hidden" borderRadius="24px" bg={photo ? "brume" : personne.fond} {...props}>
       {photo ? (
-        <Image src={photo.src} alt={photo.alt} fill sizes="(max-width: 768px) 50vw, 300px" style={{ objectFit: "cover" }} />
+        <Image src={photo.src} alt={photo.alt} fill priority={prioritaire} sizes="(max-width: 768px) 100vw, 50vw" style={{ objectFit: "cover" }} />
       ) : (
-        <Illustration p={PERSONNES[index % PERSONNES.length]!} />
+        <Illustration p={personne} />
       )}
     </Box>
   );
