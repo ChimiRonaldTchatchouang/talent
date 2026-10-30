@@ -165,3 +165,22 @@ export const schemaInscription = z.object({
 });
 
 export const schemaTypePiece = z.enum(TYPES_PIECE);
+
+/** Motifs de refus proposés en un clic (le texte reste modifiable). */
+export const MOTIFS_REFUS_RAPIDES = [
+  "Document illisible ou flou",
+  "Document incomplet (une partie manque)",
+  "Ce n'est pas le document demandé",
+  "Document expiré",
+  "Les informations ne correspondent pas au dossier",
+] as const;
+
+/** État des justificatifs, pour le filtre du vivier. */
+export const ETATS_JUSTIFICATIFS = ["COMPLETS", "INCOMPLETS", "A_VERIFIER", "REFUSES"] as const;
+export type EtatJustificatifs = (typeof ETATS_JUSTIFICATIFS)[number];
+export const LIBELLES_ETATS_JUSTIFICATIFS: Record<EtatJustificatifs, string> = {
+  COMPLETS: "Complets",
+  INCOMPLETS: "Pièces manquantes",
+  A_VERIFIER: "Pièces à vérifier",
+  REFUSES: "Pièce refusée",
+};

@@ -68,6 +68,9 @@ export async function recalculerGrade(
     regle: resultat.regle,
     explication: resultat.elements as unknown as Prisma.InputJsonValue,
     suggestions: resultat.suggestions,
+    // Résumé pour les filtres du vivier (ex. « test de langue validé »).
+    elementsFaits: resultat.elements.filter((x) => x.etat === "FAIT").map((x) => x.element),
+    elementsAcquis: resultat.elements.filter((x) => x.acquis).map((x) => x.element),
     calculeLe: new Date(),
   };
   const actuel = dossier.grade;

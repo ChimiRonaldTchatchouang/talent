@@ -19,6 +19,7 @@ import type { Config } from "./lib/config.js";
 import { ErreurMetier } from "./lib/erreurs.js";
 import { secretLiens } from "./lib/reglages.js";
 import { pluginAuthentification } from "./plugins/authentification.js";
+import { routesAdmin } from "./routes/admin.js";
 import { routesAdministrateurs } from "./routes/administrateurs.js";
 import { routesAuth } from "./routes/auth.js";
 import { routesCandidat } from "./routes/candidat.js";
@@ -119,6 +120,7 @@ export async function construireApp(configBrute: Config, prisma: PrismaClient) {
   await app.register(routesPieces(config));
   await app.register(routesPlateformeAdmin(config));
   await app.register(routesClassement(config));
+  await app.register(routesAdmin(config));
 
   return app;
 }

@@ -308,6 +308,7 @@ model Dossier {
   grade            GradeDossier?
   historiqueGrades GradeHistorique[]
   services         ServiceCandidat[]
+  noteInternes     NoteInterne[]
 
   @@index([statut])
   @@map("dossiers")
@@ -455,22 +456,25 @@ enum EtatService {
 
 /// Grade actuel d'un dossier (R-06 : un seul grade à la fois).
 model GradeDossier {
-  dossierId    String      @id @map("dossier_id") @db.Uuid
-  dossier      Dossier     @relation(fields: [dossierId], references: [id], onDelete: Cascade)
+  dossierId      String      @id @map("dossier_id") @db.Uuid
+  dossier        Dossier     @relation(fields: [dossierId], references: [id], onDelete: Cascade)
   /// Grade calculé par le moteur (toujours à jour).
-  gradeCalcule ValeurGrade @map("grade_calcule")
+  gradeCalcule   ValeurGrade @map("grade_calcule")
   /// Grade affiché : le grade calculé, ou le grade corrigé par l'administrateur.
-  grade        ValeurGrade
-  etat         EtatGrade   @default(PROVISOIRE)
-  regle        String
-  explication  Json
-  suggestions  String[]    @default([])
-  raison       String?
-  auteurId     String?     @map("auteur_id") @db.Uuid
+  grade          ValeurGrade
+  etat           EtatGrade   @default(PROVISOIRE)
+  regle          String
+  explication    Json
+  suggestions    String[]    @default([])
+  /// Éléments « faits » (vérifiés ou réalisés) et éléments acquis pour le grade provisoire.
+  elementsFaits  String[]    @default([]) @map("elements_faits")
+  elementsAcquis String[]    @default([]) @map("elements_acquis")
+  raison         String?
+  auteurId       String?     @map("auteur_id") @db.Uuid
   /// Grade confirmé ou corrigé remis en provisoire par une modification du candidat : à revoir.
-  alerte       Boolean     @default(false)
-  calculeLe    DateTime    @default(now()) @map("calcule_le")
-  modifieLe    DateTime    @updatedAt @map("modifie_le")
+  alerte         Boolean     @default(false)
+  calculeLe      DateTime    @default(now()) @map("calcule_le")
+  modifieLe      DateTime    @updatedAt @map("modifie_le")
 
   @@index([grade, etat])
   @@map("grades")
@@ -512,4 +516,19 @@ model ServiceCandidat {
   @@unique([dossierId, serviceId])
   @@index([etat])
   @@map("services_candidats")
+}
+
+// ---------- Lot 4 : espace administrateur ----------
+
+/// Notes internes du cabinet sur un dossier (jamais visibles par le candidat ni le recruteur).
+model NoteInterne {
+  id        String   @id @default(uuid()) @db.Uuid
+  dossierId String   @map("dossier_id") @db.Uuid
+  dossier   Dossier  @relation(fields: [dossierId], references: [id], onDelete: Cascade)
+  auteurId  String?  @map("auteur_id") @db.Uuid
+  texte     String
+  creeLe    DateTime @default(now()) @map("cree_le")
+
+  @@index([dossierId])
+  @@map("notes_internes")
 }

@@ -20,6 +20,7 @@ export async function demarrer(): Promise<{ app: App; prisma: PrismaClient }> {
 export async function viderBase(prisma: PrismaClient): Promise<void> {
   await prisma.session.deleteMany();
   await prisma.serviceCandidat.deleteMany();
+  await prisma.noteInterne.deleteMany();
   await prisma.piece.deleteMany();
   await prisma.fichier.deleteMany();
   await prisma.dossier.deleteMany();
@@ -96,4 +97,48 @@ export async function jetonDuDernierEmail(prisma: PrismaClient, destinataire: st
   const trouve = /jeton=([A-Za-z0-9_-]+)/.exec(email.texte);
   if (!trouve?.[1]) throw new Error("Aucun lien dans l'e-mail");
   return trouve[1];
+}
+
+export interface OptionsCandidat {
+  prenoms?: string;
+  nom?: string;
+  ville?: string;
+  domaine?: string;
+  tranche?: string;
+  aDiplome?: boolean;
+  aPasseport?: boolean;
+  passeportExpiration?: string;
+  langues?: string[];
+  envoyer?: boolean;
+}
+
+/** Inscrit un candidat et remplit tout son dossier (par défaut : grade B, BTP, Douala, envoyé). */
+export async function candidatComplet(app: App, prisma: PrismaClient, email: string, o: OptionsCandidat = {}) {
+  const cookie = await inscrire(app, email);
+  const l = (await app.inject({ method: "GET", url: "/referentiels" })).json();
+  const id = (liste: { id: string; nom: string }[], nom: string) => liste.find((x) => x.nom === nom)!.id;
+  const etape = async (nom: string, donnees: object) => {
+    const r = await app.inject({ method: "PUT", url: `/candidat/dossier/etapes/${nom}`, payload: { donnees, terminer: true }, headers: { cookie } });
+    if (r.statusCode !== 200) throw new Error(`${nom} : ${r.body}`);
+  };
+  await etape("PERSONNEL", {
+    nom: o.nom ?? "Ngono", prenoms: o.prenoms ?? "Awa", dateNaissance: "1995-04-12", sexe: "FEMME", nationalite: "Camerounaise",
+    ville: o.ville ?? "Douala", telephoneContact: "699001122", languesParlees: o.langues ?? ["Français"],
+    aPasseport: o.aPasseport ?? false, passeportExpiration: o.passeportExpiration ?? null,
+  });
+  await etape("DIPLOME", o.aDiplome === false ? { aDiplome: false } : {
+    aDiplome: true, diplomeId: id(l.diplomes, "BTS/DUT"), diplomeIntitule: "BTS", etablissement: "IUT", diplomeAnnee: 2018, diplomePays: "Cameroun",
+  });
+  await etape("LANGUES", { aTestLangue: true, testLangueId: id(l.testsLangue, "TCF Canada"), testScore: 450, testDate: "2025-06-01" });
+  await etape("TRAVAIL", {
+    aTravaille: true, domaineId: id(l.domaines, o.domaine ?? "BTP"), metier: "Technicien", trancheExperience: o.tranche ?? "ANS_6_10", bureautique: "BON",
+    experiences: [{ employeur: "Sogea", poste: "Technicien", debut: "2015-01", fin: null, ville: "Douala" }],
+  });
+  await etape("FAMILLE", { situation: "CELIBATAIRE", enfants: "AUCUN", partAvecAccompagnants: false });
+  if (o.envoyer !== false) {
+    const r = await app.inject({ method: "POST", url: "/candidat/dossier/envoyer", payload: { certifie: true }, headers: { cookie } });
+    if (r.statusCode !== 200) throw new Error(`Envoi : ${r.body}`);
+  }
+  const dossier = await prisma.dossier.findFirstOrThrow({ where: { utilisateur: { email } } });
+  return { cookie, dossierId: dossier.id };
 }
