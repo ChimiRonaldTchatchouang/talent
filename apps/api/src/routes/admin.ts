@@ -49,8 +49,7 @@ export function routesAdmin(config: Config & { SECRET_LIENS: string }): FastifyP
           gradesAConfirmer: aConfirmer,
           alertes,
           servicesInteresses: interesses,
-          // Les sélections des recruteurs arrivent au lot 5.
-          selectionsRecues: 0,
+          selectionsRecues: await db.selectionEnvoyee.count({ where: { remplaceeLe: null, lignes: { some: { statut: "A_CONTACTER" } } } }),
           derniers: derniers.map((d) => ({
             id: d.id,
             nomComplet: [d.prenoms, d.nom].filter(Boolean).join(" ") || "Sans nom",

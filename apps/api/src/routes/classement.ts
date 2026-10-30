@@ -86,6 +86,19 @@ export function routesClassement(config: Config): FastifyPluginAsyncZod {
       },
     );
 
+    app.get(
+      "/candidat/consultations",
+      { onRequest: candidat, schema: { tags: ["Classement"], summary: "Combien de fois mon profil a été consulté par un recruteur (sans nom d'entreprise)" } },
+      async (request) => {
+        const d = await monDossier(utilisateurDe(request).id);
+        const [nombre, derniere] = await Promise.all([
+          app.prisma.consultationRecruteur.count({ where: { dossierId: d.id } }),
+          app.prisma.consultationRecruteur.findFirst({ where: { dossierId: d.id }, orderBy: { id: "desc" }, select: { creeLe: true } }),
+        ]);
+        return { nombre, derniere: derniere?.creeLe ?? null };
+      },
+    );
+
     app.post(
       "/candidat/services/:serviceId/interet",
       {

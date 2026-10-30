@@ -5,6 +5,7 @@ import type { Config } from "../lib/config.js";
 import { ErreurMetier } from "../lib/erreurs.js";
 import { journaliser } from "../lib/journal.js";
 import { empreinteLeurre, verifierMotDePasse } from "../lib/mots-de-passe.js";
+import { accesOuvert } from "../lib/recruteurs.js";
 import { exigerConnexion, utilisateurDe, type UtilisateurConnecte } from "../plugins/authentification.js";
 
 export const schemaUtilisateurPublic = z.object({
@@ -91,6 +92,14 @@ export function routesAuth(config: Config): FastifyPluginAsyncZod {
             ip: request.ip,
           });
           throw new ErreurMetier(401, CODES_ERREUR.IDENTIFIANTS_INVALIDES, MESSAGE_IDENTIFIANTS);
+        }
+
+        if (utilisateur.role === "RECRUTEUR") {
+          const acces = await app.prisma.accesRecruteur.findUnique({ where: { utilisateurId: utilisateur.id } });
+          if (!acces || !accesOuvert(acces)) {
+            await journaliser(app.prisma, { acteurId: utilisateur.id, role: "RECRUTEUR", action: "CONNEXION_ACCES_EXPIRE", cibleType: "utilisateur", cibleId: utilisateur.id, ip: request.ip });
+            throw new ErreurMetier(403, CODES_ERREUR.ACCES_EXPIRE, "Votre accès a expiré, contactez le cabinet.");
+          }
         }
 
         if (utilisateur.etat !== "ACTIF") {

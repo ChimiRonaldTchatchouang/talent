@@ -21,6 +21,8 @@ import { secretLiens } from "./lib/reglages.js";
 import { pluginAuthentification } from "./plugins/authentification.js";
 import { routesAdmin } from "./routes/admin.js";
 import { routesAdministrateurs } from "./routes/administrateurs.js";
+import { routesRecruteur } from "./routes/recruteur.js";
+import { routesRecruteursAdmin } from "./routes/recruteurs-admin.js";
 import { routesAuth } from "./routes/auth.js";
 import { routesCandidat } from "./routes/candidat.js";
 import { routesClassement } from "./routes/classement.js";
@@ -121,6 +123,8 @@ export async function construireApp(configBrute: Config, prisma: PrismaClient) {
   await app.register(routesPlateformeAdmin(config));
   await app.register(routesClassement(config));
   await app.register(routesAdmin(config));
+  await app.register(routesRecruteursAdmin(config));
+  await app.register(routesRecruteur(config));
 
   return app;
 }

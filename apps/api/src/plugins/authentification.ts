@@ -3,6 +3,7 @@ import type { PrismaClient, Role, Utilisateur } from "@prisma/client";
 import type { FastifyReply, FastifyRequest, onRequestAsyncHookHandler } from "fastify";
 import fp from "fastify-plugin";
 import { erreurs } from "../lib/erreurs.js";
+import { accesOuvert } from "../lib/recruteurs.js";
 
 export const NOM_COOKIE_SESSION = "bdt_session";
 
@@ -68,10 +69,12 @@ export const pluginAuthentification = fp<OptionsAuth>(async (app, options) => {
     if (!jeton) return;
     const session = await app.prisma.session.findUnique({
       where: { id: empreinte(jeton) },
-      include: { utilisateur: true },
+      include: { utilisateur: { include: { accesRecruteur: { select: { dateFin: true } } } } },
     });
     if (!session) return;
-    if (session.expireLe < new Date() || session.utilisateur.etat !== "ACTIF") {
+    const recruteurExpire =
+      session.utilisateur.role === "RECRUTEUR" && (!session.utilisateur.accesRecruteur || !accesOuvert(session.utilisateur.accesRecruteur));
+    if (session.expireLe < new Date() || session.utilisateur.etat !== "ACTIF" || recruteurExpire) {
       await app.prisma.session.delete({ where: { id: session.id } }).catch(() => undefined);
       return;
     }

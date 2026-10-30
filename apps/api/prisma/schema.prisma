@@ -56,6 +56,7 @@ model Utilisateur {
   jetons               Jeton[]
   competencesProposees Competence[]           @relation("CompetenceProposee")
   versionsParametres   ParametresClassement[]
+  accesRecruteur       AccesRecruteur?
 
   @@map("utilisateurs")
 }
@@ -302,13 +303,16 @@ model Dossier {
   niveauEvalueLe    DateTime?    @map("niveau_evalue_le")
   niveauEvalueParId String?      @map("niveau_evalue_par_id") @db.Uuid
 
-  experiences      Experience[]
-  competences      DossierCompetence[]
-  pieces           Piece[]
-  grade            GradeDossier?
-  historiqueGrades GradeHistorique[]
-  services         ServiceCandidat[]
-  noteInternes     NoteInterne[]
+  experiences            Experience[]
+  competences            DossierCompetence[]
+  pieces                 Piece[]
+  grade                  GradeDossier?
+  historiqueGrades       GradeHistorique[]
+  services               ServiceCandidat[]
+  noteInternes           NoteInterne[]
+  selectionLignes        SelectionLigne[]
+  selectionEnvoyeeLignes SelectionEnvoyeeLigne[]
+  consultationRecruteurs ConsultationRecruteur[]
 
   @@index([statut])
   @@map("dossiers")
@@ -531,4 +535,102 @@ model NoteInterne {
 
   @@index([dossierId])
   @@map("notes_internes")
+}
+
+// ---------- Lot 5 : espace recruteur ----------
+
+enum StatutLigneSelection {
+  A_CONTACTER
+  MIS_EN_RELATION
+  RETENU
+  NON_RETENU
+}
+
+/// Accès limité d'un recruteur invité (M9). Toujours une date de fin (R-16).
+model AccesRecruteur {
+  id               String        @id @default(uuid()) @db.Uuid
+  utilisateurId    String        @unique @map("utilisateur_id") @db.Uuid
+  utilisateur      Utilisateur   @relation(fields: [utilisateurId], references: [id], onDelete: Cascade)
+  entreprise       String
+  pays             String
+  /// Périmètre : grades visibles (au moins un) et domaines visibles (vide = tous les domaines).
+  gradesVisibles   ValeurGrade[] @map("grades_visibles")
+  domainesVisibles String[]      @default([]) @map("domaines_visibles")
+  /// Dernier jour d'accès (inclus).
+  dateFin          DateTime      @map("date_fin") @db.Date
+  alerteFinEnvoyee Boolean       @default(false) @map("alerte_fin_envoyee")
+  creeParId        String?       @map("cree_par_id") @db.Uuid
+  creeLe           DateTime      @default(now()) @map("cree_le")
+  modifieLe        DateTime      @updatedAt @map("modifie_le")
+
+  selection     Selection?
+  envois        SelectionEnvoyee[]
+  consultations ConsultationRecruteur[]
+
+  @@map("acces_recruteurs")
+}
+
+/// Sélection en cours de préparation par le recruteur (une seule par accès).
+model Selection {
+  id        String           @id @default(uuid()) @db.Uuid
+  accesId   String           @unique @map("acces_id") @db.Uuid
+  acces     AccesRecruteur   @relation(fields: [accesId], references: [id], onDelete: Cascade)
+  message   String           @default("")
+  modifieLe DateTime         @updatedAt @map("modifie_le")
+  lignes    SelectionLigne[]
+
+  @@map("selections")
+}
+
+model SelectionLigne {
+  selectionId String    @map("selection_id") @db.Uuid
+  selection   Selection @relation(fields: [selectionId], references: [id], onDelete: Cascade)
+  dossierId   String    @map("dossier_id") @db.Uuid
+  dossier     Dossier   @relation(fields: [dossierId], references: [id], onDelete: Cascade)
+  commentaire String    @default("")
+  ajouteLe    DateTime  @default(now()) @map("ajoute_le")
+
+  @@id([selectionId, dossierId])
+  @@map("selections_lignes")
+}
+
+/// Sélection envoyée au cabinet. Un nouvel envoi remplace le précédent, qui reste dans l'historique.
+model SelectionEnvoyee {
+  id          String                  @id @default(uuid()) @db.Uuid
+  accesId     String                  @map("acces_id") @db.Uuid
+  acces       AccesRecruteur          @relation(fields: [accesId], references: [id], onDelete: Cascade)
+  message     String                  @default("")
+  envoyeeLe   DateTime                @default(now()) @map("envoyee_le")
+  remplaceeLe DateTime?               @map("remplacee_le")
+  lignes      SelectionEnvoyeeLigne[]
+
+  @@index([accesId])
+  @@map("selections_envoyees")
+}
+
+model SelectionEnvoyeeLigne {
+  id          String               @id @default(uuid()) @db.Uuid
+  envoiId     String               @map("envoi_id") @db.Uuid
+  envoi       SelectionEnvoyee     @relation(fields: [envoiId], references: [id], onDelete: Cascade)
+  dossierId   String               @map("dossier_id") @db.Uuid
+  dossier     Dossier              @relation(fields: [dossierId], references: [id], onDelete: Cascade)
+  commentaire String               @default("")
+  statut      StatutLigneSelection @default(A_CONTACTER)
+  modifieLe   DateTime             @updatedAt @map("modifie_le")
+
+  @@index([envoiId])
+  @@map("selections_envoyees_lignes")
+}
+
+/// Fiche consultée par un recruteur (M11 : le candidat voit le nombre et la date, sans le nom de l'entreprise).
+model ConsultationRecruteur {
+  id        BigInt         @id @default(autoincrement())
+  accesId   String         @map("acces_id") @db.Uuid
+  acces     AccesRecruteur @relation(fields: [accesId], references: [id], onDelete: Cascade)
+  dossierId String         @map("dossier_id") @db.Uuid
+  dossier   Dossier        @relation(fields: [dossierId], references: [id], onDelete: Cascade)
+  creeLe    DateTime       @default(now()) @map("cree_le")
+
+  @@index([dossierId])
+  @@map("consultations_recruteurs")
 }

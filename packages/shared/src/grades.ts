@@ -41,3 +41,13 @@ export const LIBELLES_ETATS_SERVICE: Record<EtatService, string> = {
   REALISE: "Réalisé",
   ANNULE: "Annulé",
 };
+
+/** Suivi par le cabinet d'un candidat retenu dans une sélection de recruteur (M9). */
+export const STATUTS_LIGNE_SELECTION = ["A_CONTACTER", "MIS_EN_RELATION", "RETENU", "NON_RETENU"] as const;
+export type StatutLigneSelection = (typeof STATUTS_LIGNE_SELECTION)[number];
+export const LIBELLES_STATUTS_LIGNE: Record<StatutLigneSelection, string> = {
+  A_CONTACTER: "À contacter",
+  MIS_EN_RELATION: "Mis en relation",
+  RETENU: "Retenu par l'employeur",
+  NON_RETENU: "Non retenu",
+};

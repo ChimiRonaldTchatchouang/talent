@@ -20,6 +20,7 @@ export async function demarrer(): Promise<{ app: App; prisma: PrismaClient }> {
 export async function viderBase(prisma: PrismaClient): Promise<void> {
   await prisma.session.deleteMany();
   await prisma.serviceCandidat.deleteMany();
+  await prisma.accesRecruteur.deleteMany();
   await prisma.noteInterne.deleteMany();
   await prisma.piece.deleteMany();
   await prisma.fichier.deleteMany();
@@ -52,6 +53,10 @@ export async function creerCompte(
       telephone: options.telephone ?? null,
       estPrincipal: options.estPrincipal ?? false,
       motDePasseHash: await hacherMotDePasse(MOT_DE_PASSE),
+      // Un recruteur n'existe qu'avec un accès (périmètre et date de fin).
+      ...(role === "RECRUTEUR"
+        ? { accesRecruteur: { create: { entreprise: "Test", pays: "Canada", gradesVisibles: ["A"], dateFin: new Date(Date.now() + 30 * 86400000) } } }
+        : {}),
     },
   });
 }
