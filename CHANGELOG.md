@@ -15,6 +15,8 @@
 - Documentation de l'API (OpenAPI) sur `/documentation`.
 - Intégration continue GitHub Actions (typage, lint, tests sur PostgreSQL 16, build). Blueprint Render (`render.yaml`).
 
-**Tests** : 34 tests d'API (connexion, droits, journal, listes, paramètres, admin principal) et 7 tests des outils partagés.
+- Connexion à Neon par WebSocket (port 443) et outil de migration compatible Prisma (voir D-17).
+
+**Tests** : 36 tests d'API (connexion, droits, journal, listes, paramètres, admin principal, migrations) et 7 tests des outils partagés.
 
 **Reste à faire pour clore le lot** : brancher Vercel, Render et Neon (voir `docs/DEPLOIEMENT.md`).

@@ -1,6 +1,7 @@
 // Recrée la base de test « bdt_tests » à chaque passage et y applique les migrations.
-import { execFileSync } from "node:child_process";
 import pg from "pg";
+import { appliquerMigrations } from "../src/lib/migrations.js";
+import { creerReserveSql } from "../src/lib/prisma.js";
 
 export default async function preparer({ provide }: { provide: (cle: string, valeur: string) => void }) {
   const urlAdmin = process.env.TEST_DATABASE_URL_ADMIN ?? "postgresql://postgres:postgres@localhost:5432/postgres";
@@ -13,10 +14,10 @@ export default async function preparer({ provide }: { provide: (cle: string, val
   const url = new URL(urlAdmin);
   url.pathname = "/bdt_tests";
   const urlTests = url.toString();
-  execFileSync("npx", ["prisma", "migrate", "deploy"], {
-    env: { ...process.env, DATABASE_URL: urlTests, DATABASE_URL_DIRECTE: urlTests },
-    stdio: "ignore",
-  });
+  // Même outil de migration qu'en production.
+  const reserve = creerReserveSql(urlTests);
+  await appliquerMigrations(reserve);
+  await reserve.end();
   provide("urlBaseTests", urlTests);
 }
 

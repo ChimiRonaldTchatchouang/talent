@@ -25,5 +25,6 @@ Décisions prises par défaut : `DECISIONS.md`. Livraisons : `CHANGELOG.md`.
 - Tout : `pnpm install`, `pnpm typecheck`, `pnpm lint`, `pnpm test`, `pnpm build`
 - API : `cd apps/api && pnpm test` (PostgreSQL 16 local ; la base `bdt_tests` est recréée à chaque passage, jamais sur Neon)
   - `TEST_DATABASE_URL_ADMIN=postgresql://postgres:postgres@localhost:5432/postgres`
-  - Nouvelle migration : `DATABASE_URL=... DATABASE_URL_DIRECTE=... npx prisma migrate dev --name nom`
+  - Nouvelle migration (base locale) : `DATABASE_URL=... DATABASE_URL_DIRECTE=... npx prisma migrate dev --name nom`
+  - Application des migrations : `pnpm migrer` (outil maison, WebSocket pour Neon, voir D-17). Ne pas utiliser `prisma migrate deploy` sur Neon.
 - Après une modification de `packages/shared` : `pnpm --filter @bdt/shared build`.

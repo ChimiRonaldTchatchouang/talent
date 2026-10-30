@@ -19,8 +19,6 @@ services:
         value: production
       - key: DATABASE_URL
         sync: false
-      - key: DATABASE_URL_DIRECTE
-        sync: false
       - key: URL_SITE
         sync: false
       - key: ADMIN_PRINCIPAL_EMAIL

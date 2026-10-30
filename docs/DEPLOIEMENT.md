@@ -5,19 +5,17 @@ Trois services gratuits, tous reliés au dépôt GitHub. Chaque fusion dans `mai
 ## 1. Base de données : Neon
 
 1. Créer un projet Neon. Région retenue : AWS US East 2 (Ohio). Render est placé dans la même région (`render.yaml`).
-2. Récupérer deux chaînes de connexion :
-   - **avec pooler** (« Pooled connection ») → `DATABASE_URL`
-   - **sans pooler** (« Direct connection ») → `DATABASE_URL_DIRECTE` (sert aux migrations)
-3. À la fin des deux chaînes, ajouter `&connect_timeout=30` et retirer `&channel_binding=require`.
-   Sur l'offre gratuite, Neon met la base en veille. Sans délai suffisant, le réveil provoque l'erreur
-   `P1001: Can't reach database server`.
+2. Bouton **Connect** → copier la chaîne **avec pooler** (l'adresse contient `-pooler`) avec le bouton Copier,
+   sans la retaper. Retirer `&channel_binding=require` à la fin. C'est la valeur de `DATABASE_URL`.
+3. L'API joint Neon par **WebSocket sur le port 443**, et non sur le port PostgreSQL 5432 (bloqué depuis Render,
+   erreur `P1001`, voir D-17). Les migrations utilisent le même chemin.
 4. Rien d'autre à faire : les tables sont créées au premier démarrage de l'API.
 
 ## 2. API : Render
 
 1. Sur Render : *New* → *Blueprint* → choisir le dépôt `talent`. Render lit `render.yaml`.
 2. Renseigner les variables demandées :
-   - `DATABASE_URL`, `DATABASE_URL_DIRECTE` (Neon)
+   - `DATABASE_URL` (Neon, chaîne avec pooler)
    - `URL_SITE` : adresse du site (ex. `https://bassin-de-talents.vercel.app`, puis le domaine du client)
    - `ADMIN_PRINCIPAL_EMAIL`, `ADMIN_PRINCIPAL_MOT_DE_PASSE` (12 caractères minimum), `ADMIN_PRINCIPAL_NOM`
 3. À chaque démarrage, l'API applique les migrations, charge les listes de départ si elles sont vides, puis crée

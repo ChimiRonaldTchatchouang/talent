@@ -38,10 +38,10 @@ pnpm install
 cp .env.example apps/api/.env
 ```
 
-Dans `apps/api/.env`, renseignez `DATABASE_URL`, `DATABASE_URL_DIRECTE` et le compte administrateur principal. Ensuite :
+Dans `apps/api/.env`, renseignez `DATABASE_URL` et le compte administrateur principal. Ensuite :
 
 ```bash
-cd apps/api && npx prisma migrate deploy && pnpm initialiser
+cd apps/api && pnpm migrer && pnpm initialiser
 ```
 
 ```bash
@@ -70,7 +70,7 @@ Les tests de l'API recréent la base `bdt_tests` à chaque passage, sur le Postg
 ## Déploiement
 
 Voir [`docs/DEPLOIEMENT.md`](docs/DEPLOIEMENT.md). Résumé : chaque fusion dans `main` redéploie l'API (Render) et
-le site (Vercel). Les migrations de base s'appliquent au démarrage de l'API.
+le site (Vercel). Les migrations de base s'appliquent au démarrage de l'API. Neon est joint par WebSocket (port 443).
 
 ## Sauvegarde
 
