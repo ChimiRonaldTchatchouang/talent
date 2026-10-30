@@ -191,3 +191,26 @@ export interface ResumeCandidat {
   passeportValide: boolean;
   envoyeLe: string | null;
 }
+
+/** Profil anonymisé, tel que le voit un recruteur : jamais de coordonnées. */
+export interface ProfilAnonyme {
+  id: string;
+  nom: string;
+  grade: Classement["grade"] | null;
+  metier: string | null;
+  domaine: string | null;
+  experience: string | null;
+  niveauDiplome: string | null;
+  competences: string[];
+  langues: string[];
+  testLangue: { nom: string; score: number | null } | null;
+  badges: { diplomeVerifie: boolean; testVerifie: boolean; coache: boolean; passeportValide: boolean };
+  dansSelection?: boolean;
+}
+export interface SelectionRecruteur {
+  message: string;
+  lignes: { profil: ProfilAnonyme; commentaire: string }[];
+  retires: string | null;
+  dernierEnvoi: string | null;
+  envoye?: boolean;
+}

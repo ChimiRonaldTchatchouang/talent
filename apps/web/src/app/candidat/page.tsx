@@ -18,10 +18,12 @@ export default function Sommaire() {
   const [moi, setMoi] = useState<UtilisateurPublic | null>(null);
   const [renvoi, setRenvoi] = useState(false);
   const [classement, setClassement] = useState<Classement | null>(null);
+  const [consultations, setConsultations] = useState<{ nombre: number; derniere: string | null } | null>(null);
 
   useEffect(() => {
     api<{ utilisateur: UtilisateurPublic }>("/auth/moi").then((r) => setMoi(r.utilisateur)).catch(() => undefined);
     api<Classement>("/candidat/classement").then(setClassement).catch(() => undefined);
+    api<{ nombre: number; derniere: string | null }>("/candidat/consultations").then(setConsultations).catch(() => undefined);
   }, []);
 
   if (!reponse) return <Spinner color="emeraude.600" />;
@@ -163,6 +165,12 @@ export default function Sommaire() {
             Mon profil peut être présenté à des recruteurs, sans mes coordonnées ni mes documents.
           </Switch.Label>
         </Switch.Root>
+        {consultations && consultations.nombre > 0 && (
+          <Text fontSize="sm" color="gris" mt="3">
+            Ton profil a été consulté {consultations.nombre} fois par des recruteurs (dernière fois le{" "}
+            {new Date(consultations.derniere!).toLocaleDateString("fr-FR")}).
+          </Text>
+        )}
       </Carte>
     </Stack>
   );

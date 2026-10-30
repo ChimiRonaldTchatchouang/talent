@@ -1,5 +1,21 @@
 # Journal des livraisons
 
+## Lot 5 — Espace recruteur (30/10/2026)
+
+**Livré**
+- **Accès recruteur** créé par le cabinet : nom, entreprise, pays, e-mail, périmètre (grades et domaines visibles), date de fin obligatoire. L'aperçu « Ce recruteur verra N profils » se met à jour pendant la saisie. Les identifiants partent par e-mail. Le cabinet peut prolonger, désactiver ou générer un nouveau mot de passe.
+- **Règles de visibilité** :
+  - R-14 : seuls les profils envoyés, au grade confirmé, dans le périmètre, dont le candidat a donné son accord, sont visibles. Ce périmètre est vérifié à chaque lecture.
+  - R-15 : le recruteur ne reçoit jamais de coordonnées ni de documents ; seule une liste de champs autorisés sort de la base.
+  - Un lien direct vers un profil hors périmètre est refusé et inscrit au journal.
+- **Espace recruteur** (vouvoiement) : profils anonymisés avec filtres (expérience, langue, compétence, diplôme vérifié, test vérifié, passeport valide), fiche détaillée, sélection avec un commentaire par profil et un message, puis envoi au cabinet.
+- **Accès expiré** : connexion refusée avec « Votre accès a expiré, contactez le cabinet. », et session en cours coupée (T11). Les administrateurs sont prévenus 3 jours avant la fin.
+- **Sélections reçues** côté cabinet : vrais noms, téléphone, commentaires, et suivi de chaque candidat (à contacter, mis en relation, retenu par l'employeur, non retenu). Un nouvel envoi remplace le précédent, qui reste dans l'historique. Un candidat sorti du périmètre est retiré de la sélection non envoyée, avec un message.
+- **Côté candidat** : nombre de consultations de son profil par des recruteurs, et date de la dernière, sans le nom de l'entreprise.
+
+**Tests** : 126 tests d'API, dont T10 (un recruteur « Grade A, BTP » ne reçoit ni B, ni autre domaine, ni téléphone, e-mail, nom de famille, ville ou date de naissance) et T11 (accès expiré). Parcours complet vérifié dans un navigateur : le cabinet crée l'accès, le recruteur choisit et envoie, le cabinet reçoit et suit.
+
+
 ## Lot 4 — Espace administrateur (30/10/2026)
 
 **Livré**

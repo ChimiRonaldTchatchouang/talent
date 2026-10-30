@@ -81,7 +81,7 @@ export default function TableauDeBord() {
         <Tuile titre="Grades provisoires à confirmer" valeur={t.gradesAConfirmer} href="/admin/vivier?etatGrade=PROVISOIRE&vue=liste" accent />
         <Tuile titre="Grades à revoir (dossier modifié)" valeur={t.alertes} href="/admin/vivier?alerte=true&vue=liste" accent />
         <Tuile titre="Candidats intéressés par un service" valeur={t.servicesInteresses} href="/admin/services" accent />
-        <Tuile titre="Sélections de recruteurs reçues" valeur={t.selectionsRecues} href="/admin" />
+        <Tuile titre="Sélections de recruteurs à traiter" valeur={t.selectionsRecues} href="/admin/selections" accent />
       </SimpleGrid>
 
       <Carte>

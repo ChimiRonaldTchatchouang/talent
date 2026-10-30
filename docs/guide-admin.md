@@ -36,6 +36,24 @@ revient dans la file.
 ## Services
 La liste des candidats intéressés par un service, et des services en cours. Un clic fait passer à l'étape suivante.
 
+## Recruteurs
+Menu **Recruteurs** :
+1. Remplissez le nom, l'entreprise, le pays, l'e-mail et la **date de fin** de l'accès.
+2. Choisissez les **grades visibles** et, si besoin, les **domaines visibles** (« Tous » par défaut).
+3. Vérifiez la phrase « Ce recruteur verra N profils ». Seuls les dossiers au grade confirmé, dont le candidat a
+   accepté d'être présenté, sont comptés.
+4. Cliquez sur **Créer l'accès** : le recruteur reçoit ses identifiants par e-mail. Le mot de passe est aussi
+   affiché une fois à l'écran.
+
+Dans la liste, vous pouvez changer la date de fin, désactiver un accès ou envoyer un nouveau mot de passe.
+Le recruteur ne voit jamais le téléphone, l'e-mail, la ville ni les documents d'un candidat.
+
+## Sélections reçues
+Chaque sélection envoyée par un recruteur apparaît ici, avec les vrais noms, les téléphones et ses commentaires.
+Pour chaque candidat, indiquez où vous en êtes : à contacter, mis en relation, retenu par l'employeur, non retenu.
+Si le recruteur renvoie une sélection, elle remplace la précédente (visible avec « Voir aussi les anciennes
+versions »).
+
 ## Listes de référence
 Menu **Listes de référence** : domaines, compétences, tests de langue, services et diplômes.
 - **Ajouter** : remplissez le cadre en haut de l'onglet.
