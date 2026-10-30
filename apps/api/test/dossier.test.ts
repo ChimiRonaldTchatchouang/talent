@@ -175,7 +175,8 @@ describe("Étapes du dossier (W2)", () => {
 
     // Modification après envoi : autorisée et journalisée.
     expect((await enregistrer("FAMILLE", { enfants: "UN" })).statusCode).toBe(200);
-    expect(await prisma.journal.count({ where: { action: "DOSSIER_MODIFIE_APRES_ENVOI" } })).toBe(1);
+    // Le journal n'est jamais vidé entre deux tests : on compte seulement les entrées de ce dossier.
+    expect(await prisma.journal.count({ where: { action: "DOSSIER_MODIFIE_APRES_ENVOI", cibleId: envoi.json().dossier.id } })).toBe(1);
   });
 
   it("refuse l'envoi tant qu'une étape n'est pas terminée", async () => {
