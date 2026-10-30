@@ -55,6 +55,12 @@ interface Definition {
   modifier: (db: PrismaClient, id: string, donnees: Record<string, unknown>) => Promise<Ligne>;
 }
 
+/** Tri alphabétique français (« Électricité » avec les E, pas après le Z). */
+const comparer = (a: string, b: string) => a.localeCompare(b, "fr", { sensitivity: "base" });
+function trierParNom<T extends { nom: string }>(lignes: T[]): T[] {
+  return [...lignes].sort((a, b) => comparer(a.nom, b.nom));
+}
+
 const versNombre = (d: Prisma.Decimal | null) => (d === null ? null : d.toNumber());
 
 const competenceAvecDomaine = { domaine: { select: { nom: true } } } as const;
@@ -70,11 +76,16 @@ function formaterCompetence(
     actif: c.actif,
   };
 }
-const formaterTest = (t: { id: string; nom: string; scoreMinimum: Prisma.Decimal | null; actif: boolean }): Ligne => ({
+const formaterTest = (t: {
+  id: string;
+  nom: string;
+  scoreMinimum: Prisma.Decimal | null;
+  actif: boolean;
+}): Ligne & { nom: string } => ({
   ...t,
   scoreMinimum: versNombre(t.scoreMinimum),
 });
-const formaterService = (s: Ligne) => ({
+const formaterService = (s: Ligne & { nom: string }) => ({
   id: s.id,
   nom: s.nom,
   description: s.description,
@@ -90,8 +101,7 @@ const DEFINITIONS: Definition[] = [
     sortie: sDomaine,
     creation: schemaDomaine,
     maj: schemaDomaineMaj,
-    lister: (db, f) =>
-      db.domaine.findMany({ where: f.actifSeulement ? { actif: true } : {}, orderBy: { nom: "asc" } }),
+    lister: async (db, f) => trierParNom(await db.domaine.findMany({ where: f.actifSeulement ? { actif: true } : {} })),
     creer: (db, d) => db.domaine.create({ data: d as Prisma.DomaineCreateInput }),
     modifier: (db, id, d) => db.domaine.update({ where: { id }, data: d }),
   },
@@ -110,9 +120,10 @@ const DEFINITIONS: Definition[] = [
               ? { statut: f.statut as "VALIDEE" | "PROPOSEE" | "REJETEE" }
               : {},
           include: competenceAvecDomaine,
-          orderBy: [{ domaine: { nom: "asc" } }, { nom: "asc" }],
         })
-      ).map(formaterCompetence),
+      )
+        .map(formaterCompetence)
+        .sort((a, b) => comparer(a.domaine, b.domaine) || comparer(a.nom, b.nom)),
     creer: async (db, d) =>
       formaterCompetence(
         await db.competence.create({
@@ -130,9 +141,7 @@ const DEFINITIONS: Definition[] = [
     creation: schemaTestLangue,
     maj: schemaTestLangueMaj,
     lister: async (db, f) =>
-      (await db.testLangue.findMany({ where: f.actifSeulement ? { actif: true } : {}, orderBy: { nom: "asc" } })).map(
-        formaterTest,
-      ),
+      trierParNom((await db.testLangue.findMany({ where: f.actifSeulement ? { actif: true } : {} })).map(formaterTest)),
     creer: async (db, d) => formaterTest(await db.testLangue.create({ data: d as Prisma.TestLangueCreateInput })),
     modifier: async (db, id, d) => formaterTest(await db.testLangue.update({ where: { id }, data: d })),
   },
@@ -143,9 +152,7 @@ const DEFINITIONS: Definition[] = [
     creation: schemaService,
     maj: schemaServiceMaj,
     lister: async (db, f) =>
-      (await db.service.findMany({ where: f.actifSeulement ? { actif: true } : {}, orderBy: { nom: "asc" } })).map(
-        formaterService,
-      ),
+      trierParNom((await db.service.findMany({ where: f.actifSeulement ? { actif: true } : {} })).map(formaterService)),
     creer: async (db, d) => formaterService(await db.service.create({ data: d as Prisma.ServiceCreateInput })),
     modifier: async (db, id, d) => formaterService(await db.service.update({ where: { id }, data: d })),
   },

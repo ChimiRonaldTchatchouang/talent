@@ -4,3 +4,4 @@ export * from "./identifiants.js";
 export * from "./referentiels.js";
 export * from "./parametres.js";
 export * from "./erreurs.js";
+export * from "./grades.js";

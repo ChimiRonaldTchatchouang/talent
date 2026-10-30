@@ -144,3 +144,10 @@ describe("Administrateur principal", () => {
     await expect(creerAdminPrincipal(prisma, { email: "a@b.cm", motDePasse: "court" })).rejects.toThrow();
   });
 });
+
+describe("Tri", () => {
+  it("trie les domaines dans l'ordre alphabétique français", async () => {
+    const noms = (await app.inject({ method: "GET", url: "/referentiels" })).json().domaines.map((d: { nom: string }) => d.nom);
+    expect(noms.indexOf("Électricité")).toBeLessThan(noms.indexOf("Hôtellerie"));
+  });
+});

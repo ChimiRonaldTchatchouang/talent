@@ -1,0 +1,30 @@
+# Blueprint Render : l'API, déployée automatiquement à chaque fusion dans main.
+services:
+  - type: web
+    name: bassin-de-talents-api
+    runtime: node
+    plan: free
+    region: frankfurt
+    branch: main
+    autoDeploy: true
+    buildCommand: corepack enable && pnpm install --frozen-lockfile && pnpm --filter @bdt/api build
+    # Migrations, listes de départ et administrateur principal (sans effet s'ils existent déjà), puis démarrage.
+    startCommand: pnpm --filter @bdt/api demarrage
+    healthCheckPath: /sante
+    envVars:
+      - key: NODE_VERSION
+        value: "22"
+      - key: NODE_ENV
+        value: production
+      - key: DATABASE_URL
+        sync: false
+      - key: DATABASE_URL_DIRECTE
+        sync: false
+      - key: URL_SITE
+        sync: false
+      - key: ADMIN_PRINCIPAL_EMAIL
+        sync: false
+      - key: ADMIN_PRINCIPAL_MOT_DE_PASSE
+        sync: false
+      - key: ADMIN_PRINCIPAL_NOM
+        sync: false
