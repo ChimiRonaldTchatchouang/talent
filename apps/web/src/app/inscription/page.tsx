@@ -66,10 +66,10 @@ export default function Inscription() {
           )}
 
           <Field.Root invalid={!!details.identifiant}>
-            <Field.Label>{parTelephone ? "Ton numéro de téléphone" : "Ton adresse e-mail"}</Field.Label>
+            <Field.Label color="gris" fontWeight="500">{parTelephone ? "Ton numéro de téléphone" : "Ton adresse e-mail"}</Field.Label>
             <Input
+              variant="flushed"
               size="lg"
-              bg="brume"
               type={parTelephone ? "tel" : "email"}
               inputMode={parTelephone ? "tel" : "email"}
               autoComplete={parTelephone ? "tel" : "email"}
@@ -100,11 +100,11 @@ export default function Inscription() {
           </Button>
 
           <Field.Root invalid={!!details.motDePasse}>
-            <Field.Label>Choisis un mot de passe</Field.Label>
+            <Field.Label color="gris" fontWeight="500">Choisis un mot de passe</Field.Label>
             <Box position="relative" w="full">
               <Input
+                variant="flushed"
                 size="lg"
-                bg="brume"
                 type={voir ? "text" : "password"}
                 autoComplete="new-password"
                 value={motDePasse}
@@ -113,13 +113,15 @@ export default function Inscription() {
               />
               <Button
                 position="absolute"
-                right="1"
+                right="0"
                 top="50%"
                 transform="translateY(-50%)"
                 variant="ghost"
                 size="sm"
                 aria-label={voir ? "Cacher le mot de passe" : "Afficher le mot de passe"}
                 onClick={() => setVoir(!voir)}
+                _hover={{ transform: "translateY(-50%)", boxShadow: "none", bg: "brume" }}
+                _active={{ transform: "translateY(-50%) scale(0.95)" }}
               >
                 {voir ? <LuEyeOff /> : <LuEye />}
               </Button>
@@ -156,7 +158,7 @@ export default function Inscription() {
             </Text>
           </Stack>
 
-          <Button type="submit" size="lg" colorPalette="emeraude" loading={envoi} loadingText="Création…">
+          <Button type="submit" size="lg" colorPalette="emeraude" borderRadius="full" loading={envoi} loadingText="Création…">
             Créer mon compte
           </Button>
         </Stack>

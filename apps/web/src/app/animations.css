@@ -1,0 +1,55 @@
+/* Animations de la plateforme : légères (CSS uniquement) et désactivées si le téléphone demande moins de mouvement. */
+
+/* Transition entre les pages */
+@keyframes bdt-entree-page {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: none; }
+}
+.bdt-page {
+  animation: bdt-entree-page 0.45s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+/* Apparition en fondu au défilement (et disparition quand l'élément sort de l'écran) */
+.bdt-apparition {
+  opacity: 0;
+  transform: translateY(28px);
+  transition: opacity 0.7s cubic-bezier(0.22, 1, 0.36, 1), transform 0.7s cubic-bezier(0.22, 1, 0.36, 1);
+  transition-delay: var(--bdt-delai, 0ms);
+  will-change: opacity, transform;
+}
+.bdt-apparition[data-sens="gauche"] { transform: translateX(-32px); }
+.bdt-apparition[data-sens="droite"] { transform: translateX(32px); }
+.bdt-apparition[data-sens="zoom"] { transform: scale(0.96); }
+.bdt-apparition[data-visible="true"] {
+  opacity: 1;
+  transform: none;
+}
+
+/* Parallaxe : le décalage est calculé au défilement (voir animations.tsx) */
+.bdt-parallaxe {
+  will-change: transform;
+  transform: translate3d(0, var(--bdt-decalage, 0px), 0);
+}
+
+/* Liens et cartes cliquables : légère élévation au survol, enfoncement au clic */
+.bdt-cliquable {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.bdt-cliquable:hover { transform: translateY(-3px); box-shadow: 0 12px 28px rgba(16, 27, 43, 0.12); }
+.bdt-cliquable:active { transform: translateY(0) scale(0.99); }
+
+@media (prefers-reduced-motion: reduce) {
+  .bdt-page, .bdt-apparition, .bdt-parallaxe, .bdt-cliquable { animation: none !important; transition: none !important; transform: none !important; opacity: 1 !important; }
+  html { scroll-behavior: auto !important; }
+}
+
+html { scroll-behavior: smooth; }
+
+/* Petites cartes qui flottent doucement sur la photo du bandeau */
+@keyframes bdt-flotter {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+.bdt-flottant { animation: bdt-flotter 5s ease-in-out infinite; }
+.bdt-flottant-lent { animation-duration: 6.5s; animation-delay: -2s; }
+@media (prefers-reduced-motion: reduce) { .bdt-flottant { animation: none !important; } }

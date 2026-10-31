@@ -2,6 +2,7 @@ import { MARQUE } from "@bdt/shared";
 import type { Metadata, Viewport } from "next";
 import { Poppins } from "next/font/google";
 import type { ReactNode } from "react";
+import "./animations.css";
 import { Providers } from "./providers";
 
 const poppins = Poppins({

@@ -42,11 +42,11 @@ function Formulaire() {
       <Stack gap="5">
         <Field.Root invalid={!!erreur}>
           <Field.Label>Nouveau mot de passe</Field.Label>
-          <Input size="lg" bg="brume" type="password" autoComplete="new-password" value={motDePasse} onChange={(e) => setMotDePasse(e.target.value)} />
+          <Input variant="flushed" size="lg" type="password" autoComplete="new-password" value={motDePasse} onChange={(e) => setMotDePasse(e.target.value)} />
           <Field.HelperText>8 caractères minimum.</Field.HelperText>
           <Field.ErrorText>{erreur}</Field.ErrorText>
         </Field.Root>
-        <Button type="submit" size="lg" colorPalette="emeraude" loading={envoi}>
+        <Button type="submit" size="lg" colorPalette="emeraude" borderRadius="full" loading={envoi}>
           Enregistrer
         </Button>
       </Stack>

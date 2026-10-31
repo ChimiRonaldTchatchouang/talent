@@ -50,10 +50,10 @@ export default function MotDePasseOublie() {
           <Stack gap="5">
             <Field.Root invalid={!!erreur}>
               <Field.Label>E-mail ou téléphone</Field.Label>
-              <Input size="lg" bg="brume" value={identifiant} onChange={(e) => setIdentifiant(e.target.value)} autoComplete="username" />
+              <Input variant="flushed" size="lg" value={identifiant} onChange={(e) => setIdentifiant(e.target.value)} autoComplete="username" />
               <Field.ErrorText>{erreur}</Field.ErrorText>
             </Field.Root>
-            <Button type="submit" size="lg" colorPalette="emeraude" loading={envoi}>
+            <Button type="submit" size="lg" colorPalette="emeraude" borderRadius="full" loading={envoi}>
               Recevoir un lien
             </Button>
           </Stack>

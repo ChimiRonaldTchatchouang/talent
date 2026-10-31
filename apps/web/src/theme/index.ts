@@ -83,7 +83,18 @@ const config = defineConfig({
     },
     recipes: {
       button: {
-        base: { fontWeight: "600", borderRadius: "carte" },
+        // Survol : légère élévation ; clic : léger enfoncement. Transitions douces partout.
+        base: {
+          fontWeight: "600",
+          borderRadius: "carte",
+          transitionProperty: "background-color, border-color, color, box-shadow, transform",
+          transitionDuration: "0.2s",
+          transitionTimingFunction: "ease",
+          _hover: { transform: "translateY(-1px)", boxShadow: "0 6px 16px rgba(16, 27, 43, 0.12)" },
+          _active: { transform: "translateY(0) scale(0.97)", boxShadow: "none" },
+          _disabled: { transform: "none", boxShadow: "none" },
+          "@media (prefers-reduced-motion: reduce)": { _hover: { transform: "none" }, _active: { transform: "none" } },
+        },
         variants: {
           size: {
             // Boutons larges : 52 px de haut sur téléphone.
