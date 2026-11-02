@@ -90,7 +90,8 @@ Le compte administrateur principal est créé à partir des variables d'environn
 ## Documentation
 
 - [`SPECIFICATION.md`](SPECIFICATION.md) : la spécification du client
-- [`docs/guide-admin.md`](docs/guide-admin.md) : guide d'utilisation de l'espace administrateur
+- [`docs/manuel-utilisation.md`](docs/manuel-utilisation.md) : manuel d'utilisation, profil par profil (candidat, administrateur, recruteur)
+- [`docs/guide-admin.md`](docs/guide-admin.md) : guide détaillé de l'espace administrateur
 - [`docs/DEPLOIEMENT.md`](docs/DEPLOIEMENT.md) : déploiement, e-mails, sauvegarde, liste de contrôle de mise en production
 - [`DECISIONS.md`](DECISIONS.md) : choix faits par défaut, à confirmer par le client
 - [`CHANGELOG.md`](CHANGELOG.md) : ce qui a été livré à chaque lot
