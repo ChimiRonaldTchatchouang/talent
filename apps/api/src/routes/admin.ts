@@ -5,7 +5,7 @@ import { z } from "zod";
 import { recalculerGrade } from "../lib/classement.js";
 import type { Config } from "../lib/config.js";
 import { formaterDossier, formaterPieces, inclusionDossier, sommaire } from "../lib/dossier.js";
-import { envoyerEmail } from "../lib/emails.js";
+import { envoyerEmail, modeles } from "../lib/emails.js";
 import { erreurs } from "../lib/erreurs.js";
 import { journaliser } from "../lib/journal.js";
 import { lienFichier } from "../lib/liens.js";
@@ -322,13 +322,12 @@ export function routesAdmin(config: Config & { SECRET_LIENS: string }): FastifyP
         if (body.decision === "REFUSEE") {
           const email = piece.dossier.utilisateur.email ?? piece.dossier.emailContact;
           if (email) {
-            await envoyerEmail(app.prisma, config, {
-              a: email,
-              sujet: `Pièce à redéposer : ${LIBELLES_PIECES[piece.type as TypePiece]}`,
-              texte:
-                `Bonjour,\n\nLe cabinet n'a pas pu valider ta pièce « ${LIBELLES_PIECES[piece.type as TypePiece]} ».\n` +
-                `Motif : ${motif}\n\nTu peux en déposer une nouvelle depuis ton espace :\n${config.URL_SITE.replace(/\/+$/, "")}/candidat/justificatifs\n\n— L'équipe du cabinet`,
-            });
+            await envoyerEmail(
+              app.prisma,
+              config,
+              email,
+              modeles.pieceRefusee({ piece: piece.type as TypePiece, motif: motif!, lien: `${config.URL_SITE.replace(/\/+$/, "")}/candidat/justificatifs` }),
+            );
           }
         }
         await recalculerGrade(app.prisma, config, piece.dossierId, "ADMIN", `Pièce ${body.decision === "VERIFIEE" ? "vérifiée" : "refusée"}`, acteur.id);

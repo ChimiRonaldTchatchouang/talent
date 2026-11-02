@@ -1,7 +1,7 @@
 import { LIBELLES_TRANCHES, type TrancheExperience } from "@bdt/shared";
 import type { AccesRecruteur, Prisma, PrismaClient } from "@prisma/client";
 import type { Config } from "./config.js";
-import { envoyerAuxAdmins } from "./emails.js";
+import { envoyerAuxAdmins, modeles } from "./emails.js";
 import { parametresEnVigueur } from "./parametres.js";
 
 const aujourdHui = () => new Date(new Date().toISOString().slice(0, 10));
@@ -79,13 +79,17 @@ export async function alerterFinsAcces(db: PrismaClient, config: Config): Promis
   });
   for (const a of acces) {
     if (a.utilisateur.etat !== "ACTIF") continue;
-    await envoyerAuxAdmins(db, config, {
-      sujet: `Accès recruteur bientôt expiré : ${a.entreprise}`,
-      texte:
-        `Bonjour,\n\nL'accès de ${a.utilisateur.nom ?? "ce recruteur"} (${a.entreprise}, ${a.pays}) se termine le ` +
-        `${a.dateFin.toLocaleDateString("fr-FR", { timeZone: "UTC" })}.\nVous pouvez le prolonger depuis la plateforme :\n` +
-        `${config.URL_SITE.replace(/\/+$/, "")}/admin/recruteurs`,
-    });
+    await envoyerAuxAdmins(
+      db,
+      config,
+      modeles.finAccesProche({
+        recruteur: a.utilisateur.nom ?? "Ce recruteur",
+        entreprise: a.entreprise,
+        pays: a.pays,
+        dateFin: a.dateFin,
+        lien: `${config.URL_SITE.replace(/\/+$/, "")}/admin/recruteurs`,
+      }),
+    );
     await db.accesRecruteur.update({ where: { id: a.id }, data: { alerteFinEnvoyee: true } });
   }
   return acces.length;

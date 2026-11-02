@@ -1,7 +1,7 @@
 import type { FastifyPluginAsyncZod } from "fastify-type-provider-zod";
 import { z } from "zod";
 import type { Config } from "../lib/config.js";
-import { envoyerAuxAdmins, envoyerEmail } from "../lib/emails.js";
+import { envoyerAuxAdmins, envoyerEmail, modeles } from "../lib/emails.js";
 import { erreurs } from "../lib/erreurs.js";
 import { journaliser } from "../lib/journal.js";
 import { effacerCompte } from "../lib/suppression.js";
@@ -39,10 +39,7 @@ export function routesSuppression(config: Config): FastifyPluginAsyncZod {
         if (await enAttente(moi.id)) throw erreurs.conflit("Ta demande est déjà enregistrée. Le cabinet va la traiter.");
         const demande = await app.prisma.demandeSuppression.create({ data: { utilisateurId: moi.id } });
         await journaliser(app.prisma, { acteurId: moi.id, role: "CANDIDAT", action: "SUPPRESSION_DEMANDEE", cibleType: "demande_suppression", cibleId: demande.id, ip: request.ip });
-        await envoyerAuxAdmins(app.prisma, config, {
-          sujet: "Demande de suppression d'un dossier",
-          texte: `Bonjour,\n\nUn candidat demande la suppression de son dossier. Merci de la traiter :\n${site}/admin/suppressions`,
-        });
+        await envoyerAuxAdmins(app.prisma, config, modeles.demandeSuppression({ demandeLe: demande.demandeLe, lien: `${site}/admin/suppressions` }));
         return { demande: { demandeLe: demande.demandeLe } };
       },
     );
@@ -108,11 +105,7 @@ export function routesSuppression(config: Config): FastifyPluginAsyncZod {
         });
         await journaliser(app.prisma, { acteurId: acteur.id, role: "ADMIN", action: "SUPPRESSION_EFFECTUEE", cibleType: "demande_suppression", cibleId: demande.id, ip: request.ip });
         if (email) {
-          await envoyerEmail(app.prisma, config, {
-            a: email,
-            sujet: "Ton dossier a été supprimé",
-            texte: "Bonjour,\n\nComme tu l'as demandé, ton dossier, tes documents et ton compte ont été supprimés de la plateforme.\n\n— Le cabinet",
-          });
+          await envoyerEmail(app.prisma, config, email, modeles.suppressionEffectuee());
           // Cet e-mail de confirmation ne garde pas l'adresse dans le journal des e-mails.
           await app.prisma.emailEnvoye.updateMany({ where: { destinataire: email }, data: { destinataire: "[candidat supprimé]" } });
         }

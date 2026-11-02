@@ -22,7 +22,7 @@ export async function effacerCompte(db: PrismaClient, utilisateurId: string): Pr
     if (fichiers.length) await tx.fichier.deleteMany({ where: { id: { in: fichiers } } });
     if (adresses.length) await tx.emailEnvoye.deleteMany({ where: { destinataire: { in: adresses } } });
     if (nom.length >= 3) {
-      await tx.$executeRaw`UPDATE "emails" SET "sujet" = replace("sujet", ${nom}, '[candidat supprimé]'), "texte" = replace("texte", ${nom}, '[candidat supprimé]') WHERE "sujet" LIKE ${"%" + nom + "%"} OR "texte" LIKE ${"%" + nom + "%"}`;
+      await tx.$executeRaw`UPDATE "emails" SET "sujet" = replace("sujet", ${nom}, '[candidat supprimé]'), "texte" = replace("texte", ${nom}, '[candidat supprimé]'), "html" = replace("html", ${nom}, '[candidat supprimé]') WHERE "sujet" LIKE ${"%" + nom + "%"} OR "texte" LIKE ${"%" + nom + "%"} OR "html" LIKE ${"%" + nom + "%"}`;
     }
   });
 }

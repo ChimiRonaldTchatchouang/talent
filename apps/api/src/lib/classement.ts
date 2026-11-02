@@ -1,8 +1,8 @@
-import { LIBELLES_GRADES, type ElementComblable, type Grade, type TypePiece } from "@bdt/shared";
+import { type ElementComblable, type Grade, type TypePiece } from "@bdt/shared";
 import type { Prisma, PrismaClient } from "@prisma/client";
 import { classer, meilleurEtat, piecesNonVerifieesPourA, type EntreeClassement, type ResultatClassement } from "../classement/moteur.js";
 import type { Config } from "./config.js";
-import { envoyerAuxAdmins, envoyerEmail } from "./emails.js";
+import { envoyerAuxAdmins, envoyerEmail, modeles } from "./emails.js";
 import { erreurs } from "./erreurs.js";
 import { journaliser } from "./journal.js";
 import { parametresEnVigueur } from "./parametres.js";
@@ -114,12 +114,17 @@ export async function recalculerGrade(
   if (origine === "CANDIDAT") {
     const nom = [dossier.prenoms, dossier.nom].filter(Boolean).join(" ") || "Un candidat";
     const site = config.URL_SITE.replace(/\/+$/, "");
-    await envoyerAuxAdmins(db, config, {
-      sujet: `Grade à revoir : ${nom}`,
-      texte:
-        `Bonjour,\n\n${nom} a modifié son dossier. Son grade ${actuel.etat === "CONFIRME" ? "confirmé" : "corrigé"} (${actuel.grade}) ` +
-        `repasse en provisoire (${resultat.grade}). Merci de le revoir.\n${site}/admin`,
-    });
+    await envoyerAuxAdmins(
+      db,
+      config,
+      modeles.gradeARevoir({
+        nom,
+        avant: actuel.grade,
+        etatAvant: actuel.etat === "CONFIRME" ? "confirmé" : "corrigé",
+        apres: resultat.grade,
+        lien: `${site}/admin/candidats/${dossierId}`,
+      }),
+    );
   }
   return resultat;
 }
@@ -134,17 +139,11 @@ export async function recalculerTousLesGrades(db: PrismaClient, config: Config, 
   return dossiers.length;
 }
 
-const messageGrade = (grade: Grade) => `${LIBELLES_GRADES[grade].lettre === "–" ? "Hors bassin" : `Grade ${grade}`} (${LIBELLES_GRADES[grade].libelle})`;
-
-async function prevenirCandidat(db: PrismaClient, config: Config, dossierId: string, texte: string) {
+async function prevenirCandidat(db: PrismaClient, config: Config, dossierId: string, grade: Grade, corrige: boolean) {
   const d = await db.dossier.findUniqueOrThrow({ where: { id: dossierId }, include: { utilisateur: { select: { email: true } } } });
   const email = d.utilisateur.email ?? d.emailContact;
   if (!email) return;
-  await envoyerEmail(db, config, {
-    a: email,
-    sujet: "Ton grade a été mis à jour",
-    texte: `Bonjour,\n\n${texte}\n\nConsulte ton espace : ${config.URL_SITE.replace(/\/+$/, "")}/candidat\n\n— L'équipe du cabinet`,
-  });
+  await envoyerEmail(db, config, email, modeles.gradeMisAJour({ grade, corrige, lien: `${config.URL_SITE.replace(/\/+$/, "")}/candidat/grade` }));
 }
 
 /** R-07, R-08 : confirmer le grade provisoire. Un A exige les pièces vérifiées (T9). */
@@ -168,7 +167,7 @@ export async function confirmerGrade(db: PrismaClient, config: Config, dossierId
   await db.gradeDossier.update({ where: { dossierId }, data: { etat: "CONFIRME", auteurId: acteurId, alerte: false, raison: null } });
   await db.gradeHistorique.create({ data: { dossierId, grade: grade.grade, gradeCalcule: grade.gradeCalcule, etat: "CONFIRME", cause: "Confirmation", auteurId: acteurId } });
   await journaliser(db, { acteurId, role: "ADMIN", action: "GRADE_CONFIRME", cibleType: "dossier", cibleId: dossierId, details: { grade: grade.grade } });
-  await prevenirCandidat(db, config, dossierId, `Le cabinet a confirmé ton grade : ${messageGrade(grade.grade)}.`);
+  await prevenirCandidat(db, config, dossierId, grade.grade, false);
 }
 
 /** R-09 : corriger le grade à la main, avec une raison obligatoire. Le grade reste figé. */
@@ -188,7 +187,7 @@ export async function corrigerGrade(db: PrismaClient, config: Config, dossierId:
     cibleId: dossierId,
     details: { avant: actuel.grade, apres: nouveau, calcule: actuel.gradeCalcule, raison },
   });
-  await prevenirCandidat(db, config, dossierId, `Le cabinet a fixé ton grade : ${messageGrade(nouveau)}.`);
+  await prevenirCandidat(db, config, dossierId, nouveau, true);
 }
 
 /** Libère un grade confirmé ou corrigé : il redevient le grade calculé, provisoire. */

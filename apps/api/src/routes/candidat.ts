@@ -261,9 +261,24 @@ export function routesCandidat(config: Config): FastifyPluginAsyncZod {
         await recalculerGrade(app.prisma, config, dossier.id, "CANDIDAT", "Dossier envoyé", moi.id);
         const site = config.URL_SITE.replace(/\/+$/, "");
         const email = moi.email ?? envoye.emailContact;
-        if (email) await envoyerEmail(app.prisma, config, { a: email, ...modeles.dossierEnvoyeCandidat(`${site}/candidat`) });
+        const manquantes = piecesManquantes(envoye);
+        if (email) {
+          await envoyerEmail(app.prisma, config, email, modeles.dossierEnvoyeCandidat({ envoyeLe: maintenant, piecesManquantes: manquantes, lienEspace: `${site}/candidat` }));
+        }
         const nom = [envoye.prenoms, envoye.nom].filter(Boolean).join(" ") || "Candidat";
-        await envoyerAuxAdmins(app.prisma, config, modeles.dossierEnvoyeAdmin(nom, `${site}/admin`));
+        const grade = await app.prisma.gradeDossier.findUnique({ where: { dossierId: dossier.id }, select: { grade: true } });
+        await envoyerAuxAdmins(
+          app.prisma,
+          config,
+          modeles.dossierEnvoyeAdmin({
+            nom,
+            metier: envoye.aTravaille ? envoye.metier : null,
+            ville: envoye.ville,
+            grade: grade?.grade ?? null,
+            piecesManquantes: manquantes.length,
+            lien: `${site}/admin/candidats/${dossier.id}`,
+          }),
+        );
         return reponseDossier(envoye);
       },
     );

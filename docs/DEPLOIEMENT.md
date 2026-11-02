@@ -61,6 +61,25 @@ l'adresse du titulaire du compte Resend**. Pour les candidats, il faut l'étape 
 4. Render → `EMAIL_EXPEDITEUR` = `Bassin de Talents <contact@cabinet.cm>` (une adresse de ce domaine) → *Save Changes*.
 5. Refaire un e-mail de test.
 
+**Étape 3 — ne pas tomber dans les indésirables**
+
+Le code fait déjà sa part : chaque e-mail part en HTML **et** en texte, sans image distante, avec un sujet sobre,
+un pied qui explique pourquoi on le reçoit, une adresse de réponse (e-mail du cabinet, Admin → Réglages) et un
+identifiant unique. Le reste se règle dans la zone DNS du domaine d'envoi (Hostinger → DNS), une seule fois :
+
+| Enregistrement | Rôle | Où le trouver |
+|---|---|---|
+| SPF (TXT) et DKIM (TXT) | Prouvent que Resend a le droit d'envoyer pour le domaine | Resend → Domains → le domaine (déjà « Verified ») |
+| MX `send` | Retours d'erreur gérés par Resend | Idem |
+| **DMARC** (TXT `_dmarc`) | Exigé par Gmail et Yahoo : sans lui, les e-mails finissent souvent en spam | À ajouter : nom `_dmarc`, valeur `v=DMARC1; p=none; rua=mailto:contact@ginfos.site` |
+
+Conseils :
+- Renseigner l'**e-mail du cabinet** dans Admin → Réglages : il devient l'adresse de réponse des e-mails.
+- Servir le **site sur le même domaine** que l'expéditeur (ex. `talents.ginfos.site`) : des liens vers le même
+  domaine que l'expéditeur inspirent plus confiance aux filtres que des liens `vercel.app`.
+- Les premiers jours, si un e-mail arrive dans les indésirables, le marquer « Non spam ».
+- Vérifier la note du domaine sur https://www.mail-tester.com (envoyer un e-mail de test à l'adresse affichée).
+
 ## 6. Dépôt des fichiers
 
 Le téléphone envoie les pièces directement à l'API Render (adresse fournie automatiquement par Render). Il faut

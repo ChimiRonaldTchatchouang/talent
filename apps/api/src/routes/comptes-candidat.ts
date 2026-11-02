@@ -98,10 +98,7 @@ export function routesComptesCandidat(config: Config): FastifyPluginAsyncZod {
         });
         if (utilisateur.email) {
           const jeton = await creerJeton(app.prisma, "CONFIRMATION_EMAIL", utilisateur.id);
-          await envoyerEmail(app.prisma, config, {
-            a: utilisateur.email,
-            ...modeles.compteCree(lien(`/confirmer-email?jeton=${jeton}`)),
-          });
+          await envoyerEmail(app.prisma, config, utilisateur.email, modeles.compteCree(lien(`/confirmer-email?jeton=${jeton}`), lien("/candidat")));
         }
         await app.ouvrirSession(reply, utilisateur);
         return reply.code(201).send({
@@ -143,7 +140,7 @@ export function routesComptesCandidat(config: Config): FastifyPluginAsyncZod {
         if (!moi.email) throw erreurs.invalide("Ton compte n'a pas d'adresse e-mail.");
         if (moi.emailVerifieLe) return { message: "Ton adresse e-mail est déjà confirmée." };
         const jeton = await creerJeton(app.prisma, "CONFIRMATION_EMAIL", moi.id);
-        await envoyerEmail(app.prisma, config, { a: moi.email, ...modeles.confirmationEmail(lien(`/confirmer-email?jeton=${jeton}`)) });
+        await envoyerEmail(app.prisma, config, moi.email, modeles.confirmationEmail(lien(`/confirmer-email?jeton=${jeton}`)));
         return { message: `Un nouveau lien a été envoyé à ${moi.email}.` };
       },
     );
@@ -173,7 +170,7 @@ export function routesComptesCandidat(config: Config): FastifyPluginAsyncZod {
           const u = await app.prisma.utilisateur.findUnique({ where: { email: analyse.valeur } });
           if (u && u.etat === "ACTIF") {
             const jeton = await creerJeton(app.prisma, "REINITIALISATION", u.id);
-            await envoyerEmail(app.prisma, config, { a: u.email!, ...modeles.motDePasseOublie(lien(`/reinitialiser?jeton=${jeton}`)) });
+            await envoyerEmail(app.prisma, config, u.email!, modeles.motDePasseOublie(lien(`/reinitialiser?jeton=${jeton}`)));
             await journaliser(app.prisma, { acteurId: u.id, role: u.role, action: "REINITIALISATION_DEMANDEE", cibleType: "utilisateur", cibleId: u.id, ip: request.ip });
           }
         }

@@ -1,10 +1,10 @@
 import { randomBytes } from "node:crypto";
-import { GRADES, MARQUE, STATUTS_LIGNE_SELECTION } from "@bdt/shared";
+import { GRADES, STATUTS_LIGNE_SELECTION } from "@bdt/shared";
 import { Prisma } from "@prisma/client";
 import type { FastifyPluginAsyncZod } from "fastify-type-provider-zod";
 import { z } from "zod";
 import type { Config } from "../lib/config.js";
-import { envoyerEmail } from "../lib/emails.js";
+import { envoyerEmail, modeles } from "../lib/emails.js";
 import { erreurs } from "../lib/erreurs.js";
 import { journaliser } from "../lib/journal.js";
 import { hacherMotDePasse } from "../lib/mots-de-passe.js";
@@ -27,14 +27,8 @@ function motDePasseProvisoire(): string {
 /** Accès des recruteurs et sélections reçues, côté cabinet (M9, W8). */
 export function routesRecruteursAdmin(config: Config): FastifyPluginAsyncZod {
   const site = config.URL_SITE.replace(/\/+$/, "");
-  const emailIdentifiants = (nom: string, email: string, motDePasse: string, dateFin: Date) => ({
-    a: email,
-    sujet: `Votre accès à ${MARQUE.nom}`,
-    texte:
-      `Bonjour ${nom},\n\nLe cabinet vous a ouvert un accès pour consulter des profils de candidats et constituer une sélection.\n\n` +
-      `Adresse : ${site}/connexion\nIdentifiant : ${email}\nMot de passe provisoire : ${motDePasse}\n\n` +
-      `Votre accès est valable jusqu'au ${dateFin.toLocaleDateString("fr-FR", { timeZone: "UTC" })} inclus.\n\n— Le cabinet`,
-  });
+  const emailIdentifiants = (nom: string, email: string, motDePasse: string, dateFin: Date, nouveau = false) =>
+    modeles.identifiantsRecruteur({ nom, email, motDePasse, dateFin, lien: `${site}/connexion`, nouveau });
 
   return async (app) => {
     const admin = exigerRole("ADMIN");
@@ -123,7 +117,7 @@ export function routesRecruteursAdmin(config: Config): FastifyPluginAsyncZod {
           details: { entreprise: b.entreprise, grades: b.gradesVisibles, domaines: b.domainesVisibles, dateFin: b.dateFin },
           ip: request.ip,
         });
-        await envoyerEmail(app.prisma, config, emailIdentifiants(b.nom, b.email, motDePasse, cree.dateFin));
+        await envoyerEmail(app.prisma, config, b.email, emailIdentifiants(b.nom, b.email, motDePasse, cree.dateFin));
         return reply.code(201).send({ recruteur: await formater(cree), motDePasse });
       },
     );
@@ -175,7 +169,7 @@ export function routesRecruteursAdmin(config: Config): FastifyPluginAsyncZod {
         await app.prisma.utilisateur.update({ where: { id: a.utilisateurId }, data: { motDePasseHash: await hacherMotDePasse(motDePasse), tentativesEchouees: 0, bloqueJusquA: null } });
         await app.prisma.session.deleteMany({ where: { utilisateurId: a.utilisateurId } });
         await journaliser(app.prisma, { acteurId: acteur.id, role: "ADMIN", action: "MOT_DE_PASSE_RECRUTEUR_REINITIALISE", cibleType: "acces_recruteur", cibleId: a.id, ip: request.ip });
-        await envoyerEmail(app.prisma, config, emailIdentifiants(a.utilisateur.nom ?? "", a.utilisateur.email!, motDePasse, a.dateFin));
+        await envoyerEmail(app.prisma, config, a.utilisateur.email!, emailIdentifiants(a.utilisateur.nom ?? "", a.utilisateur.email!, motDePasse, a.dateFin, true));
         return { motDePasse };
       },
     );

@@ -15,6 +15,7 @@ interface Email {
   destinataire: string;
   sujet: string;
   texte: string;
+  html: string | null;
   statut: "ENVOYE" | "ECHEC" | "DEMO";
   erreur: string | null;
   creeLe: string;
@@ -228,12 +229,23 @@ export default function PageReglages() {
                   </Text>
                 </Stack>
               </Box>
-              {ouvert === m.id && (
-                <Text whiteSpace="pre-wrap" fontSize="sm" mt="3" bg="white" p="3" borderRadius="md" wordBreak="break-all">
-                  {m.texte}
-                  {m.erreur && `\n\nErreur : ${m.erreur}`}
-                </Text>
-              )}
+              {ouvert === m.id &&
+                (m.html ? (
+                  // Aperçu de l'e-mail tel qu'il est reçu (cadre isolé : aucun script, aucun lien actif).
+                  <Box mt="3">
+                    <iframe title={`Aperçu : ${m.sujet}`} srcDoc={m.html} sandbox="" style={{ width: "100%", height: 640, border: 0, borderRadius: 8, background: "#F8F9FF" }} />
+                    {m.erreur && (
+                      <Text fontSize="sm" color="etat.refuseTexte" mt="2">
+                        Erreur : {m.erreur}
+                      </Text>
+                    )}
+                  </Box>
+                ) : (
+                  <Text whiteSpace="pre-wrap" fontSize="sm" mt="3" bg="white" p="3" borderRadius="md" wordBreak="break-all">
+                    {m.texte}
+                    {m.erreur && `\n\nErreur : ${m.erreur}`}
+                  </Text>
+                ))}
             </Box>
           ))}
         </Stack>

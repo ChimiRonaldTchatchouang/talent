@@ -1,7 +1,7 @@
 import type { FastifyPluginAsyncZod } from "fastify-type-provider-zod";
 import { z } from "zod";
 import type { Config } from "../lib/config.js";
-import { envoyerEmail, expediteur } from "../lib/emails.js";
+import { envoyerEmail, expediteur, modeles } from "../lib/emails.js";
 import { erreurs } from "../lib/erreurs.js";
 import { journaliser } from "../lib/journal.js";
 import { ecrireReglages, lireReglages, schemaReglages } from "../lib/reglages.js";
@@ -48,6 +48,7 @@ export const routesPlateformeAdmin = (config: Config): FastifyPluginAsyncZod => 
                 destinataire: z.string(),
                 sujet: z.string(),
                 texte: z.string(),
+                html: z.string().nullable(),
                 statut: z.enum(["ENVOYE", "ECHEC", "DEMO"]),
                 erreur: z.string().nullable(),
                 creeLe: z.date(),
@@ -77,11 +78,7 @@ export const routesPlateformeAdmin = (config: Config): FastifyPluginAsyncZod => 
     async (request) => {
       const acteur = utilisateurDe(request);
       if (!acteur.email) throw erreurs.invalide("Votre compte n'a pas d'adresse e-mail.");
-      await envoyerEmail(app.prisma, config, {
-        a: acteur.email,
-        sujet: "E-mail de test",
-        texte: "Bonjour,\n\nCet e-mail confirme que l'envoi des e-mails de la plateforme fonctionne.",
-      });
+      await envoyerEmail(app.prisma, config, acteur.email, modeles.test(`${config.URL_SITE.replace(/\/+$/, "")}/admin`));
       const dernier = await app.prisma.emailEnvoye.findFirstOrThrow({ where: { destinataire: acteur.email }, orderBy: { creeLe: "desc" } });
       return { statut: dernier.statut, erreur: dernier.erreur, destinataire: acteur.email };
     },

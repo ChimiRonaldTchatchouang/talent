@@ -5,7 +5,7 @@ import { z } from "zod";
 import { confirmerGrade, corrigerGrade, libererGrade, recalculerGrade } from "../lib/classement.js";
 import type { Config } from "../lib/config.js";
 import { sommaire, inclusionDossier } from "../lib/dossier.js";
-import { envoyerAuxAdmins } from "../lib/emails.js";
+import { envoyerAuxAdmins, modeles } from "../lib/emails.js";
 import { erreurs } from "../lib/erreurs.js";
 import { journaliser } from "../lib/journal.js";
 import { exigerRole, utilisateurDe } from "../plugins/authentification.js";
@@ -120,10 +120,12 @@ export function routesClassement(config: Config): FastifyPluginAsyncZod {
         });
         await journaliser(app.prisma, { acteurId: moi.id, role: "CANDIDAT", action: "SERVICE_INTERESSE", cibleType: "dossier", cibleId: d.id, details: { service: service.nom } });
         const nom = [d.prenoms, d.nom].filter(Boolean).join(" ") || "Un candidat";
-        await envoyerAuxAdmins(app.prisma, config, {
-          sujet: `Intérêt pour « ${service.nom} » : ${nom}`,
-          texte: `Bonjour,\n\n${nom} est intéressé(e) par le service « ${service.nom} ».\n${config.URL_SITE.replace(/\/+$/, "")}/admin`,
-        });
+        const gradeActuel = await app.prisma.gradeDossier.findUnique({ where: { dossierId: d.id }, select: { grade: true } });
+        await envoyerAuxAdmins(
+          app.prisma,
+          config,
+          modeles.interetService({ nom, service: service.nom, grade: gradeActuel?.grade ?? null, lien: `${config.URL_SITE.replace(/\/+$/, "")}/admin/candidats/${d.id}` }),
+        );
         return vue();
       },
     );

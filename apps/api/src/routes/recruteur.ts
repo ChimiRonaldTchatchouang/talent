@@ -4,7 +4,7 @@ import type { FastifyPluginAsyncZod } from "fastify-type-provider-zod";
 import type { FastifyRequest } from "fastify";
 import { z } from "zod";
 import type { Config } from "../lib/config.js";
-import { envoyerAuxAdmins } from "../lib/emails.js";
+import { envoyerAuxAdmins, modeles } from "../lib/emails.js";
 import { erreurs } from "../lib/erreurs.js";
 import { journaliser } from "../lib/journal.js";
 import { inclusionProfil, perimetre, profilAnonyme } from "../lib/recruteurs.js";
@@ -222,12 +222,18 @@ export function routesRecruteur(config: Config): FastifyPluginAsyncZod {
           ip: request.ip,
         });
         const moi = utilisateurDe(request);
-        await envoyerAuxAdmins(app.prisma, config, {
-          sujet: `Sélection reçue : ${acces.entreprise}`,
-          texte:
-            `Bonjour,\n\n${moi.nom ?? "Un recruteur"} (${acces.entreprise}, ${acces.pays}) a envoyé une sélection de ${courante.lignes.length} profil(s)` +
-            `${precedent ? ", qui remplace sa sélection précédente" : ""}.\n${config.URL_SITE.replace(/\/+$/, "")}/admin/selections`,
-        });
+        await envoyerAuxAdmins(
+          app.prisma,
+          config,
+          modeles.selectionRecue({
+            recruteur: moi.nom ?? "Un recruteur",
+            entreprise: acces.entreprise,
+            pays: acces.pays,
+            profils: courante.lignes.length,
+            remplace: !!precedent,
+            lien: `${config.URL_SITE.replace(/\/+$/, "")}/admin/selections`,
+          }),
+        );
         return { ...(await selectionDe(acces)), envoye: true };
       },
     );

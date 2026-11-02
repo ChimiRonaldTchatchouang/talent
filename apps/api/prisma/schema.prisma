@@ -412,6 +412,8 @@ model EmailEnvoye {
   destinataire String
   sujet        String
   texte        String
+  /// Version HTML envoyée (aperçu dans Admin → Réglages).
+  html         String?
   statut       StatutEmail
   erreur       String?
   creeLe       DateTime    @default(now()) @map("cree_le")
