@@ -1,5 +1,15 @@
 # Journal des livraisons
 
+## Refonte de la page d'accueil (17/11/2026)
+
+**Livré**
+- Nouvelle page d'accueil inspirée du modèle fourni, aux couleurs de la charte : bandeau clair avec photo en arche et pastilles flottantes, bande sombre « 4 étapes », « 3 bonnes raisons » avec un aperçu de l'espace candidat, carrousel des grades (A à D et hors bassin), 4 services, 7 domaines de métiers, recruteurs et confidentialité, questions fréquentes, appel final avec bandeau défilant, pied de page complet.
+- Textes réécrits (tutoiement), sans aucune promesse ni chiffre inventé ; la mention « ni emploi, ni visa, ni départ » reste visible (questions fréquentes et pied de page).
+- Effets : boutons qui s'élèvent avec un reflet et une flèche qui glisse, mots encadrés qui se dessinent, cartes inclinées qui se redressent, zoom des images, jauge qui se remplit, menu souligné, accordéon animé. Tout est coupé si le téléphone demande moins de mouvement.
+- Menu mobile, en-tête collé qui se givre au défilement.
+
+**Reste** : déposer les photos dans les 6 emplacements (`apps/web/src/components/accueil/photos.ts`).
+
 ## Lot 6 — Finitions et mise en ligne (30/10/2026)
 
 **Livré**

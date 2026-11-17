@@ -1,26 +1,27 @@
 /**
  * Photos de la page d'accueil, par emplacement.
- * Pour chaque emplacement : déposer le fichier (JPEG compressé, ~1600 px) dans public/images/accueil/
- * et renseigner `src`. Tant que `src` est vide, une illustration provisoire s'affiche.
  *
- * Photos repérées (licence Unsplash : usage commercial gratuit, sans attribution obligatoire) — à
- * télécharger dès que unsplash.com est autorisé dans l'environnement de travail. Vérifier sur chaque
- * page la mention « Unsplash License » (et non « Unsplash+ », payante) :
- * - accueil  : https://unsplash.com/photos/young-woman-smiling-at-desk-with-laptop-and-coffee-x1YcazlZ7N8
- * - equipe   : https://unsplash.com/photos/diverse-group-of-people-in-a-modern-office-meeting-5V6KbvRcnV8
- * - groupe   : https://unsplash.com/photos/four-diverse-colleagues-standing-together-in-an-office-bIp_G2qoP3Q
- * - entretien: https://unsplash.com/photos/young-woman-smiling-while-working-on-a-laptop-at-desk-UHfJI_lZoPo
- * - echange  : https://unsplash.com/photos/diverse-team-collaborates-around-a-table-in-office-fm4B1xWEIsU
- * - metier   : photo d'Emmanuel Ikwuegbu (chantier, Nigeria) — rechercher « black worker » sur Unsplash
+ * Pour mettre une photo :
+ * 1. déposer le fichier (JPEG, environ 1 600 px de large, moins de 300 Ko) dans `apps/web/public/images/accueil/` ;
+ * 2. renseigner ci-dessous `src` (ex. "/images/accueil/accueil.jpg") et une description `alt` en français.
+ * Tant que `src` vaut null, une illustration provisoire s'affiche : la page reste propre.
+ *
+ * Source conseillée : https://unsplash.com/fr (vérifier la mention « Licence Unsplash », gratuite, et non « Unsplash+ »).
+ * Recherches suggérées pour chaque emplacement :
+ * - accueil    : « african woman smiling portrait » (portrait souriant, fond uni, format vertical)
+ * - coaching   : « african mentor meeting »
+ * - entretien  : « job interview african »
+ * - langues    : « african student studying »
+ * - miseANiveau: « african worker laptop training »
+ * - appel      : « african young man smiling laptop »
  */
-export type EmplacementPhoto = "accueil" | "equipe" | "groupe" | "entretien" | "echange" | "metier" | "formation";
+export type EmplacementPhoto = "accueil" | "coaching" | "entretien" | "langues" | "miseANiveau" | "appel";
 
 export const PHOTOS_ACCUEIL: Record<EmplacementPhoto, { src: string; alt: string } | null> = {
   accueil: null,
-  equipe: null,
-  groupe: null,
+  coaching: null,
   entretien: null,
-  echange: null,
-  metier: null,
-  formation: null,
+  langues: null,
+  miseANiveau: null,
+  appel: null,
 };

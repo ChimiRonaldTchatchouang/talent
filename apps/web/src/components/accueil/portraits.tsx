@@ -48,12 +48,11 @@ function Illustration({ p }: { p: Personne }) {
 
 const ILLUSTRATION_PAR_EMPLACEMENT: Record<EmplacementPhoto, number> = {
   accueil: 0,
-  equipe: 1,
-  groupe: 2,
+  coaching: 1,
   entretien: 3,
-  echange: 1,
-  metier: 2,
-  formation: 0,
+  langues: 0,
+  miseANiveau: 2,
+  appel: 2,
 };
 
 /**

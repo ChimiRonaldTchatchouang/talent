@@ -53,3 +53,106 @@ html { scroll-behavior: smooth; }
 .bdt-flottant { animation: bdt-flotter 5s ease-in-out infinite; }
 .bdt-flottant-lent { animation-duration: 6.5s; animation-delay: -2s; }
 @media (prefers-reduced-motion: reduce) { .bdt-flottant { animation: none !important; } }
+
+/* =====================================================================
+   Page d'accueil : boutons, mots encadrés, cartes (refonte de novembre 2026)
+   ===================================================================== */
+
+/* Boutons « pilule » : élévation, reflet lumineux, flèche qui glisse, enfoncement au clic */
+.bdt-bouton { display: inline-block; border-radius: 9999px; -webkit-tap-highlight-color: transparent; }
+.bdt-bouton > span { transition: transform 0.25s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.25s ease, filter 0.25s ease; }
+.bdt-bouton > span::after {
+  content: ""; position: absolute; top: 0; bottom: 0; left: -60%; width: 45%;
+  background: linear-gradient(100deg, transparent, rgba(255, 255, 255, 0.45), transparent);
+  transform: skewX(-20deg); transition: left 0.7s ease; pointer-events: none;
+}
+.bdt-bouton:hover > span { transform: translateY(-3px); box-shadow: 0 14px 30px var(--bdt-ombre, rgba(0, 0, 0, 0.2)); }
+.bdt-bouton:hover > span::after { left: 120%; }
+.bdt-bouton:active > span { transform: translateY(0) scale(0.96); box-shadow: none; transition-duration: 0.08s; }
+.bdt-bouton:focus-visible { outline: 3px solid #2A9A5C; outline-offset: 3px; }
+.bdt-bouton-fleche { transition: transform 0.3s cubic-bezier(0.22, 1, 0.36, 1); }
+.bdt-bouton:hover .bdt-bouton-fleche { transform: translateX(3px) rotate(-45deg); }
+
+/* Mot encadré : le cadre se dessine, puis les coins apparaissent */
+.bdt-encadre::before {
+  content: ""; position: absolute; inset: 0; border: 2px solid currentColor; pointer-events: none;
+  clip-path: inset(0 100% 0 0); transition: clip-path 0.9s cubic-bezier(0.65, 0, 0.35, 1) 0.25s;
+}
+.bdt-encadre-coin {
+  position: absolute; width: 7px; height: 7px; border: 1.5px solid #fff; transform: scale(0);
+  transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) 1s;
+}
+.bdt-encadre-haut-gauche { top: -4px; left: -4px; }
+.bdt-encadre-haut-droite { top: -4px; right: -4px; }
+.bdt-encadre-bas-gauche { bottom: -4px; left: -4px; }
+.bdt-encadre-bas-droite { bottom: -4px; right: -4px; }
+.bdt-apparition[data-visible="true"] .bdt-encadre::before { clip-path: inset(0 0 0 0); }
+.bdt-apparition[data-visible="true"] .bdt-encadre-coin { transform: scale(1); }
+.bdt-encadre-simple { padding: 0 6px; border: 1.5px solid currentColor; background: rgba(124, 245, 165, 0.2); }
+
+/* Liens du menu : soulignement qui grandit depuis le centre */
+.bdt-lien-menu { position: relative; padding: 8px 12px; white-space: nowrap; border-radius: 9999px; font-weight: 500; color: #0F2A4A; transition: background-color 0.2s ease, color 0.2s ease; }
+.bdt-lien-menu::after { content: ""; position: absolute; left: 50%; right: 50%; bottom: 3px; height: 2px; border-radius: 2px; background: #006D33; transition: left 0.3s ease, right 0.3s ease; }
+.bdt-lien-menu:hover { color: #006D33; }
+.bdt-lien-menu:hover::after { left: 14px; right: 14px; }
+.bdt-lien-pied { transition: color 0.2s ease, padding-left 0.2s ease; }
+.bdt-lien-pied:hover { color: #7CF5A5; padding-left: 4px; }
+
+/* Petits mouvements d'ambiance */
+@keyframes bdt-pulsation { 0% { box-shadow: 0 0 0 0 rgba(42, 154, 92, 0.55); } 70%, 100% { box-shadow: 0 0 0 7px rgba(42, 154, 92, 0); } }
+.bdt-pulsation { animation: bdt-pulsation 2.2s ease-out infinite; }
+@keyframes bdt-respiration { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.035); } }
+.bdt-respiration { animation: bdt-respiration 7s ease-in-out infinite; }
+@keyframes bdt-rotation { to { transform: rotate(360deg); } }
+.bdt-rotation-lente { animation: bdt-rotation 60s linear infinite; }
+@keyframes bdt-puce { from { opacity: 0; transform: translateY(10px) scale(0.9); } to { opacity: 1; transform: none; } }
+.bdt-puce { animation: bdt-puce 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) both; animation-delay: var(--bdt-delai, 0ms); transition: transform 0.2s ease, background-color 0.2s ease; }
+.bdt-puce:hover { transform: translateY(-3px); background: #7CF5A5; }
+
+/* Étapes : cartes inclinées qui se redressent au survol */
+.bdt-carte-inclinee { transform: rotate(var(--bdt-angle, 0deg)); transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.4s ease; box-shadow: 0 18px 40px rgba(0, 0, 0, 0.25); }
+.bdt-carte-inclinee:hover { transform: rotate(0deg) translateY(-6px) scale(1.03); box-shadow: 0 26px 50px rgba(0, 0, 0, 0.35); }
+
+/* Raisons : la ligne survolée s'éclaire, l'icône passe au vert */
+.bdt-raison { transition: background-color 0.3s ease, transform 0.3s ease; border-left: 3px solid transparent; }
+.bdt-raison:hover { background: #F8F9FF; transform: translateX(4px); border-left-color: #006D33; }
+.bdt-raison-icone { transition: background-color 0.3s ease, color 0.3s ease, transform 0.3s ease; }
+.bdt-raison:hover .bdt-raison-icone { background: #006D33; color: #fff; transform: rotate(-8deg) scale(1.06); }
+
+/* Aperçu de l'espace : légère inclinaison 3D, jauge et lignes qui se remplissent */
+.bdt-apercu { transition: transform 0.6s cubic-bezier(0.22, 1, 0.36, 1); transform: perspective(1200px) rotateY(-4deg) rotateX(2deg); }
+.bdt-apercu:hover { transform: perspective(1200px) rotateY(0) rotateX(0) translateY(-4px); }
+.bdt-jauge { transform-origin: left; transform: scaleX(0); transition: transform 1.4s cubic-bezier(0.22, 1, 0.36, 1) 0.3s; }
+.bdt-apparition[data-visible="true"] .bdt-jauge { transform: scaleX(1); }
+.bdt-ligne-apercu { opacity: 0; transform: translateX(16px); transition: opacity 0.5s ease, transform 0.5s cubic-bezier(0.22, 1, 0.36, 1); transition-delay: var(--bdt-delai, 0ms); }
+.bdt-apparition[data-visible="true"] .bdt-ligne-apercu { opacity: 1; transform: none; }
+
+/* Carrousel des grades : la carte au centre est mise en avant */
+.bdt-carte-grade { cursor: pointer; transition: transform 0.45s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.45s ease, box-shadow 0.45s ease; opacity: 0.55; transform: scale(0.94); }
+.bdt-carte-grade[data-actif="true"] { opacity: 1; transform: scale(1); box-shadow: 0 24px 60px rgba(15, 42, 74, 0.14); }
+
+/* Cartes service et métier */
+.bdt-carte-service { transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.35s ease, border-color 0.35s ease; }
+.bdt-carte-service:hover { transform: translateY(-8px); box-shadow: 0 24px 50px rgba(15, 42, 74, 0.14); border-color: #8FD0AA; }
+.bdt-zoom-image { transition: transform 0.8s cubic-bezier(0.22, 1, 0.36, 1); }
+.bdt-carte-service:hover .bdt-zoom-image, .bdt-apparition:hover .bdt-zoom-image { transform: scale(1.07); }
+.bdt-carte-metier { transition: transform 0.3s ease, box-shadow 0.3s ease, background-color 0.3s ease, border-color 0.3s ease; }
+.bdt-carte-metier:hover { transform: translateY(-5px); background: #fff; border-color: #8FD0AA; box-shadow: 0 18px 40px rgba(15, 42, 74, 0.10); }
+.bdt-carte-metier-icone { transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), background-color 0.3s ease, color 0.3s ease; }
+.bdt-carte-metier:hover .bdt-carte-metier-icone { transform: rotate(-10deg) scale(1.1); background: #006D33; color: #fff; }
+
+/* Bandeau défilant des domaines (pause au survol) */
+@keyframes bdt-defilement { to { transform: translateX(-50%); } }
+.bdt-defilement { animation: bdt-defilement 40s linear infinite; }
+.bdt-defilement:hover { animation-play-state: paused; }
+
+@media (prefers-reduced-motion: reduce) {
+  .bdt-bouton > span, .bdt-bouton > span::after, .bdt-bouton-fleche, .bdt-carte-inclinee, .bdt-raison, .bdt-apercu,
+  .bdt-carte-grade, .bdt-carte-service, .bdt-zoom-image, .bdt-carte-metier, .bdt-carte-metier-icone { transition: none !important; }
+  .bdt-pulsation, .bdt-respiration, .bdt-rotation-lente, .bdt-puce, .bdt-defilement { animation: none !important; }
+  .bdt-encadre::before { clip-path: none !important; transition: none !important; }
+  .bdt-encadre-coin { transform: scale(1) !important; transition: none !important; }
+  .bdt-jauge { transform: none !important; }
+  .bdt-ligne-apercu { opacity: 1 !important; transform: none !important; }
+  .bdt-apercu { transform: none !important; }
+}

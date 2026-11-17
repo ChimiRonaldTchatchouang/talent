@@ -19,7 +19,7 @@ export function Logo({ clair = false }: { clair?: boolean }) {
       >
         BT
       </Box>
-      <Text fontWeight="700" fontSize="lg" color={clair ? "white" : "nuit"}>
+      <Text fontWeight="700" fontSize="lg" whiteSpace="nowrap" color={clair ? "white" : "nuit"}>
         {MARQUE.nom}
       </Text>
     </HStack>
