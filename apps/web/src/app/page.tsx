@@ -422,15 +422,18 @@ export default function Accueil() {
       <Container maxW="7xl" py={{ base: "16", md: "24" }}>
         <SimpleGrid columns={{ base: 1, md: 2 }} gap="5">
           <Apparition sens="gauche" h="full">
-            <Stack className="bdt-cliquable" h="full" bg="nuit" color="white" borderRadius="28px" p={{ base: "7", md: "10" }} gap="4" position="relative" overflow="hidden">
-              <Box position="absolute" right="-12" top="-12" w="48" h="48" borderRadius="full" bg="menthe/10" />
-              <Box w="12" h="12" borderRadius="16px" bg="menthe" color="nuit" display="grid" placeItems="center" fontSize="xl">
+            <Stack className="bdt-cliquable" h="full" bg="nuit" color="white" borderRadius="28px" p={{ base: "7", md: "10" }} pt={{ base: "40", md: "48" }} gap="4" position="relative" overflow="hidden" justify="flex-end">
+              <Box className="bdt-zoom-image" position="absolute" inset="0">
+                <Photo emplacement="recruteurs" position="absolute" inset="0" borderRadius="0" />
+              </Box>
+              <Box position="absolute" inset="0" bgGradient="to-t" gradientFrom="nuit" gradientVia="nuit/85" gradientTo="nuit/10" />
+              <Box position="relative" w="12" h="12" borderRadius="16px" bg="menthe" color="nuit" display="grid" placeItems="center" fontSize="xl">
                 <LuCompass />
               </Box>
-              <Heading as="h3" fontSize={{ base: "xl", md: "2xl" }} fontWeight="700">
+              <Heading as="h3" fontSize={{ base: "xl", md: "2xl" }} fontWeight="700" position="relative">
                 Et côté recruteurs ?
               </Heading>
-              <Text color="whiteAlpha.800">
+              <Text color="whiteAlpha.900" position="relative">
                 Les recruteurs accèdent à la plateforme uniquement sur invitation du cabinet, pour une durée limitée. Ils consultent des
                 profils anonymisés et font leur sélection. C&apos;est ensuite le cabinet qui organise la mise en relation.
               </Text>

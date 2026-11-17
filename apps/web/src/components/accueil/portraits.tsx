@@ -53,6 +53,7 @@ const ILLUSTRATION_PAR_EMPLACEMENT: Record<EmplacementPhoto, number> = {
   langues: 0,
   miseANiveau: 2,
   appel: 2,
+  recruteurs: 1,
 };
 
 /**
@@ -66,7 +67,7 @@ export function Photo({ emplacement, prioritaire = false, ...props }: { emplacem
     // Le fond reprend la couleur de l'illustration : elle reste entière quel que soit le format de l'emplacement.
     <Box position="relative" overflow="hidden" borderRadius="24px" bg={photo ? "brume" : personne.fond} {...props}>
       {photo ? (
-        <Image src={photo.src} alt={photo.alt} fill priority={prioritaire} sizes="(max-width: 768px) 100vw, 50vw" style={{ objectFit: "cover" }} />
+        <Image src={photo.src} alt={photo.alt} fill priority={prioritaire} sizes="(max-width: 768px) 100vw, 50vw" style={{ objectFit: "cover", objectPosition: photo.cadrage ?? "center" }} />
       ) : (
         <Illustration p={personne} />
       )}

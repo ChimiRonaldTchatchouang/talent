@@ -8,7 +8,9 @@
 - Effets : boutons qui s'élèvent avec un reflet et une flèche qui glisse, mots encadrés qui se dessinent, cartes inclinées qui se redressent, zoom des images, jauge qui se remplit, menu souligné, accordéon animé. Tout est coupé si le téléphone demande moins de mouvement.
 - Menu mobile, en-tête collé qui se givre au défilement.
 
-**Reste** : déposer les photos dans les 6 emplacements (`apps/web/src/components/accueil/photos.ts`).
+- Photos fournies par Ronald, recadrées et compressées pour le réseau mobile (7 emplacements, dont la carte « Et côté recruteurs ? »).
+
+**Reste** : vérifier les droits d'usage des photos ; remplacer si possible les photos « tests de langue » et « mise à niveau », qui sont des recadrages.
 
 ## Lot 6 — Finitions et mise en ligne (30/10/2026)
 

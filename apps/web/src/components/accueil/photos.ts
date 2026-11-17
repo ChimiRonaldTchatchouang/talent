@@ -14,14 +14,17 @@
  * - langues    : « african student studying »
  * - miseANiveau: « african worker laptop training »
  * - appel      : « african young man smiling laptop »
+ * - recruteurs : « recruiters team smiling »
  */
-export type EmplacementPhoto = "accueil" | "coaching" | "entretien" | "langues" | "miseANiveau" | "appel";
+export type EmplacementPhoto = "accueil" | "coaching" | "entretien" | "langues" | "miseANiveau" | "appel" | "recruteurs";
 
-export const PHOTOS_ACCUEIL: Record<EmplacementPhoto, { src: string; alt: string } | null> = {
-  accueil: null,
-  coaching: null,
-  entretien: null,
-  langues: null,
-  miseANiveau: null,
-  appel: null,
+/** `cadrage` : point de l'image à garder visible quand elle est recadrée (CSS object-position). */
+export const PHOTOS_ACCUEIL: Record<EmplacementPhoto, { src: string; alt: string; cadrage?: string } | null> = {
+  accueil: { src: "/images/accueil/accueil.jpg", alt: "Une jeune femme souriante, au premier plan d'une équipe de professionnels", cadrage: "50% 25%" },
+  coaching: { src: "/images/accueil/coaching.jpg", alt: "Une jeune femme souriante qui regarde à travers une loupe", cadrage: "60% 30%" },
+  entretien: { src: "/images/accueil/entretien.jpg", alt: "Un candidat en entretien face à une recruteuse", cadrage: "60% 40%" },
+  langues: { src: "/images/accueil/langues.jpg", alt: "Une jeune femme souriante, sûre d'elle", cadrage: "30% 25%" },
+  miseANiveau: { src: "/images/accueil/mise-a-niveau.jpg", alt: "Un professionnel expérimenté, souriant", cadrage: "50% 20%" },
+  appel: { src: "/images/accueil/appel.jpg", alt: "Une équipe de professionnels prête à partir", cadrage: "35% 30%" },
+  recruteurs: { src: "/images/accueil/recruteurs.jpg", alt: "Des recruteurs souriants, assis côte à côte", cadrage: "50% 40%" },
 };
