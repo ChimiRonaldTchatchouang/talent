@@ -2,6 +2,7 @@
 
 import { ChakraProvider } from "@chakra-ui/react";
 import type { ReactNode } from "react";
+import { EffetCurseur } from "@/components/effet-curseur";
 import { EnregistrerServiceWorker } from "@/components/enregistrer-sw";
 import { Toaster } from "@/components/toaster";
 import { PreferencesProvider } from "@/lib/preferences";
@@ -14,6 +15,7 @@ export function Providers({ children }: { children: ReactNode }) {
         {children}
         <Toaster />
         <EnregistrerServiceWorker />
+        <EffetCurseur />
       </PreferencesProvider>
     </ChakraProvider>
   );

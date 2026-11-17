@@ -198,3 +198,21 @@ html { scroll-behavior: smooth; }
 @keyframes bdt-cloche { 0%, 100% { transform: rotate(0); } 25% { transform: rotate(14deg); } 75% { transform: rotate(-14deg); } }
 .bdt-cloche { animation: bdt-cloche 1.2s ease-in-out 2; }
 @media (prefers-reduced-motion: reduce) { .bdt-ligne-liste, .bdt-cadenas, .bdt-cloche { animation: none !important; } }
+
+/* Effet de curseur : onde au toucher (mobile) et anneau qui suit la souris (ordinateur) */
+.bdt-calque-curseur { position: fixed; inset: 0; pointer-events: none; z-index: 9999; overflow: hidden; }
+@keyframes bdt-onde { from { transform: translate(-50%, -50%) scale(0); opacity: 0.55; } to { transform: translate(-50%, -50%) scale(1); opacity: 0; } }
+.bdt-onde {
+  position: absolute; width: 56px; height: 56px; border-radius: 50%;
+  border: 2px solid #2A9A5C; background: radial-gradient(circle, rgba(124, 245, 165, 0.45) 0%, rgba(124, 245, 165, 0) 70%);
+  animation: bdt-onde 0.55s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+.bdt-onde-toucher { width: 84px; height: 84px; animation-duration: 0.65s; }
+.bdt-anneau {
+  position: absolute; left: -16px; top: -16px; width: 32px; height: 32px; border-radius: 50%;
+  border: 2px solid rgba(0, 109, 51, 0.55); background: rgba(124, 245, 165, 0.08);
+  opacity: 0; transition: opacity 0.25s ease, width 0.25s ease, height 0.25s ease, left 0.25s ease, top 0.25s ease, background-color 0.25s ease;
+}
+.bdt-anneau[data-visible="true"] { opacity: 1; }
+.bdt-anneau[data-survol="true"] { width: 52px; height: 52px; left: -26px; top: -26px; background: rgba(124, 245, 165, 0.22); border-color: #006D33; }
+@media (prefers-reduced-motion: reduce) { .bdt-calque-curseur { display: none; } }
