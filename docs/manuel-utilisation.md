@@ -52,11 +52,20 @@ Si tu as donné un e-mail, tu reçois un lien pour le confirmer. Ouvre-le (il es
 > Android : menu ⋮ → « Ajouter à l'écran d'accueil ». iPhone : bouton Partager → « Sur l'écran d'accueil ».
 
 ### 1.2 Ton espace
-Après la connexion, tu arrives sur ton espace. Tu y vois :
-- ta **progression** (en %) et le bouton **Commencer mon dossier** ou **Reprendre où je me suis arrêté** ;
-- les **6 étapes** du dossier, avec leur état : *À faire*, *En cours*, *Terminé*, *Sauté* ;
-- une fois le formulaire rempli : **ton grade**, ce qui te manque et les services qui peuvent t'aider ;
-- **Mes accords** : l'interrupteur pour être présenté (ou non) aux recruteurs.
+Ton espace fonctionne comme une application : une barre d'onglets en bas de l'écran, et deux boutons en haut à droite
+(**EN/FR** pour la langue, **lune/soleil** pour le mode sombre).
+
+| Onglet | Ce que tu y trouves |
+|---|---|
+| **Accueil** | L'état de ton profil : progression (%), bouton **Reprendre où je me suis arrêté**, ton grade, ce qui te manque, les 6 étapes du dossier, le nombre de consultations par des recruteurs. |
+| **Services** | Les 4 éléments du grade A, ceux qui te manquent et les services du cabinet pour les combler (**Je suis intéressé(e)**). |
+| **Opportunités** | Les offres d'emploi publiées par le cabinet (voir 1.10). |
+| **Notifications** | Les nouvelles de ton dossier : grade confirmé, pièce à redéposer, nouvelle offre… Un point rouge indique les non lues. |
+| **Paramètres** | Langue, mode sombre, installation de l'application, accord recruteurs, suppression du dossier, déconnexion. |
+
+**Installer l'application** : l'e-mail de bienvenue contient un bouton **Installer l'application** (aussi dans
+Paramètres). Sur Android (Chrome), un bouton installe le raccourci ; sur iPhone (Safari), la page montre les 3 gestes :
+Partager, « Sur l'écran d'accueil », Ajouter.
 
 ### 1.3 Remplir ton dossier
 Le dossier se remplit **une question (ou un petit groupe de questions) par écran**. Appuie sur **Continuer** pour passer
@@ -115,11 +124,18 @@ contacte. Tu suis ensuite l'avancement : *Intéressé* → *Accepté* → *En co
 grade à jour.
 
 ### 1.8 Tes données
-- **Recruteurs** : dans **Mes accords**, tu choisis si ton profil peut être présenté. Les recruteurs ne voient jamais ton
+- **Recruteurs** : dans **Paramètres → Confidentialité**, tu choisis si ton profil peut être présenté. Les recruteurs ne voient jamais ton
   téléphone, ton e-mail, ta ville ni tes documents. Ton espace indique combien de fois ton profil a été consulté.
-- **Suppression** : en bas de ton espace, **Demander la suppression de mon dossier**. Après validation par le cabinet,
+- **Suppression** : dans **Paramètres**, **Supprimer mon dossier**. Après validation par le cabinet,
   ton dossier, tes documents et ton compte sont effacés définitivement. Tu peux annuler ta demande tant qu'elle n'est
   pas traitée.
+
+### 1.10 Les opportunités
+L'onglet **Opportunités** liste toutes les offres publiées par le cabinet, le plus souvent à l'international. Chaque offre
+indique le **grade requis** : tu peux l'ouvrir si ton grade est égal ou supérieur (A > B > C > D). Sinon, un cadenas
+s'affiche et tu reçois une notification « Passe au grade … pour consulter cette offre », avec un lien vers les services
+qui t'y aident. Par défaut, ton grade doit d'abord être **confirmé** par le cabinet. Une offre ouverte montre sa
+description complète et un bouton **Je suis intéressé(e)** : le cabinet est prévenu et te recontacte.
 
 ### 1.9 Mot de passe oublié
 Sur la page de connexion : **Mot de passe oublié ?**
@@ -183,10 +199,21 @@ Menu **Sélections reçues** : pour chaque recruteur, ses candidats retenus (ave
 commentaires et son message. Indiquez pour chaque candidat : **À contacter**, **Mis en relation**, **Retenu par
 l'employeur** ou **Non retenu**.
 
+### 2.6 bis Les opportunités et WhatsApp
+- **Opportunités** (menu) : **Publier une offre** (intitulé, pays, ville, domaine, contrat, date limite, description) et
+  choisir le **grade requis** (A, B, C ou D). Tous les candidats voient l'offre ; seuls ceux du grade requis ou d'un grade
+  supérieur peuvent l'ouvrir. À la publication, les candidats éligibles sont prévenus dans leur espace. **Retirer** cache
+  l'offre sans la supprimer ; **intéressé(s)** affiche les candidats qui ont cliqué « Je suis intéressé(e) ».
+- **WhatsApp** : sur la fiche d'un candidat (et dans la liste des intéressés), le bouton vert **WhatsApp** propose un
+  message prêt (dossier à terminer, pièce à redéposer, grade confirmé, rendez-vous, nouvelle opportunité, ou message
+  libre), modifiable. **Ouvrir WhatsApp** ouvre la conversation avec le numéro du candidat, message déjà écrit : il ne
+  reste qu'à appuyer sur Envoyer. Chaque message préparé est inscrit au journal.
+
 ### 2.7 Réglages et administration
 - **Listes de référence** : domaines, compétences (et propositions des candidats à valider), tests de langue et scores
   minimum, services, diplômes.
-- **Paramètres** : seuils du classement (chaque changement recalcule les grades provisoires).
+- **Paramètres** : seuils du classement (chaque changement recalcule les grades provisoires), et règle des
+  opportunités (grade confirmé exigé ou non pour ouvrir une offre).
 - **Administrateurs** : l'administrateur principal crée ou désactive les comptes de l'équipe.
 - **Réglages et e-mails** : téléphone du cabinet, **e-mail de test**, journal des e-mails, **données de démonstration**
   (à effacer avant l'ouverture au public).

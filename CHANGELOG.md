@@ -1,5 +1,29 @@
 # Journal des livraisons
 
+## Lot 7 — Opportunités, WhatsApp, application et anglais (17/11/2026)
+
+**Livré**
+- **Opportunités** : le cabinet publie des offres d'emploi avec un grade requis (écran Admin → Opportunités : publier,
+  modifier, retirer, supprimer, voir les intéressés). Les candidats voient toutes les offres mais n'ouvrent que celles de
+  leur grade ou d'un grade inférieur ; sinon, cadenas et notification « Passe au grade … pour consulter cette offre ».
+  « Je suis intéressé(e) » prévient le cabinet par e-mail.
+- **WhatsApp** : bouton sur la fiche candidat et dans la liste des intéressés ; 6 modèles de messages ; WhatsApp s'ouvre
+  sur le bon numéro avec le message prérempli. Journalisé.
+- **Espace candidat façon application** : barre d'onglets (Accueil, Services, Opportunités, Notifications, Paramètres),
+  pastille du nombre de notifications non lues, boutons langue et mode sombre en haut à droite.
+- **Notifications dans l'application** pour les grands moments du dossier.
+- **Français / anglais** : sélecteur FR/EN sur l'accueil, les pages de compte et l'espace candidat (questions du
+  dossier comprises).
+- **Mode sombre** de l'espace candidat.
+- **Installation** : bloc « Installe l'application » dans l'e-mail de bienvenue et page /installer (Android et iPhone).
+- **Effet de toucher** : onde verte au toucher sur téléphone, anneau qui suit la souris sur ordinateur.
+
+**Tests** : 145 tests d'API (dont 10 nouveaux : visibilité des offres selon le grade, grade non confirmé, dossier non
+envoyé, intérêt, notifications, lien WhatsApp, e-mail d'installation) et 9 tests partagés. Parcours vérifié dans un
+navigateur (téléphone, français, anglais, mode sombre ; écrans du cabinet sur ordinateur).
+
+**Reste** : traduire les e-mails et les messages d'erreur de l'API si le cabinet le souhaite (D-60).
+
 ## Refonte de la page d'accueil (17/11/2026)
 
 **Livré**

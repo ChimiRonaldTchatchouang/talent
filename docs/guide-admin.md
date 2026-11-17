@@ -75,6 +75,12 @@ jour (exemple : coaching réalisé → B devient A provisoire). **Annuler** reme
 ### Notes internes
 Visibles uniquement par le cabinet, jamais par le candidat ni par les recruteurs.
 
+### Prévenir le candidat sur WhatsApp
+Bouton vert **WhatsApp** en haut de la fiche : choisissez un modèle de message (ou écrivez le vôtre), puis **Ouvrir
+WhatsApp**. La conversation s'ouvre (application ou WhatsApp Web) avec le numéro du candidat (+237 ajouté si besoin) et
+le message déjà écrit ; vérifiez-le et appuyez sur Envoyer. La plateforme n'envoie rien elle-même (l'API WhatsApp
+Business est payante) ; chaque message préparé est inscrit au journal.
+
 ### Réinitialiser le mot de passe (onglet Personnel)
 Pour un candidat qui n'a pas d'e-mail : un mot de passe provisoire s'affiche **une seule fois**. Communiquez-le
 au candidat.
@@ -101,6 +107,21 @@ temporaires (10 minutes).
 
 Menu **Services** : la liste des candidats intéressés par un service et des services en cours. Un clic fait passer
 à l'étape suivante.
+
+---
+
+## 6 bis. Les opportunités
+
+Menu **Opportunités** : publiez les offres d'emploi (souvent à l'international) avec leur **grade requis**.
+- Tous les candidats voient la liste (intitulé, pays, contrat, grade requis). Seuls ceux qui ont le grade requis ou un
+  grade supérieur ouvrent l'offre et lisent la description : la règle est vérifiée par le serveur.
+- Un candidat qui essaie d'ouvrir une offre au-dessus de son grade reçoit une notification « Passe au grade … » avec un
+  lien vers les services.
+- À la publication, les candidats éligibles sont prévenus dans leur espace (onglet Notifications).
+- **Paramètres → Opportunités** : par défaut, le grade doit être **confirmé** par le cabinet. Décochez pour accepter le
+  grade provisoire.
+- **Retirer** cache une offre ; la date limite la retire automatiquement ; **intéressé(s)** liste les candidats, avec le
+  bouton WhatsApp.
 
 ---
 

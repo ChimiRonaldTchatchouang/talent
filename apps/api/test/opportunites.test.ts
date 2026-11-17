@@ -26,7 +26,7 @@ const OFFRE = {
   typeContrat: "CDI",
   description: "Chantier à Québec. Salaire et démarche détaillés ici.",
   gradeRequis: "B",
-  dateLimite: null,
+  dateLimite: null as string | null,
   publiee: true,
 };
 
