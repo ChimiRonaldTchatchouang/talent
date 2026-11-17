@@ -4,7 +4,7 @@ import { Box, Button, Flex, HStack, Spinner, Stack, Text } from "@chakra-ui/reac
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import type { ReactNode } from "react";
-import { LuBriefcase, LuScrollText, LuTrash2, LuFileCheck, LuHandHelping, LuInbox, LuLayoutDashboard, LuListChecks, LuLogOut, LuSettings, LuSlidersHorizontal, LuUsers, LuUsersRound } from "react-icons/lu";
+import { LuBriefcase, LuGlobe, LuScrollText, LuTrash2, LuFileCheck, LuHandHelping, LuInbox, LuLayoutDashboard, LuListChecks, LuLogOut, LuSettings, LuSlidersHorizontal, LuUsers, LuUsersRound } from "react-icons/lu";
 import { Logo } from "@/components/marque";
 import { api } from "@/lib/api";
 import { useSession } from "@/lib/session";
@@ -14,6 +14,7 @@ const MENU = [
   { href: "/admin/vivier", libelle: "Vivier", icone: LuUsersRound },
   { href: "/admin/verifications", libelle: "Pièces à vérifier", icone: LuFileCheck },
   { href: "/admin/services", libelle: "Services", icone: LuHandHelping },
+  { href: "/admin/opportunites", libelle: "Opportunités", icone: LuGlobe },
   { href: "/admin/recruteurs", libelle: "Recruteurs", icone: LuBriefcase },
   { href: "/admin/selections", libelle: "Sélections reçues", icone: LuInbox },
   { href: "/admin/referentiels", libelle: "Listes de référence", icone: LuListChecks },

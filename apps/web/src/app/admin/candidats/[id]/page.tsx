@@ -24,6 +24,7 @@ import { Carte } from "@/components/carte";
 import { LigneElement } from "@/components/candidat/grade";
 import { EtatGrade } from "@/components/admin/communs";
 import { DecisionPiece, ouvrirPiece } from "@/components/admin/decision-piece";
+import { BoutonWhatsApp } from "@/components/admin/whatsapp";
 import { toaster } from "@/components/toaster";
 import { libelleAction } from "@/lib/actions-journal";
 import { api, ErreurClient, messageErreur } from "@/lib/api";
@@ -139,6 +140,7 @@ export default function FicheCandidat() {
                   </Text>
                 )}
               </Stack>
+              <BoutonWhatsApp dossierId={d.id} prenom={(d.prenoms ?? "").split(" ")[0] ?? ""} telephone={d.telephoneContact ?? f.compte.telephone} />
             </HStack>
           </Carte>
 

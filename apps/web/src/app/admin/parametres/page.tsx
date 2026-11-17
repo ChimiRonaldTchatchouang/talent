@@ -181,6 +181,24 @@ export default function PageParametres() {
         </Field.Root>
       </Carte>
 
+      <Carte>
+        <Heading as="h2" size="md" color="nuit" mb="3">
+          Opportunités
+        </Heading>
+        <Checkbox.Root
+          colorPalette="emeraude"
+          checked={valeurs.opportunitesGradeConfirmeRequis}
+          onCheckedChange={(c) => setValeurs({ ...valeurs, opportunitesGradeConfirmeRequis: !!c.checked })}
+        >
+          <Checkbox.HiddenInput />
+          <Checkbox.Control />
+          <Checkbox.Label>Pour ouvrir une offre, le grade du candidat doit être confirmé par le cabinet</Checkbox.Label>
+        </Checkbox.Root>
+        <Text fontSize="sm" color="gris" mt="2">
+          Décoché : le grade provisoire (calculé automatiquement) suffit. Dans tous les cas, le dossier doit être envoyé.
+        </Text>
+      </Carte>
+
       <Button type="submit" size="lg" colorPalette="emeraude" alignSelf="flex-start" loading={envoi}>
         Enregistrer les paramètres
       </Button>
