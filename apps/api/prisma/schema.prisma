@@ -59,6 +59,7 @@ model Utilisateur {
   competencesProposees Competence[]           @relation("CompetenceProposee")
   versionsParametres   ParametresClassement[]
   accesRecruteur       AccesRecruteur?
+  notifications        Notification[]
 
   @@map("utilisateurs")
 }
@@ -315,6 +316,7 @@ model Dossier {
   selectionLignes        SelectionLigne[]
   selectionEnvoyeeLignes SelectionEnvoyeeLigne[]
   consultationRecruteurs ConsultationRecruteur[]
+  interetsOffres         InteretOffre[]
 
   @@index([statut])
   @@map("dossiers")
@@ -659,4 +661,59 @@ model DemandeSuppression {
 
   @@index([statut])
   @@map("demandes_suppression")
+}
+
+// ---------- Lot 7 : opportunités, notifications ----------
+
+/// Offre d'emploi publiée par le cabinet (le plus souvent à l'international). Visible par tous les candidats,
+/// ouverte seulement à ceux dont le grade est égal ou supérieur au grade requis.
+model Offre {
+  id          String         @id @default(uuid()) @db.Uuid
+  titre       String
+  pays        String
+  ville       String?
+  domaine     String?
+  typeContrat String?        @map("type_contrat")
+  /// Description complète, conditions et démarche : jamais envoyées à un candidat qui n'a pas le grade requis.
+  description String
+  gradeRequis ValeurGrade    @map("grade_requis")
+  dateLimite  DateTime?      @map("date_limite") @db.Date
+  publiee     Boolean        @default(true)
+  creeParId   String?        @map("cree_par_id") @db.Uuid
+  creeLe      DateTime       @default(now()) @map("cree_le")
+  modifieLe   DateTime       @updatedAt @map("modifie_le")
+  interets    InteretOffre[]
+
+  @@index([publiee])
+  @@map("offres")
+}
+
+/// « Je suis intéressé(e) » d'un candidat pour une offre.
+model InteretOffre {
+  offreId   String   @map("offre_id") @db.Uuid
+  offre     Offre    @relation(fields: [offreId], references: [id], onDelete: Cascade)
+  dossierId String   @map("dossier_id") @db.Uuid
+  dossier   Dossier  @relation(fields: [dossierId], references: [id], onDelete: Cascade)
+  creeLe    DateTime @default(now()) @map("cree_le")
+
+  @@id([offreId, dossierId])
+  @@map("interets_offres")
+}
+
+/// Notification dans l'application (onglet « Notifications » du candidat).
+model Notification {
+  id            String      @id @default(uuid()) @db.Uuid
+  utilisateurId String      @map("utilisateur_id") @db.Uuid
+  utilisateur   Utilisateur @relation(fields: [utilisateurId], references: [id], onDelete: Cascade)
+  type          String
+  titre         String
+  texte         String
+  lien          String?
+  /// Valeurs du message (grade, titre de l'offre…), pour l'afficher dans la langue choisie par le candidat.
+  donnees       Json?
+  lueLe         DateTime?   @map("lue_le")
+  creeLe        DateTime    @default(now()) @map("cree_le")
+
+  @@index([utilisateurId, creeLe])
+  @@map("notifications")
 }

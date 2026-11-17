@@ -23,6 +23,7 @@ import { envoyerAuxAdmins, envoyerEmail, modeles } from "../lib/emails.js";
 import { erreurs } from "../lib/erreurs.js";
 import { journaliser } from "../lib/journal.js";
 import { exigerRole, utilisateurDe } from "../plugins/authentification.js";
+import { notifier } from "../lib/notifications.js";
 
 const versDate = (v: unknown) => (typeof v === "string" ? new Date(`${v}T00:00:00Z`) : (v as null | undefined));
 
@@ -262,6 +263,13 @@ export function routesCandidat(config: Config): FastifyPluginAsyncZod {
         const site = config.URL_SITE.replace(/\/+$/, "");
         const email = moi.email ?? envoye.emailContact;
         const manquantes = piecesManquantes(envoye);
+        await notifier(app.prisma, moi.id, {
+          type: "DOSSIER_ENVOYE",
+          titre: "Ton dossier est bien envoyé",
+          texte: manquantes.length ? `Il te reste ${manquantes.length} pièce(s) à déposer.` : "Le cabinet va le vérifier et confirmer ton grade.",
+          lien: "/candidat",
+          donnees: { manquantes: manquantes.length },
+        });
         if (email) {
           await envoyerEmail(app.prisma, config, email, modeles.dossierEnvoyeCandidat({ envoyeLe: maintenant, piecesManquantes: manquantes, lienEspace: `${site}/candidat` }));
         }

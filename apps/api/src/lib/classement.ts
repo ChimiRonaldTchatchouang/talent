@@ -7,6 +7,7 @@ import { erreurs } from "./erreurs.js";
 import { journaliser } from "./journal.js";
 import { parametresEnVigueur } from "./parametres.js";
 import { piecesRequises } from "./dossier.js";
+import { notifier } from "./notifications.js";
 
 const inclusion = {
   pieces: { select: { type: true, etat: true } },
@@ -141,6 +142,13 @@ export async function recalculerTousLesGrades(db: PrismaClient, config: Config, 
 
 async function prevenirCandidat(db: PrismaClient, config: Config, dossierId: string, grade: Grade, corrige: boolean) {
   const d = await db.dossier.findUniqueOrThrow({ where: { id: dossierId }, include: { utilisateur: { select: { email: true } } } });
+  await notifier(db, d.utilisateurId, {
+    type: "GRADE_MIS_A_JOUR",
+    titre: corrige ? "Le cabinet a fixé ton grade" : "Le cabinet a confirmé ton grade",
+    texte: `Grade ${grade === "HORS_BASSIN" ? "hors bassin" : grade} : ouvre ton espace pour voir le détail.`,
+    lien: "/candidat/grade",
+    donnees: { grade, corrige },
+  });
   const email = d.utilisateur.email ?? d.emailContact;
   if (!email) return;
   await envoyerEmail(db, config, email, modeles.gradeMisAJour({ grade, corrige, lien: `${config.URL_SITE.replace(/\/+$/, "")}/candidat/grade` }));

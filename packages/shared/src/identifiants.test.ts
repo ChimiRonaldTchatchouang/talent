@@ -29,3 +29,19 @@ describe("analyserIdentifiant", () => {
     expect(analyserIdentifiant("awa@")).toBeNull();
   });
 });
+
+import { gradeSuffisant, lienWhatsApp } from "./opportunites.js";
+
+describe("opportunités", () => {
+  it("compare les grades : égal ou supérieur", () => {
+    expect(gradeSuffisant("A", "B")).toBe(true);
+    expect(gradeSuffisant("B", "B")).toBe(true);
+    expect(gradeSuffisant("C", "B")).toBe(false);
+    expect(gradeSuffisant("HORS_BASSIN", "D")).toBe(false);
+    expect(gradeSuffisant(null, "D")).toBe(false);
+  });
+  it("construit un lien WhatsApp avec le message encodé", () => {
+    expect(lienWhatsApp("+237 6 99 00 11 22", "Bonjour Aïcha & co")).toBe("https://wa.me/237699001122?text=Bonjour%20A%C3%AFcha%20%26%20co");
+    expect(lienWhatsApp("12", "x")).toBeNull();
+  });
+});

@@ -72,7 +72,7 @@ const date = (d: Date) => d.toLocaleDateString("fr-FR", { day: "numeric", month:
 export const modeles = {
   // ---------- Candidat ----------
 
-  compteCree: (lienConfirmation: string, lienEspace: string): Message => ({
+  compteCree: (lienConfirmation: string, lienEspace: string, lienInstallation?: string): Message => ({
     sujet: `Bienvenue sur ${MARQUE.nom} : confirme ton adresse e-mail`,
     apercu: "Ton compte est créé. Confirme ton adresse e-mail, puis remplis ton dossier à ton rythme.",
     public: "candidat",
@@ -87,6 +87,7 @@ export const modeles = {
         ["3.", "Découvre ton grade et les services qui peuvent t'aider"],
       ],
     },
+    installation: lienInstallation ? { url: lienInstallation } : undefined,
     ensuite: [`Tout est enregistré automatiquement : tu peux t'arrêter et reprendre quand tu veux sur ${lienEspace}.`],
   }),
 
@@ -194,6 +195,16 @@ export const modeles = {
     paragraphes: [`${d.nom} a cliqué sur « Je suis intéressé(e) ». Pensez à le recontacter.`],
     encadre: { lignes: [["Candidat", d.nom], ["Service", d.service], ...(d.grade ? ([["Grade", libelleGrade(d.grade)]] as [string, string][]) : [])] },
     bouton: { libelle: "Ouvrir la fiche", url: d.lien },
+  }),
+
+  interetOffre: (d: { nom: string; offre: string; pays: string; grade: Grade | null; lien: string }): Message => ({
+    sujet: `Intérêt pour une offre : ${d.nom}`,
+    apercu: `${d.nom} est intéressé(e) par l'offre « ${d.offre} ».`,
+    public: "cabinet",
+    titre: "Un candidat est intéressé par une offre",
+    paragraphes: [`${d.nom} a cliqué sur « Je suis intéressé(e) » pour une offre publiée. Pensez à le recontacter.`],
+    encadre: { lignes: [["Candidat", d.nom], ["Offre", `${d.offre} (${d.pays})`], ...(d.grade ? ([["Grade", libelleGrade(d.grade)]] as [string, string][]) : [])] },
+    bouton: { libelle: "Voir les candidats intéressés", url: d.lien },
   }),
 
   selectionRecue: (d: { recruteur: string; entreprise: string; pays: string; profils: number; remplace: boolean; lien: string }): Message => ({

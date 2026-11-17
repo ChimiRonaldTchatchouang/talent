@@ -33,6 +33,7 @@ import { routesPlateformeAdmin } from "./routes/plateforme-admin.js";
 import { routesJournal } from "./routes/journal.js";
 import { routesParametres } from "./routes/parametres.js";
 import { routesReferentiels } from "./routes/referentiels.js";
+import { routesOpportunites } from "./routes/opportunites.js";
 
 function corps(code: string, message: string, details?: Record<string, string>): ErreurApi {
   return { erreur: { code, message, ...(details ? { details } : {}) } };
@@ -127,6 +128,7 @@ export async function construireApp(configBrute: Config, prisma: PrismaClient) {
   await app.register(routesRecruteursAdmin(config));
   await app.register(routesRecruteur(config));
   await app.register(routesSuppression(config));
+  await app.register(routesOpportunites(config));
 
   return app;
 }

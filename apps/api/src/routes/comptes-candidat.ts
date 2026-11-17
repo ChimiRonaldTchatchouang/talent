@@ -10,6 +10,7 @@ import { hacherMotDePasse } from "../lib/mots-de-passe.js";
 import { lireReglages } from "../lib/reglages.js";
 import { exigerRole, utilisateurDe } from "../plugins/authentification.js";
 import { schemaUtilisateurPublic, versPublic } from "./auth.js";
+import { notifier } from "../lib/notifications.js";
 
 /** Inscription du candidat, confirmation de l'e-mail, mot de passe oublié (M1, W1). */
 export function routesComptesCandidat(config: Config): FastifyPluginAsyncZod {
@@ -96,9 +97,15 @@ export function routesComptesCandidat(config: Config): FastifyPluginAsyncZod {
           details: { consentementTraitement: true, consentementRecruteurs },
           ip: request.ip,
         });
+        await notifier(app.prisma, utilisateur.id, {
+          type: "BIENVENUE",
+          titre: "Bienvenue sur la plateforme",
+          texte: "Installe l'application sur ton téléphone pour la retrouver en un geste, puis remplis ton dossier.",
+          lien: "/installer",
+        });
         if (utilisateur.email) {
           const jeton = await creerJeton(app.prisma, "CONFIRMATION_EMAIL", utilisateur.id);
-          await envoyerEmail(app.prisma, config, utilisateur.email, modeles.compteCree(lien(`/confirmer-email?jeton=${jeton}`), lien("/candidat")));
+          await envoyerEmail(app.prisma, config, utilisateur.email, modeles.compteCree(lien(`/confirmer-email?jeton=${jeton}`), lien("/candidat"), lien("/installer")));
         }
         await app.ouvrirSession(reply, utilisateur);
         return reply.code(201).send({

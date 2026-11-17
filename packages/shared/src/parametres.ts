@@ -56,6 +56,8 @@ export const schemaParametresClassement = z.object({
   piecesRequisesGradeA: z.array(z.enum(TYPES_PIECE)).min(1),
   /** Alerte aux administrateurs N jours avant la fin d'un accès recruteur. */
   joursAlerteFinAccesRecruteur: z.number().int().min(1).max(30),
+  /** Opportunités : le grade doit être confirmé (ou fixé) par le cabinet pour ouvrir une offre. Sinon, le grade provisoire suffit. */
+  opportunitesGradeConfirmeRequis: z.boolean(),
 });
 export type ParametresClassement = z.infer<typeof schemaParametresClassement>;
 
@@ -65,4 +67,5 @@ export const PARAMETRES_CLASSEMENT_PAR_DEFAUT: ParametresClassement = {
   elementsSuggeresGradeD: ["TEST_LANGUE", "COACHING"],
   piecesRequisesGradeA: ["IDENTITE", "DIPLOME", "ATTESTATION_LANGUE"],
   joursAlerteFinAccesRecruteur: 3,
+  opportunitesGradeConfirmeRequis: true,
 };

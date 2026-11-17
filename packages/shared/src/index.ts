@@ -6,3 +6,4 @@ export * from "./parametres.js";
 export * from "./erreurs.js";
 export * from "./grades.js";
 export * from "./dossier.js";
+export * from "./opportunites.js";

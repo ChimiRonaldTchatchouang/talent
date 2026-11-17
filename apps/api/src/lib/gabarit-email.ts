@@ -29,7 +29,15 @@ export interface Message {
   bouton?: { libelle: string; url: string };
   /** Paragraphes après le bouton. */
   ensuite?: string[];
+  /** Bloc « Installe l'application » : lien vers la page qui ajoute le raccourci sur l'écran d'accueil. */
+  installation?: { url: string };
 }
+
+/** Étapes d'installation de l'application, par type de téléphone (reprises dans la page /installer). */
+export const ETAPES_INSTALLATION = {
+  android: "Android (Chrome) : ouvre le lien, puis touche « Installer l'application ».",
+  iphone: "iPhone (Safari) : ouvre le lien, touche le bouton Partager, puis « Sur l'écran d'accueil ».",
+};
 
 export interface Contexte {
   urlSite: string;
@@ -126,6 +134,20 @@ export function rendreEmail(m: Message, ctx: Contexte): { html: string; texte: s
       <p style="margin:0 0 20px 0;font-family:${POLICE};font-size:13px;line-height:1.5;color:${C.gris};">${m.public === "candidat" ? "Si le bouton ne marche pas, copie ce lien dans ton navigateur :" : "Si le bouton ne fonctionne pas, copiez ce lien dans votre navigateur :"}<br><a href="${url}" target="_blank" style="color:${C.emeraude};word-break:break-all;">${url}</a></p>`);
   }
 
+  if (m.installation) {
+    const url = echapper(m.installation.url);
+    blocs.push(`<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin:4px 0 20px 0;border:2px solid ${C.menthe};border-radius:16px;"><tr><td style="padding:18px 20px;">
+      <div style="font-family:${POLICE};font-size:17px;font-weight:700;color:${C.nuit};padding-bottom:6px;">&#128241; Installe l'application sur ton téléphone</div>
+      <p style="margin:0 0 12px 0;font-family:${POLICE};font-size:15px;line-height:1.6;color:${C.encre};">Ajoute un raccourci sur ton écran d'accueil : tu retrouves ton espace en un geste, comme une application, sans passer par un magasin d'applications.</p>
+      <p style="margin:0 0 4px 0;font-family:${POLICE};font-size:14px;line-height:1.6;color:${C.gris};">${echapper(ETAPES_INSTALLATION.android)}</p>
+      <p style="margin:0 0 14px 0;font-family:${POLICE};font-size:14px;line-height:1.6;color:${C.gris};">${echapper(ETAPES_INSTALLATION.iphone)}</p>
+      <table role="presentation" cellpadding="0" cellspacing="0" border="0"><tr>
+        <td align="center" bgcolor="${C.nuit}" style="border-radius:999px;background:${C.nuit};">
+          <a href="${url}" target="_blank" style="display:inline-block;padding:12px 26px;font-family:${POLICE};font-size:15px;font-weight:600;color:#FFFFFF;text-decoration:none;border-radius:999px;">Installer l'application</a>
+        </td></tr></table>
+    </td></tr></table>`);
+  }
+
   for (const p of m.ensuite ?? []) blocs.push(paragrapheHtml(p));
 
   const contacts = coordonnees(ctx);
@@ -181,6 +203,9 @@ export function rendreEmail(m: Message, ctx: Contexte): { html: string; texte: s
     ...(m.liste && m.liste.elements.length ? [m.liste.titre, ...m.liste.elements.map((e) => `- ${e}`), ""] : []),
     ...(m.important ? [m.important, ""] : []),
     ...(m.bouton ? [`${m.bouton.libelle} : ${m.bouton.url}`, ""] : []),
+    ...(m.installation
+      ? ["Installe l'application sur ton téléphone", ETAPES_INSTALLATION.android, ETAPES_INSTALLATION.iphone, `Installer l'application : ${m.installation.url}`, ""]
+      : []),
     ...(m.ensuite ?? []).flatMap((p) => [p, ""]),
     m.public === "candidat" ? "À bientôt," : "Cordialement,",
     `L'équipe ${MARQUE.nom}`,

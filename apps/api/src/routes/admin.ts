@@ -14,6 +14,7 @@ import { creerDonneesDemo, effacerDonneesDemo, etatDemo } from "../lib/demo.js";
 import { rechercherVivier, schemaFiltres, versCsv } from "../lib/vivier.js";
 import { exigerRole, utilisateurDe } from "../plugins/authentification.js";
 import { vueClassement } from "./classement.js";
+import { notifier } from "../lib/notifications.js";
 
 const TAILLE_PAGE = 50;
 
@@ -320,6 +321,13 @@ export function routesAdmin(config: Config & { SECRET_LIENS: string }): FastifyP
           ip: request.ip,
         });
         if (body.decision === "REFUSEE") {
+          await notifier(app.prisma, piece.dossier.utilisateurId, {
+            type: "PIECE_REFUSEE",
+            titre: "Une pièce est à redéposer",
+            texte: `${LIBELLES_PIECES[piece.type as TypePiece]} : ${motif}`,
+            lien: "/candidat/justificatifs",
+            donnees: { piece: piece.type, motif },
+          });
           const email = piece.dossier.utilisateur.email ?? piece.dossier.emailContact;
           if (email) {
             await envoyerEmail(
