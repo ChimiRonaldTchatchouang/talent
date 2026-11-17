@@ -156,3 +156,45 @@ html { scroll-behavior: smooth; }
   .bdt-ligne-apercu { opacity: 1 !important; transform: none !important; }
   .bdt-apercu { transform: none !important; }
 }
+
+/* =====================================================================
+   Mode sombre de l'espace candidat : les couleurs de la charte sont redéfinies
+   dans la zone (classe .bdt-sombre), le reste du site n'est pas touché.
+   ===================================================================== */
+.bdt-sombre {
+  --chakra-colors-fond: #0B1626;
+  --chakra-colors-brume: #1A2A42;
+  --chakra-colors-encre: #E3EAF4;
+  --chakra-colors-gris: #A3B1C6;
+  --chakra-colors-surface: #13233A;
+  --chakra-colors-titre: #F1F6FD;
+  --chakra-colors-accent: #7CF5A5;
+  /* Boutons « contour » et liens verts : menthe, lisible sur fond sombre */
+  --chakra-colors-emeraude-fg: #7CF5A5;
+  --chakra-colors-emeraude-muted: rgba(124, 245, 165, 0.25);
+  --chakra-colors-emeraude-subtle: rgba(124, 245, 165, 0.12);
+  color-scheme: dark;
+  color: #E3EAF4;
+}
+
+/* Barre d'onglets de l'espace candidat : l'onglet actif est posé sur une pastille, l'icône saute légèrement */
+.bdt-onglet { transition: background-color 0.25s ease; -webkit-tap-highlight-color: transparent; }
+.bdt-onglet[data-actif="true"] { background: rgba(124, 245, 165, 0.22); }
+.bdt-onglet-icone { transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1); }
+.bdt-onglet[data-actif="true"] .bdt-onglet-icone { transform: translateY(-2px) scale(1.08); }
+.bdt-onglet:active .bdt-onglet-icone { transform: scale(0.85); }
+@keyframes bdt-rotation-icone { from { transform: rotate(-90deg) scale(0.6); opacity: 0; } to { transform: none; opacity: 1; } }
+.bdt-rotation-icone { animation: bdt-rotation-icone 0.4s cubic-bezier(0.34, 1.56, 0.64, 1); display: grid; }
+@media (prefers-reduced-motion: reduce) {
+  .bdt-onglet-icone, .bdt-rotation-icone { transition: none !important; animation: none !important; }
+}
+
+/* Listes de l'espace candidat : les lignes arrivent l'une après l'autre */
+@keyframes bdt-ligne-liste { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: none; } }
+.bdt-ligne-liste { animation: bdt-ligne-liste 0.45s cubic-bezier(0.22, 1, 0.36, 1) both; animation-delay: var(--bdt-delai, 0ms); }
+/* Offre verrouillée : le cadenas tremble une fois */
+@keyframes bdt-cadenas { 0%, 100% { transform: rotate(0); } 20% { transform: rotate(-12deg); } 40% { transform: rotate(10deg); } 60% { transform: rotate(-6deg); } 80% { transform: rotate(4deg); } }
+.bdt-cadenas { animation: bdt-cadenas 0.8s ease 0.3s both; }
+@keyframes bdt-cloche { 0%, 100% { transform: rotate(0); } 25% { transform: rotate(14deg); } 75% { transform: rotate(-14deg); } }
+.bdt-cloche { animation: bdt-cloche 1.2s ease-in-out 2; }
+@media (prefers-reduced-motion: reduce) { .bdt-ligne-liste, .bdt-cadenas, .bdt-cloche { animation: none !important; } }

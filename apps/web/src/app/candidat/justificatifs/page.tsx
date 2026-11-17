@@ -1,15 +1,16 @@
 "use client";
 
-import { LIBELLES_PIECES, type TypePiece } from "@bdt/shared";
+import type { TypePiece } from "@bdt/shared";
 import { Alert, Box, Button, Heading, HStack, Spinner, Stack, Text } from "@chakra-ui/react";
 import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { LuCamera, LuEye, LuFileUp, LuPlus, LuTrash2 } from "react-icons/lu";
-import { BadgeEtat } from "@/components/badges";
 import { Carte } from "@/components/carte";
 import { toaster } from "@/components/toaster";
 import { api, ErreurClient, messageErreur } from "@/lib/api";
 import { useDossier } from "@/lib/dossier";
+import { useLibelles } from "@/lib/libelles";
+import { useLangue } from "@/lib/preferences";
 import { televerser } from "@/lib/televersement";
 import type { PieceDeposee } from "@/lib/types";
 
@@ -19,14 +20,16 @@ interface Envoi {
   fichier: File;
 }
 
-const AIDE: Partial<Record<TypePiece, string>> = {
-  IDENTITE: "Carte nationale d'identité ou passeport, page avec ta photo.",
-  CERTIFICAT_TRAVAIL: "Un document par employeur. Tu peux en ajouter plusieurs.",
-  CV: "Ton CV, même simple.",
+const AIDE: Partial<Record<TypePiece, [string, string]>> = {
+  IDENTITE: ["Carte nationale d'identité ou passeport, page avec ta photo.", "National ID card or passport, the page with your photo."],
+  CERTIFICAT_TRAVAIL: ["Un document par employeur. Tu peux en ajouter plusieurs.", "One document per employer. You can add several."],
+  CV: ["Ton CV, même simple.", "Your CV, even a simple one."],
 };
 
 export default function Justificatifs() {
   const { reponse, recharger } = useDossier();
+  const { tr } = useLangue();
+  const l = useLibelles();
   const [enAttente, setEnAttente] = useState<Envoi[]>([]);
   const [enCours, setEnCours] = useState<string | null>(null);
   const cible = useRef<{ type: string; pieceId?: string } | null>(null);
@@ -85,7 +88,7 @@ export default function Justificatifs() {
   async function retirer(p: PieceDeposee) {
     try {
       await api(`/candidat/pieces/${p.id}`, { methode: "DELETE" });
-      toaster.create({ type: "success", title: "Pièce retirée." });
+      toaster.create({ type: "success", title: tr("Pièce retirée.", "Document removed.") });
       await recharger();
     } catch (e) {
       toaster.create({ type: "error", title: messageErreur(e) });
@@ -98,10 +101,10 @@ export default function Justificatifs() {
   const boutonsDepot = (type: string, pieceId?: string, libelle?: string) => (
     <HStack gap="2" wrap="wrap">
       <Button size="md" colorPalette="emeraude" onClick={() => choisir("photo", type, pieceId)} loading={enCours === (pieceId ?? type)}>
-        <LuCamera /> {libelle ?? "Prendre une photo"}
+        <LuCamera /> {libelle ?? tr("Prendre une photo", "Take a photo")}
       </Button>
       <Button size="md" variant="outline" colorPalette="emeraude" onClick={() => choisir("fichier", type, pieceId)} disabled={enCours !== null}>
-        <LuFileUp /> Choisir un fichier
+        <LuFileUp /> {tr("Choisir un fichier", "Choose a file")}
       </Button>
     </HStack>
   );
@@ -109,27 +112,29 @@ export default function Justificatifs() {
   const lignePiece = (p: PieceDeposee) => (
     <Stack key={p.id} gap="2" bg="brume" borderRadius="carte" p="3">
       <HStack justify="space-between" wrap="wrap" gap="2">
-        <Text fontSize="sm" color="nuit" fontWeight="600" truncate maxW="60%">
+        <Text fontSize="sm" color="titre" fontWeight="600" truncate maxW="60%">
           {p.nomFichier}
         </Text>
-        <BadgeEtat etat={p.etat === "DEPOSEE" ? "EN_ATTENTE" : p.etat === "VERIFIEE" ? "VERIFIE" : "REFUSE"} />
+        <Box as="span" borderRadius="full" px="3" py="1" fontSize="xs" fontWeight="600" bg={p.etat === "VERIFIEE" ? "menthe" : p.etat === "REFUSEE" ? "etat.refuse" : "surface"} color={p.etat === "REFUSEE" ? "etat.refuseTexte" : p.etat === "VERIFIEE" ? "nuit" : "gris"}>
+          {p.etat === "VERIFIEE" ? tr("Vérifiée", "Verified") : p.etat === "REFUSEE" ? tr("Refusée", "Rejected") : tr("En attente", "Pending")}
+        </Box>
       </HStack>
       {p.etat === "REFUSEE" && (
         <Text fontSize="sm" color="etat.refuseTexte">
-          Motif du refus : {p.motifRefus}
+          {tr("Motif du refus", "Reason")} : {p.motifRefus}
         </Text>
       )}
       <HStack gap="2" wrap="wrap">
         <Button size="xs" variant="ghost" onClick={() => voir(p)}>
-          <LuEye /> Voir
+          <LuEye /> {tr("Voir", "View")}
         </Button>
         {p.etat !== "VERIFIEE" && (
           <>
             <Button size="xs" variant="ghost" onClick={() => choisir("fichier", p.type, p.id)}>
-              <LuFileUp /> Remplacer
+              <LuFileUp /> {tr("Remplacer", "Replace")}
             </Button>
             <Button size="xs" variant="ghost" onClick={() => retirer(p)}>
-              <LuTrash2 /> Retirer
+              <LuTrash2 /> {tr("Retirer", "Remove")}
             </Button>
           </>
         )}
@@ -142,10 +147,15 @@ export default function Justificatifs() {
   return (
     <Stack gap="5">
       <Stack gap="1">
-        <Heading as="h1" size="2xl" color="nuit">
-          Justificatifs
+        <Heading as="h1" size="2xl" color="titre">
+          {tr("Justificatifs", "Supporting documents")}
         </Heading>
-        <Text color="gris">Prends une photo nette de chaque document, ou choisis un fichier (JPG, PNG ou PDF, 10 Mo maximum).</Text>
+        <Text color="gris">
+          {tr(
+            "Prends une photo nette de chaque document, ou choisis un fichier (JPG, PNG ou PDF, 10 Mo maximum).",
+            "Take a clear photo of each document, or choose a file (JPG, PNG or PDF, 10 MB max).",
+          )}
+        </Text>
       </Stack>
 
       <input ref={champPhoto} type="file" accept="image/*" capture="environment" hidden onChange={fichierChoisi} />
@@ -155,10 +165,10 @@ export default function Justificatifs() {
         <Alert.Root status="warning" borderRadius="carte">
           <Alert.Indicator />
           <Alert.Content>
-            <Alert.Title>Ton fichier sera envoyé dès que le réseau revient.</Alert.Title>
+            <Alert.Title>{tr("Ton fichier sera envoyé dès que le réseau revient.", "Your file will be sent as soon as the network is back.")}</Alert.Title>
             <Alert.Description>
               <Button size="sm" variant="plain" px="0" color="emeraude.600" onClick={() => enAttente.forEach((e) => void envoyer(e))}>
-                Réessayer maintenant
+                {tr("Réessayer maintenant", "Try again now")}
               </Button>
             </Alert.Description>
           </Alert.Content>
@@ -173,18 +183,18 @@ export default function Justificatifs() {
             <Stack gap="3">
               <HStack justify="space-between" align="flex-start" gap="3">
                 <Box>
-                  <Text fontWeight="700" color="nuit">
-                    {LIBELLES_PIECES[type as TypePiece]}
+                  <Text fontWeight="700" color="titre">
+                    {l.piece(type as TypePiece)}
                   </Text>
                   {AIDE[type as TypePiece] && (
                     <Text fontSize="sm" color="gris">
-                      {AIDE[type as TypePiece]}
+                      {tr(...AIDE[type as TypePiece]!)}
                     </Text>
                   )}
                 </Box>
                 {manquante && pieces.length === 0 && (
                   <Text fontSize="sm" color="gris" whiteSpace="nowrap">
-                    À déposer
+                    {tr("À déposer", "To upload")}
                   </Text>
                 )}
               </HStack>
@@ -192,7 +202,7 @@ export default function Justificatifs() {
               {pieces.length === 0 && boutonsDepot(type)}
               {multiple && pieces.length > 0 && (
                 <Button size="sm" variant="outline" colorPalette="emeraude" alignSelf="flex-start" onClick={() => choisir("fichier", type)}>
-                  <LuPlus /> Ajouter un autre certificat
+                  <LuPlus /> {tr("Ajouter un autre certificat", "Add another certificate")}
                 </Button>
               )}
             </Stack>
@@ -202,21 +212,21 @@ export default function Justificatifs() {
 
       {ignorees.length > 0 && (
         <Carte bg="brume" boxShadow="none">
-          <Text fontWeight="600" color="nuit" mb="2">
-            Documents qui ne sont plus demandés
+          <Text fontWeight="600" color="titre" mb="2">
+            {tr("Documents qui ne sont plus demandés", "Documents no longer required")}
           </Text>
           <Text fontSize="sm" color="gris" mb="3">
-            Tu as changé une réponse : ces documents sont gardés mais ne comptent pas pour l&apos;instant.
+            {tr("Tu as changé une réponse : ces documents sont gardés mais ne comptent pas pour l'instant.", "You changed an answer: these documents are kept but don't count for now.")}
           </Text>
           <Stack gap="2">{ignorees.map(lignePiece)}</Stack>
         </Carte>
       )}
 
       <Button asChild size="lg" colorPalette="emeraude">
-        <Link href="/candidat/recapitulatif">Continuer vers le récapitulatif</Link>
+        <Link href="/candidat/recapitulatif">{tr("Continuer vers le récapitulatif", "Continue to the summary")}</Link>
       </Button>
       <Text fontSize="sm" color="gris" textAlign="center">
-        Il te manque un document ? Tu peux quand même envoyer ton dossier et le déposer plus tard.
+        {tr("Il te manque un document ? Tu peux quand même envoyer ton dossier et le déposer plus tard.", "Missing a document? You can still send your file and upload it later.")}
       </Text>
     </Stack>
   );

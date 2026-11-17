@@ -50,6 +50,12 @@ const config = defineConfig({
         brume: { value: COULEURS.brume },
         encre: { value: COULEURS.encre },
         gris: { value: COULEURS.gris },
+        /** Fond des cartes (blanc ; bleu très sombre en mode sombre, voir .bdt-sombre). */
+        surface: { value: "#FFFFFF" },
+        /** Couleur des titres (bleu nuit ; presque blanc en mode sombre). */
+        titre: { value: COULEURS.nuit },
+        /** Vert d'accent pour les textes et icônes actifs (émeraude ; menthe en mode sombre). */
+        accent: { value: COULEURS.emeraude },
         grade: {
           A: { value: COULEURS.emeraude },
           B: { value: COULEURS.nuit },

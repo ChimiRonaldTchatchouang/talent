@@ -1,6 +1,5 @@
 "use client";
 
-import { LIBELLES_ETAPES } from "@bdt/shared";
 import { Alert, Box, Button, Heading, HStack, Progress, Spinner, Stack, Text } from "@chakra-ui/react";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
@@ -11,7 +10,10 @@ import { ChampFormulaire } from "@/components/candidat/champs";
 import { clesEtape, ECRANS, valeursInitiales, type Valeurs } from "@/components/candidat/ecrans";
 import { toaster } from "@/components/toaster";
 import { api, ErreurClient, messageErreur } from "@/lib/api";
+import { useTraduction } from "@/components/candidat/traductions";
 import { adresseEtape, etapeSuivante, useDossier } from "@/lib/dossier";
+import { useLibelles } from "@/lib/libelles";
+import { useLangue } from "@/lib/preferences";
 import type { ExperienceSaisie, ReponseDossier } from "@/lib/types";
 
 type EtapeFormulaire = keyof typeof ECRANS;
@@ -26,6 +28,9 @@ export default function PageEtape() {
   const [erreurs, setErreurs] = useState<Record<string, string>>({});
   const [envoi, setEnvoi] = useState(false);
   const [horsLigne, setHorsLigne] = useState(false);
+  const { tr } = useLangue();
+  const t = useTraduction();
+  const l = useLibelles();
 
   useEffect(() => {
     if (reponse && !valeurs) setValeurs(valeursInitiales(reponse.dossier));
@@ -40,7 +45,7 @@ export default function PageEtape() {
     return (
       <Alert.Root status="warning" borderRadius="carte">
         <Alert.Indicator />
-        <Alert.Title>Cette étape n&apos;existe pas.</Alert.Title>
+        <Alert.Title>{tr("Cette étape n'existe pas.", "This step does not exist.")}</Alert.Title>
       </Alert.Root>
     );
   }
@@ -91,7 +96,7 @@ export default function PageEtape() {
       window.scrollTo({ top: 0 });
       return;
     }
-    if (etape === "DIPLOME" && valeurs!.aDiplome === false) toaster.create({ type: "info", title: "Pas de souci, ton expérience compte." });
+    if (etape === "DIPLOME" && valeurs!.aDiplome === false) toaster.create({ type: "info", title: tr("Pas de souci, ton expérience compte.", "No problem, your experience counts.") });
     router.push(adresseEtape(etapeSuivante(etape)));
   }
 
@@ -106,10 +111,10 @@ export default function PageEtape() {
     <Stack gap="5">
       <HStack justify="space-between">
         <Button variant="ghost" size="sm" onClick={() => (index > 0 ? setIndex(index - 1) : router.push("/candidat"))}>
-          <LuArrowLeft /> Retour
+          <LuArrowLeft /> {tr("Retour", "Back")}
         </Button>
         <Text fontSize="sm" color="gris">
-          {LIBELLES_ETAPES[etape]} · {Math.min(index, ecrans.length - 1) + 1}/{ecrans.length}
+          {l.etape(etape)} · {Math.min(index, ecrans.length - 1) + 1}/{ecrans.length}
         </Text>
       </HStack>
       <Progress.Root value={((Math.min(index, ecrans.length - 1) + 1) / ecrans.length) * 100} size="xs">
@@ -121,10 +126,10 @@ export default function PageEtape() {
       <Carte>
         <Stack gap="6">
           <Stack gap="1">
-            <Heading as="h1" size="xl" color="nuit">
-              {ecran.titre}
+            <Heading as="h1" size="xl" color="titre">
+              {t(ecran.titre)}
             </Heading>
-            {ecran.aide && <Text color="gris">{ecran.aide}</Text>}
+            {ecran.aide && <Text color="gris">{t(ecran.aide)}</Text>}
           </Stack>
           {ecran.champs
             .filter((c) => !c.visible || c.visible(valeurs))
@@ -133,7 +138,7 @@ export default function PageEtape() {
             ))}
           {etape === "DIPLOME" && valeurs.aDiplome === false && (
             <Box bg="menthe" color="nuit" borderRadius="carte" p="4" fontWeight="600">
-              Pas de souci, ton expérience compte.
+              {tr("Pas de souci, ton expérience compte.", "No problem, your experience counts.")}
             </Box>
           )}
         </Stack>
@@ -142,18 +147,18 @@ export default function PageEtape() {
       {horsLigne && (
         <Alert.Root status="warning" borderRadius="carte">
           <Alert.Indicator />
-          <Alert.Title>Pas de connexion. Tes réponses sont gardées sur cet écran : réessaie dès que le réseau revient.</Alert.Title>
+          <Alert.Title>{tr("Pas de connexion. Tes réponses sont gardées sur cet écran : réessaie dès que le réseau revient.", "No connection. Your answers are kept on this screen: try again when the network is back.")}</Alert.Title>
         </Alert.Root>
       )}
 
       <Button size="lg" colorPalette="emeraude" onClick={continuer} loading={envoi}>
-        {dernier ? "Valider cette étape" : "Continuer"}
+        {dernier ? tr("Valider cette étape", "Complete this step") : tr("Continuer", "Continue")}
       </Button>
       <Button variant="plain" color="gris" onClick={quitter} disabled={envoi}>
-        Enregistrer et finir plus tard
+        {tr("Enregistrer et finir plus tard", "Save and finish later")}
       </Button>
       <Text fontSize="sm" color="gris" textAlign="center">
-        <Link href="/candidat">Voir toutes les étapes</Link>
+        <Link href="/candidat">{tr("Voir toutes les étapes", "See all steps")}</Link>
       </Text>
     </Stack>
   );

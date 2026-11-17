@@ -1,4 +1,4 @@
-import type { ParametresClassement, Role } from "@bdt/shared";
+import type { GradeOffre, ParametresClassement, Role } from "@bdt/shared";
 
 export interface UtilisateurPublic {
   id: string;
@@ -214,4 +214,31 @@ export interface SelectionRecruteur {
   retires: string | null;
   dernierEnvoi: string | null;
   envoye?: boolean;
+}
+
+/** Offre vue par un candidat (la description n'arrive qu'avec le grade requis). */
+export interface OffreCandidat {
+  id: string;
+  titre: string;
+  pays: string;
+  ville: string | null;
+  domaine: string | null;
+  typeContrat: string | null;
+  gradeRequis: GradeOffre;
+  dateLimite: string | null;
+  creeLe: string;
+  accessible: boolean;
+  blocage: "DOSSIER_NON_ENVOYE" | "GRADE_NON_CONFIRME" | "GRADE_INSUFFISANT" | null;
+  interesse: boolean;
+}
+
+export interface NotificationCandidat {
+  id: string;
+  type: "BIENVENUE" | "DOSSIER_ENVOYE" | "PIECE_REFUSEE" | "GRADE_MIS_A_JOUR" | "NOUVELLE_OFFRE" | "OFFRE_VERROUILLEE" | string;
+  titre: string;
+  texte: string;
+  lien: string | null;
+  donnees: Record<string, unknown> | null;
+  lue: boolean;
+  creeLe: string;
 }

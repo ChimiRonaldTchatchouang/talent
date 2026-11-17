@@ -3,8 +3,6 @@
 import {
   LIBELLES_BUREAUTIQUE,
   LIBELLES_ENFANTS,
-  LIBELLES_ETAPES,
-  LIBELLES_PIECES,
   LIBELLES_SEXES,
   LIBELLES_SITUATIONS,
   LIBELLES_TRANCHES,
@@ -15,21 +13,24 @@ import Link from "next/link";
 import { useState } from "react";
 import { LuPencil } from "react-icons/lu";
 import { Carte } from "@/components/carte";
-import { BadgeEtatEtape } from "@/components/candidat/etat-etape";
+import { useTraduction } from "@/components/candidat/traductions";
 import { toaster } from "@/components/toaster";
 import { api, ErreurClient, messageErreur } from "@/lib/api";
 import { adresseEtape, useDossier } from "@/lib/dossier";
+import { useLibelles } from "@/lib/libelles";
+import { formatDate, useLangue, type Langue } from "@/lib/preferences";
 import type { Dossier, EtapeId, ReponseDossier } from "@/lib/types";
 
 const ouiNon = (v: boolean | null) => (v === null ? null : v ? "Oui" : "Non");
-const date = (v: string | null) => (v ? new Date(`${v}T00:00:00`).toLocaleDateString("fr-FR") : null);
 /** Réponses facultatives : vides, elles ne sont pas signalées « À compléter ». */
 const FACULTATIFS = new Set(["Filière", "E-mail", "Compétences"]);
 const lib = <T extends string>(libelles: Record<T, string>, v: string | null) => (v ? (libelles[v as T] ?? v) : null);
 
 /** Lignes affichées pour chaque section du récapitulatif. */
-function lignes(d: Dossier): Record<Exclude<EtapeId, "JUSTIFICATIFS">, [string, string | null][]> {
+function lignes(d: Dossier, langue: Langue): Record<Exclude<EtapeId, "JUSTIFICATIFS">, [string, string | null][]> {
   const conjoint = d.situation === "MARIE" || d.situation === "UNION_LIBRE";
+  const date = (v: string | null) => (v ? formatDate(`${v.slice(0, 10)}T00:00:00`, langue, { day: "2-digit", month: "2-digit", year: "numeric" }) : null);
+  const en = langue === "en";
   return {
     PERSONNEL: [
       ["Nom", [d.prenoms, d.nom].filter(Boolean).join(" ") || null],
@@ -40,7 +41,7 @@ function lignes(d: Dossier): Record<Exclude<EtapeId, "JUSTIFICATIFS">, [string, 
       ["Téléphone", d.telephoneContact],
       ["E-mail", d.emailContact],
       ["Langues parlées", d.languesParlees.join(", ") || null],
-      ["Passeport", d.aPasseport ? `Oui, expire le ${date(d.passeportExpiration) ?? "?"}` : ouiNon(d.aPasseport)],
+      ["Passeport", d.aPasseport ? `${en ? "Yes, expires on" : "Oui, expire le"} ${date(d.passeportExpiration) ?? "?"}` : ouiNon(d.aPasseport)],
     ],
     DIPLOME: d.aDiplome
       ? [
@@ -64,7 +65,7 @@ function lignes(d: Dossier): Record<Exclude<EtapeId, "JUSTIFICATIFS">, [string, 
           ["Domaine", d.domaine],
           ["Métier", d.metier],
           ["Expérience", lib(LIBELLES_TRANCHES, d.trancheExperience)],
-          ["Employeurs", d.experiences.map((e) => `${e.poste} chez ${e.employeur}`).join(" ; ") || null],
+          ["Employeurs", d.experiences.map((e) => `${e.poste} ${en ? "at" : "chez"} ${e.employeur}`).join(" ; ") || null],
           ["Compétences", d.competences.map((c) => c.nom).join(", ") || null],
           ["Bureautique", lib(LIBELLES_BUREAUTIQUE, d.bureautique)],
         ]
@@ -88,11 +89,14 @@ export default function Recapitulatif() {
   const [certifie, setCertifie] = useState(false);
   const [envoi, setEnvoi] = useState(false);
   const [erreur, setErreur] = useState<string | null>(null);
+  const { tr, langue } = useLangue();
+  const t = useTraduction();
+  const l = useLibelles();
 
   if (!reponse) return <Spinner color="emeraude.600" />;
   const { dossier, etapes, pretAEnvoyer, pieces } = reponse;
   const envoye = dossier.statut === "ENVOYE";
-  const sections = lignes(dossier);
+  const sections = lignes(dossier, langue);
   const manquantes = pieces.requises.filter((p) => p.manquante);
 
   async function envoyer() {
@@ -100,7 +104,7 @@ export default function Recapitulatif() {
     setErreur(null);
     try {
       setReponse(await api<ReponseDossier>("/candidat/dossier/envoyer", { methode: "POST", corps: { certifie: true } }));
-      toaster.create({ type: "success", title: "Ton dossier est envoyé !" });
+      toaster.create({ type: "success", title: tr("Ton dossier est envoyé !", "Your file has been sent!") });
       window.scrollTo({ top: 0 });
     } catch (e) {
       setErreur(e instanceof ErreurClient ? e.message : messageErreur(e));
@@ -112,18 +116,20 @@ export default function Recapitulatif() {
   return (
     <Stack gap="5">
       <Stack gap="1">
-        <Heading as="h1" size="2xl" color="nuit">
-          Récapitulatif
+        <Heading as="h1" size="2xl" color="titre">
+          {tr("Récapitulatif", "Summary")}
         </Heading>
-        <Text color="gris">Vérifie tes réponses. Tu peux modifier chaque partie.</Text>
+        <Text color="gris">{tr("Vérifie tes réponses. Tu peux modifier chaque partie.", "Check your answers. You can edit each part.")}</Text>
       </Stack>
 
       {envoye && (
         <Alert.Root status="success" borderRadius="carte">
           <Alert.Indicator />
           <Alert.Content>
-            <Alert.Title>Dossier envoyé le {new Date(dossier.envoyeLe!).toLocaleDateString("fr-FR")}</Alert.Title>
-            <Alert.Description>Le cabinet va le vérifier. Tu peux encore le modifier et déposer tes pièces.</Alert.Description>
+            <Alert.Title>
+              {tr("Dossier envoyé le", "File sent on")} {formatDate(dossier.envoyeLe!, langue)}
+            </Alert.Title>
+            <Alert.Description>{tr("Le cabinet va le vérifier. Tu peux encore le modifier et déposer tes pièces.", "The agency will review it. You can still edit it and upload your documents.")}</Alert.Description>
           </Alert.Content>
         </Alert.Root>
       )}
@@ -131,14 +137,16 @@ export default function Recapitulatif() {
       {(Object.keys(sections) as (keyof typeof sections)[]).map((etape) => (
         <Carte key={etape}>
           <HStack justify="space-between" mb="3" gap="2">
-            <Text fontWeight="700" color="nuit">
-              {LIBELLES_ETAPES[etape]}
+            <Text fontWeight="700" color="titre">
+              {l.etape(etape)}
             </Text>
             <HStack gap="2">
-              <BadgeEtatEtape etat={etapes.find((e) => e.etape === etape)!.etat} />
+              <Text as="span" fontSize="xs" fontWeight="600" color="gris">
+                {l.etatEtape(etapes.find((e) => e.etape === etape)!.etat)}
+              </Text>
               <Button asChild size="xs" variant="outline">
                 <Link href={adresseEtape(etape)}>
-                  <LuPencil /> Modifier
+                  <LuPencil /> {tr("Modifier", "Edit")}
                 </Link>
               </Button>
             </HStack>
@@ -147,10 +155,10 @@ export default function Recapitulatif() {
             {sections[etape].map(([libelle, valeur]) => (
               <HStack key={libelle} justify="space-between" align="flex-start" gap="4" fontSize="sm">
                 <Text color="gris" flexShrink={0}>
-                  {libelle}
+                  {t(libelle)}
                 </Text>
-                <Text color={valeur || FACULTATIFS.has(libelle) ? "encre" : "orange.600"} textAlign="right">
-                  {valeur ?? (FACULTATIFS.has(libelle) ? "—" : "À compléter")}
+                <Text color={valeur || FACULTATIFS.has(libelle) ? "encre" : "orange.500"} textAlign="right">
+                  {valeur ? t(valeur) : FACULTATIFS.has(libelle) ? "—" : tr("À compléter", "To complete")}
                 </Text>
               </HStack>
             ))}
@@ -160,23 +168,25 @@ export default function Recapitulatif() {
 
       <Carte>
         <HStack justify="space-between" mb="3">
-          <Text fontWeight="700" color="nuit">
-            Justificatifs
+          <Text fontWeight="700" color="titre">
+            {tr("Justificatifs", "Supporting documents")}
           </Text>
           <Button asChild size="xs" variant="outline">
             <Link href="/candidat/justificatifs">
-              <LuPencil /> Modifier
+              <LuPencil /> {tr("Modifier", "Edit")}
             </Link>
           </Button>
         </HStack>
         {manquantes.length === 0 ? (
-          <Text fontSize="sm">Toutes les pièces demandées sont déposées.</Text>
+          <Text fontSize="sm">{tr("Toutes les pièces demandées sont déposées.", "All required documents have been uploaded.")}</Text>
         ) : (
           <Box fontSize="sm">
-            <Text mb="1">Pièces manquantes (tu pourras les déposer plus tard ; ton grade restera provisoire) :</Text>
+            <Text mb="1">
+              {tr("Pièces manquantes (tu pourras les déposer plus tard ; ton grade restera provisoire) :", "Missing documents (you can upload them later; your grade will remain provisional):")}
+            </Text>
             <Stack as="ul" pl="5" gap="1" listStyleType="disc">
               {manquantes.map((p) => (
-                <li key={p.type}>{LIBELLES_PIECES[p.type as TypePiece]}</li>
+                <li key={p.type}>{l.piece(p.type as TypePiece)}</li>
               ))}
             </Stack>
           </Box>
@@ -189,13 +199,13 @@ export default function Recapitulatif() {
             {!pretAEnvoyer && (
               <Alert.Root status="warning" borderRadius="carte">
                 <Alert.Indicator />
-                <Alert.Title>Termine toutes les étapes (sauf les justificatifs) pour pouvoir envoyer ton dossier.</Alert.Title>
+                <Alert.Title>{tr("Termine toutes les étapes (sauf les justificatifs) pour pouvoir envoyer ton dossier.", "Complete all steps (except documents) to be able to send your file.")}</Alert.Title>
               </Alert.Root>
             )}
             <Checkbox.Root colorPalette="emeraude" checked={certifie} onCheckedChange={(e) => setCertifie(!!e.checked)} alignItems="flex-start">
               <Checkbox.HiddenInput />
-              <Checkbox.Control mt="1" bg="white" />
-              <Checkbox.Label fontWeight="400">Je certifie l&apos;exactitude de mes informations.</Checkbox.Label>
+              <Checkbox.Control mt="1" bg="surface" />
+              <Checkbox.Label fontWeight="400">{tr("Je certifie l'exactitude de mes informations.", "I certify that my information is accurate.")}</Checkbox.Label>
             </Checkbox.Root>
             {erreur && (
               <Text color="etat.refuseTexte" fontSize="sm">
@@ -203,14 +213,14 @@ export default function Recapitulatif() {
               </Text>
             )}
             <Button size="lg" colorPalette="emeraude" disabled={!certifie || !pretAEnvoyer} loading={envoi} onClick={envoyer}>
-              Envoyer mon dossier
+              {tr("Envoyer mon dossier", "Send my file")}
             </Button>
           </Stack>
         </Carte>
       )}
 
       <Button asChild variant="plain" color="gris">
-        <Link href="/candidat">Retour à mon dossier</Link>
+        <Link href="/candidat">{tr("Retour à mon dossier", "Back to my file")}</Link>
       </Button>
     </Stack>
   );
