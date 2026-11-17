@@ -16,7 +16,7 @@ Trois services gratuits, tous reliés au dépôt GitHub. Chaque fusion dans `mai
 1. Sur Render : *New* → *Blueprint* → choisir le dépôt `talent`. Render lit `render.yaml`.
 2. Renseigner les variables demandées :
    - `DATABASE_URL` (Neon, chaîne avec pooler)
-   - `URL_SITE` : adresse du site (ex. `https://bassin-de-talents.vercel.app`, puis le domaine du client)
+   - `URL_SITE` : adresse du site (aujourd'hui `https://talent-beta-indol.vercel.app`, puis le domaine du client). Elle sert aux liens des e-mails : si elle manque, l'API utilise l'adresse Vercel actuelle (D-64). Vérification : `https://<api>.onrender.com/sante` affiche l'adresse utilisée.
    - `ADMIN_PRINCIPAL_EMAIL`, `ADMIN_PRINCIPAL_MOT_DE_PASSE` (12 caractères minimum), `ADMIN_PRINCIPAL_NOM`
 3. À chaque démarrage, l'API applique les migrations, charge les listes de départ si elles sont vides, puis crée
    l'administrateur principal s'il n'existe pas. Ensuite, le mot de passe peut être retiré des variables Render.

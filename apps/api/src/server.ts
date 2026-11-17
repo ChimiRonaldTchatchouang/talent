@@ -16,6 +16,9 @@ process.on("SIGTERM", arreter);
 process.on("SIGINT", arreter);
 
 await app.listen({ port: config.PORT, host: "0.0.0.0" });
+if (config.urlSiteDeSecours) {
+  app.log.warn(`URL_SITE absente ou locale sur ce serveur : les liens des e-mails utilisent ${config.URL_SITE}. Renseignez URL_SITE sur Render.`);
+}
 
 // Alerte aux administrateurs avant la fin des accès recruteurs (M10) : au démarrage puis toutes les 6 heures.
 const verifier = () => alerterFinsAcces(prisma, config).catch((e) => app.log.error(e));

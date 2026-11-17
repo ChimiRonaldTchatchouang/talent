@@ -111,7 +111,8 @@ export async function construireApp(configBrute: Config, prisma: PrismaClient) {
 
   app.get("/sante", { schema: { hide: true } }, async () => {
     await prisma.$queryRaw`SELECT 1`;
-    return { statut: "ok" };
+    // Adresse mise dans les liens des e-mails : permet de vérifier la configuration de production.
+    return { statut: "ok", site: config.URL_SITE };
   });
 
   await app.register(routesAuth(config));
