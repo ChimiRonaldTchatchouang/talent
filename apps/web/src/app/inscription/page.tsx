@@ -7,6 +7,7 @@ import { type FormEvent, useState } from "react";
 import { LuEye, LuEyeOff } from "react-icons/lu";
 import { CadreCompte, Lien } from "@/components/cadre-compte";
 import { api, ErreurClient } from "@/lib/api";
+import { useLangue } from "@/lib/preferences";
 
 export default function Inscription() {
   const router = useRouter();
@@ -19,6 +20,7 @@ export default function Inscription() {
   const [erreur, setErreur] = useState<string | null>(null);
   const [details, setDetails] = useState<Record<string, string>>({});
   const [envoi, setEnvoi] = useState(false);
+  const { tr } = useLangue();
 
   async function soumettre(e: FormEvent) {
     e.preventDefault();
@@ -26,7 +28,10 @@ export default function Inscription() {
     setDetails({});
     if (!traitement) {
       setDetails({
-        consentementTraitement: "Sans ton accord, nous ne pouvons ni calculer ton grade ni t'accompagner. Coche la case pour continuer.",
+        consentementTraitement: tr(
+          "Sans ton accord, nous ne pouvons ni calculer ton grade ni t'accompagner. Coche la case pour continuer.",
+          "Without your consent, we can neither calculate your grade nor support you. Tick the box to continue.",
+        ),
       });
       return;
     }
@@ -41,18 +46,18 @@ export default function Inscription() {
       if (err instanceof ErreurClient) {
         setErreur(err.message);
         setDetails(err.details ?? {});
-      } else setErreur("Une erreur inattendue est survenue.");
+      } else setErreur(tr("Une erreur inattendue est survenue.", "An unexpected error occurred."));
       setEnvoi(false);
     }
   }
 
   return (
     <CadreCompte
-      titre="Créer mon profil"
-      sousTitre="Deux minutes pour créer ton compte. Ensuite, tu remplis ton dossier à ton rythme."
+      titre={tr("Créer mon profil", "Create my profile")}
+      sousTitre={tr("Deux minutes pour créer ton compte. Ensuite, tu remplis ton dossier à ton rythme.", "Two minutes to create your account. Then fill in your file at your own pace.")}
       pied={
         <Text>
-          Tu as déjà un compte ? <Lien href="/connexion">Se connecter</Lien>
+          {tr("Tu as déjà un compte ?", "Already have an account?")} <Lien href="/connexion">{tr("Se connecter", "Log in")}</Lien>
         </Text>
       }
     >
@@ -66,22 +71,22 @@ export default function Inscription() {
           )}
 
           <Field.Root invalid={!!details.identifiant}>
-            <Field.Label color="gris" fontWeight="500">{parTelephone ? "Ton numéro de téléphone" : "Ton adresse e-mail"}</Field.Label>
+            <Field.Label color="gris" fontWeight="500">{parTelephone ? tr("Ton numéro de téléphone", "Your phone number") : tr("Ton adresse e-mail", "Your email address")}</Field.Label>
             <Input
               variant="flushed"
               size="lg"
               type={parTelephone ? "tel" : "email"}
               inputMode={parTelephone ? "tel" : "email"}
               autoComplete={parTelephone ? "tel" : "email"}
-              placeholder={parTelephone ? "6 99 12 34 56" : "exemple@gmail.com"}
+              placeholder={parTelephone ? "6 99 12 34 56" : tr("exemple@gmail.com", "example@gmail.com")}
               value={identifiant}
               onChange={(e) => setIdentifiant(e.target.value)}
             />
             <Field.ErrorText>{details.identifiant}</Field.ErrorText>
             <Field.HelperText>
               {parTelephone
-                ? "Indicatif +237 ajouté automatiquement. Sans e-mail, en cas d'oubli du mot de passe, tu devras contacter le cabinet."
-                : "Tu y recevras un lien pour confirmer ton adresse."}
+                ? tr("Indicatif +237 ajouté automatiquement. Sans e-mail, en cas d'oubli du mot de passe, tu devras contacter le cabinet.", "+237 code added automatically. Without email, if you forget your password, you'll need to contact the agency.")
+                : tr("Tu y recevras un lien pour confirmer ton adresse, et un lien pour installer l'application.", "You'll receive a link to confirm your address, and a link to install the app.")}
             </Field.HelperText>
           </Field.Root>
           <Button
@@ -96,11 +101,11 @@ export default function Inscription() {
               setIdentifiant("");
             }}
           >
-            {parTelephone ? "Utiliser plutôt mon e-mail" : "Je n'ai pas d'e-mail : utiliser mon numéro de téléphone"}
+            {parTelephone ? tr("Utiliser plutôt mon e-mail", "Use my email instead") : tr("Je n'ai pas d'e-mail : utiliser mon numéro de téléphone", "I don't have an email: use my phone number")}
           </Button>
 
           <Field.Root invalid={!!details.motDePasse}>
-            <Field.Label color="gris" fontWeight="500">Choisis un mot de passe</Field.Label>
+            <Field.Label color="gris" fontWeight="500">{tr("Choisis un mot de passe", "Choose a password")}</Field.Label>
             <Box position="relative" w="full">
               <Input
                 variant="flushed"
@@ -118,7 +123,7 @@ export default function Inscription() {
                 transform="translateY(-50%)"
                 variant="ghost"
                 size="sm"
-                aria-label={voir ? "Cacher le mot de passe" : "Afficher le mot de passe"}
+                aria-label={voir ? tr("Cacher le mot de passe", "Hide password") : tr("Afficher le mot de passe", "Show password")}
                 onClick={() => setVoir(!voir)}
                 _hover={{ transform: "translateY(-50%)", boxShadow: "none", bg: "brume" }}
                 _active={{ transform: "translateY(-50%) scale(0.95)" }}
@@ -127,20 +132,20 @@ export default function Inscription() {
               </Button>
             </Box>
             <Field.ErrorText>{details.motDePasse}</Field.ErrorText>
-            <Field.HelperText>8 caractères minimum.</Field.HelperText>
+            <Field.HelperText>{tr("8 caractères minimum.", "At least 8 characters.")}</Field.HelperText>
           </Field.Root>
 
           <Stack gap="4" bg="brume" borderRadius="carte" p="4">
             <Text fontWeight="600" color="nuit">
-              Tes données personnelles
+              {tr("Tes données personnelles", "Your personal data")}
             </Text>
             <Field.Root invalid={!!details.consentementTraitement}>
               <Checkbox.Root colorPalette="emeraude" checked={traitement} onCheckedChange={(e) => setTraitement(!!e.checked)} alignItems="flex-start">
                 <Checkbox.HiddenInput />
                 <Checkbox.Control mt="1" bg="white" />
                 <Checkbox.Label fontWeight="400">
-                  <strong>Obligatoire.</strong> J&apos;accepte que {MARQUE.nom} utilise mes informations pour calculer mon
-                  grade et m&apos;accompagner.
+                  <strong>{tr("Obligatoire.", "Required.")}</strong>{" "}
+                  {tr(`J'accepte que ${MARQUE.nom} utilise mes informations pour calculer mon grade et m'accompagner.`, `I agree that ${MARQUE.nom} uses my information to calculate my grade and support me.`)}
                 </Checkbox.Label>
               </Checkbox.Root>
               <Field.ErrorText>{details.consentementTraitement}</Field.ErrorText>
@@ -149,17 +154,20 @@ export default function Inscription() {
               <Checkbox.HiddenInput />
               <Checkbox.Control mt="1" bg="white" />
               <Checkbox.Label fontWeight="400">
-                <strong>Facultatif.</strong> J&apos;accepte que mon profil soit présenté à des recruteurs, sans mes
-                coordonnées (pas de téléphone, d&apos;e-mail ni de documents).
+                <strong>{tr("Facultatif.", "Optional.")}</strong>{" "}
+                {tr(
+                  "J'accepte que mon profil soit présenté à des recruteurs, sans mes coordonnées (pas de téléphone, d'e-mail ni de documents).",
+                  "I agree that my profile may be introduced to recruiters, without my contact details (no phone, email or documents).",
+                )}
               </Checkbox.Label>
             </Checkbox.Root>
             <Text fontSize="sm" color="gris">
-              Tu pourras changer d&apos;avis à tout moment depuis ton espace, ou demander la suppression de ton dossier.
+              {tr("Tu pourras changer d'avis à tout moment depuis ton espace, ou demander la suppression de ton dossier.", "You can change your mind at any time from your space, or request deletion of your file.")}
             </Text>
           </Stack>
 
-          <Button type="submit" size="lg" colorPalette="emeraude" borderRadius="full" loading={envoi} loadingText="Création…">
-            Créer mon compte
+          <Button type="submit" size="lg" colorPalette="emeraude" borderRadius="full" loading={envoi} loadingText={tr("Création…", "Creating…")}>
+            {tr("Créer mon compte", "Create my account")}
           </Button>
         </Stack>
       </form>

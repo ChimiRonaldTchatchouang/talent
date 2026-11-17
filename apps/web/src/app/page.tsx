@@ -40,81 +40,89 @@ import { Questions } from "@/components/accueil/questions";
 import { Apparition, Parallaxe } from "@/components/animations";
 import { PastilleGrade } from "@/components/badges";
 import { Logo } from "@/components/marque";
+import { useLangue } from "@/lib/preferences";
 
 // Contenu : uniquement des informations de la spécification. Aucun chiffre, avis ou partenaire inventé.
 
 type Icone = ComponentType;
 
-const ETAPES: { icone: Icone; titre: string; texte: string }[] = [
-  { icone: LuUserPlus, titre: "Crée ton compte", texte: "Ton e-mail ou ton numéro de téléphone, un mot de passe : c'est parti." },
-  { icone: LuClipboardList, titre: "Raconte ton parcours", texte: "Études, langues, expérience, famille : une question à la fois." },
-  { icone: LuFileUp, titre: "Dépose tes pièces", texte: "Une simple photo de tes documents, prise avec ton téléphone." },
-  { icone: LuBadgeCheck, titre: "Découvre ton grade", texte: "Et les services du cabinet qui t'aident à aller plus loin." },
+type Bi = [string, string];
+
+const ETAPES: { icone: Icone; titre: Bi; texte: Bi }[] = [
+  { icone: LuUserPlus, titre: ["Crée ton compte", "Create your account"], texte: ["Ton e-mail ou ton numéro de téléphone, un mot de passe : c'est parti.", "Your email or phone number, a password: you're off."] },
+  { icone: LuClipboardList, titre: ["Raconte ton parcours", "Tell your story"], texte: ["Études, langues, expérience, famille : une question à la fois.", "Studies, languages, experience, family: one question at a time."] },
+  { icone: LuFileUp, titre: ["Dépose tes pièces", "Upload your documents"], texte: ["Une simple photo de tes documents, prise avec ton téléphone.", "A simple photo of your documents, taken with your phone."] },
+  { icone: LuBadgeCheck, titre: ["Découvre ton grade", "Discover your grade"], texte: ["Et les services du cabinet qui t'aident à aller plus loin.", "And the agency services that help you go further."] },
 ];
 
-const RAISONS: { icone: Icone; titre: string; texte: string }[] = [
+const RAISONS: { icone: Icone; titre: Bi; texte: Bi }[] = [
   {
     icone: LuClipboardList,
-    titre: "Un seul dossier, une fois pour toutes",
-    texte: "Ton parcours, tes diplômes, tes langues et ton expérience réunis au même endroit. Plus besoin de tout recommencer à chaque démarche.",
+    titre: ["Un seul dossier, une fois pour toutes", "One file, once and for all"],
+    texte: [
+      "Ton parcours, tes diplômes, tes langues et ton expérience réunis au même endroit. Plus besoin de tout recommencer à chaque démarche.",
+      "Your background, degrees, languages and experience in one place. No need to start over for every application.",
+    ],
   },
   {
     icone: LuBadgeCheck,
-    titre: "Un grade clair, et expliqué",
-    texte: "A, B, C ou D : tu sais exactement où tu en es, pourquoi, et ce qu'il te reste à faire pour progresser.",
+    titre: ["Un grade clair, et expliqué", "A clear, explained grade"],
+    texte: ["A, B, C ou D : tu sais exactement où tu en es, pourquoi, et ce qu'il te reste à faire pour progresser.", "A, B, C or D: you know exactly where you stand, why, and what's left to do to progress."],
   },
   {
     icone: LuSparkles,
-    titre: "Un accompagnement sur mesure",
-    texte: "Pour chaque élément qui te manque, le cabinet te propose le service qui le comble. Tu avances, ton grade suit.",
+    titre: ["Un accompagnement sur mesure", "Tailored support"],
+    texte: ["Pour chaque élément qui te manque, le cabinet te propose le service qui le comble. Tu avances, ton grade suit.", "For each element you're missing, the agency offers the service that fills it. You progress, your grade follows."],
   },
 ];
 
-const SERVICES: { emplacement: EmplacementPhoto; icone: Icone; titre: string; texte: string; apport: string }[] = [
+const SERVICES: { emplacement: EmplacementPhoto; icone: Icone; titre: Bi; texte: Bi; apport: Bi }[] = [
   {
     emplacement: "coaching",
     icone: LuHeartHandshake,
-    titre: "Coaching",
-    texte: "Un accompagnement personnalisé pour construire ton projet et gagner en assurance.",
-    apport: "Comble : le coaching",
+    titre: ["Coaching", "Coaching"],
+    texte: ["Un accompagnement personnalisé pour construire ton projet et gagner en assurance.", "Personal support to build your project and gain confidence."],
+    apport: ["Comble : le coaching", "Fills: coaching"],
   },
   {
     emplacement: "entretien",
     icone: LuMessagesSquare,
-    titre: "Préparation aux entretiens",
-    texte: "Des mises en situation et des conseils concrets pour convaincre un employeur étranger.",
-    apport: "Pour convaincre en entretien",
+    titre: ["Préparation aux entretiens", "Interview preparation"],
+    texte: ["Des mises en situation et des conseils concrets pour convaincre un employeur étranger.", "Role-plays and practical advice to convince a foreign employer."],
+    apport: ["Pour convaincre en entretien", "To shine in interviews"],
   },
   {
     emplacement: "langues",
     icone: LuLanguages,
-    titre: "Formation aux tests de langue",
-    texte: "Une préparation ciblée pour atteindre le score demandé : TCF, TEF, IELTS, TOEFL…",
-    apport: "Comble : le test de langue",
+    titre: ["Formation aux tests de langue", "Language test training"],
+    texte: ["Une préparation ciblée pour atteindre le score demandé : TCF, TEF, IELTS, TOEFL…", "Targeted preparation to reach the required score: TCF, TEF, IELTS, TOEFL…"],
+    apport: ["Comble : le test de langue", "Fills: language test"],
   },
   {
     emplacement: "miseANiveau",
     icone: LuWrench,
-    titre: "Séances de mise à niveau",
-    texte: "Bureautique, outils numériques ou ton domaine de métier : on renforce ce qui doit l'être.",
-    apport: "Comble : le niveau dans ton métier",
+    titre: ["Séances de mise à niveau", "Upskilling sessions"],
+    texte: ["Bureautique, outils numériques ou ton domaine de métier : on renforce ce qui doit l'être.", "Office software, digital tools or your trade: we strengthen what needs it."],
+    apport: ["Comble : le niveau dans ton métier", "Fills: level in your trade"],
   },
 ];
 
 /** Domaines de départ (modifiables par le cabinet), avec quelques compétences. */
-const METIERS: { icone: Icone; nom: string; competences: string[] }[] = [
-  { icone: LuHardHat, nom: "BTP", competences: ["Maçonnerie", "Coffrage", "Conduite d'engins"] },
-  { icone: LuHeartPulse, nom: "Santé", competences: ["Soins infirmiers", "Aide-soignant", "Premiers secours"] },
-  { icone: LuZap, nom: "Électricité", competences: ["Bâtiment", "Industrie", "Énergie solaire"] },
-  { icone: LuLaptop, nom: "Numérique", competences: ["Développement web", "Réseaux", "Support"] },
-  { icone: LuTruck, nom: "Logistique", competences: ["Poids lourd", "Cariste", "Gestion de stock"] },
-  { icone: LuChefHat, nom: "Hôtellerie", competences: ["Cuisine", "Service en salle", "Réception"] },
-  { icone: LuCalculator, nom: "Comptabilité", competences: ["Comptabilité générale", "Paie", "Fiscalité"] },
+const METIERS: { icone: Icone; nom: Bi; competences: Bi[] }[] = [
+  { icone: LuHardHat, nom: ["BTP", "Construction"], competences: [["Maçonnerie", "Masonry"], ["Coffrage", "Formwork"], ["Conduite d'engins", "Machine operation"]] },
+  { icone: LuHeartPulse, nom: ["Santé", "Healthcare"], competences: [["Soins infirmiers", "Nursing"], ["Aide-soignant", "Care assistant"], ["Premiers secours", "First aid"]] },
+  { icone: LuZap, nom: ["Électricité", "Electrical"], competences: [["Bâtiment", "Building"], ["Industrie", "Industrial"], ["Énergie solaire", "Solar energy"]] },
+  { icone: LuLaptop, nom: ["Numérique", "Digital"], competences: [["Développement web", "Web development"], ["Réseaux", "Networks"], ["Support", "IT support"]] },
+  { icone: LuTruck, nom: ["Logistique", "Logistics"], competences: [["Poids lourd", "HGV driving"], ["Cariste", "Forklift"], ["Gestion de stock", "Inventory"]] },
+  { icone: LuChefHat, nom: ["Hôtellerie", "Hospitality"], competences: [["Cuisine", "Cooking"], ["Service en salle", "Table service"], ["Réception", "Front desk"]] },
+  { icone: LuCalculator, nom: ["Comptabilité", "Accounting"], competences: [["Comptabilité générale", "General accounting"], ["Paie", "Payroll"], ["Fiscalité", "Tax"]] },
 ];
 
-const PUCES_BANDEAU = ["BTP", "Santé", "Électricité", "Numérique", "Logistique", "Hôtellerie", "Comptabilité"];
+const PUCES_BANDEAU: Bi[] = METIERS.map((m) => m.nom);
 
 export default function Accueil() {
+  const { tr } = useLangue();
+  const t = (b: Bi) => tr(b[0], b[1]);
   return (
     <Box bg="fond" overflowX="clip">
       {/* ================= Bandeau principal ================= */}
@@ -130,26 +138,30 @@ export default function Accueil() {
             <Apparition sens="gauche" unique>
               <Stack gap="6">
                 <Box>
-                  <Etiquette>Pour les talents du Cameroun</Etiquette>
+                  <Etiquette>{tr("Pour les talents du Cameroun", "For Cameroon's talents")}</Etiquette>
                 </Box>
                 <Heading as="h1" fontSize={{ base: "38px", sm: "48px", md: "62px" }} lineHeight="1.15" fontWeight="700" color="nuit" letterSpacing="-0.02em">
-                  Fais reconnaître ton <MotEncadre>talent</MotEncadre> à l&apos;international
+                  {tr("Fais reconnaître ton ", "Get your ")}
+                  <MotEncadre>talent</MotEncadre>
+                  {tr(" à l'international", " recognised abroad")}
                 </Heading>
                 <Text fontSize={{ base: "md", md: "lg" }} color="gris" maxW="xl">
-                  Dépose ton profil une seule fois, depuis ton téléphone. Tu découvres ton grade, ce qui te manque, et les
-                  services du cabinet qui te préparent à être présenté aux recruteurs.
+                  {tr(
+                    "Dépose ton profil une seule fois, depuis ton téléphone. Tu découvres ton grade, ce qui te manque, et les services du cabinet qui te préparent à être présenté aux recruteurs.",
+                    "Submit your profile once, from your phone. You discover your grade, what you're missing, and the agency services that prepare you to be introduced to recruiters.",
+                  )}
                 </Text>
                 <Flex gap="3" wrap="wrap">
-                  <BoutonPilule href="/inscription">Créer mon profil</BoutonPilule>
+                  <BoutonPilule href="/inscription">{tr("Créer mon profil", "Create my profile")}</BoutonPilule>
                   <BoutonPilule href="#etapes" variante="clair" icone={<LuPlay />}>
-                    Voir comment ça marche
+                    {tr("Voir comment ça marche", "See how it works")}
                   </BoutonPilule>
                 </Flex>
                 <HStack gap={{ base: "4", md: "6" }} color="gris" fontSize="sm" wrap="wrap">
                   {[
-                    { icone: LuCheck, texte: "Inscription gratuite" },
-                    { icone: LuSmartphone, texte: "Pensé pour ton téléphone" },
-                    { icone: LuLock, texte: "Données protégées" },
+                    { icone: LuCheck, texte: tr("Inscription gratuite", "Free sign-up") },
+                    { icone: LuSmartphone, texte: tr("Pensé pour ton téléphone", "Built for your phone") },
+                    { icone: LuLock, texte: tr("Données protégées", "Data protected") },
                   ].map(({ icone: I, texte }) => (
                     <HStack key={texte} gap="2">
                       <Box w="6" h="6" borderRadius="full" bg="menthe/60" color="emeraude.700" display="grid" placeItems="center" fontSize="xs">
@@ -180,17 +192,17 @@ export default function Accueil() {
                       Grade A
                     </Text>
                     <Text fontSize="sm" color="gris">
-                      {LIBELLES_GRADES.A.libelle}
+                      {tr(LIBELLES_GRADES.A.libelle, "Job-ready")}
                     </Text>
                   </Box>
                 </HStack>
                 <HStack className="bdt-flottant bdt-flottant-lent" position="absolute" right={{ base: "0", md: "-4" }} top="16%" bg="emeraude.600" color="white" borderRadius="full" px="4" py="2" gap="2" fontWeight="600" fontSize="sm" boxShadow="0 12px 30px rgba(0, 109, 51, 0.35)">
-                  <LuShieldCheck /> Diplôme vérifié
+                  <LuShieldCheck /> {tr("Diplôme vérifié", "Degree verified")}
                 </HStack>
                 <Flex position="absolute" left="0" right="0" bottom="-5" justify="center" gap="2" wrap="wrap" px="2">
                   {PUCES_BANDEAU.slice(0, 4).map((nom, i) => (
-                    <Text key={nom} className="bdt-puce" style={{ ["--bdt-delai" as string]: `${600 + i * 120}ms` }} bg="white" color="nuit" fontSize="xs" fontWeight="600" px="3" py="1.5" borderRadius="full" boxShadow="0 6px 16px rgba(15, 42, 74, 0.10)">
-                      {nom}
+                    <Text key={nom[0]} className="bdt-puce" style={{ ["--bdt-delai" as string]: `${600 + i * 120}ms` }} bg="white" color="nuit" fontSize="xs" fontWeight="600" px="3" py="1.5" borderRadius="full" boxShadow="0 6px 16px rgba(15, 42, 74, 0.10)">
+                      {t(nom)}
                     </Text>
                   ))}
                 </Flex>
@@ -207,7 +219,7 @@ export default function Accueil() {
           <Grid templateColumns={{ base: "1fr", lg: "1.4fr 1fr" }} gap={{ base: "12", lg: "16" }} alignItems="center">
             <SimpleGrid columns={{ base: 1, sm: 2 }} gap="5" order={{ base: 2, lg: 1 }}>
               {ETAPES.map(({ icone: I, titre, texte }, i) => (
-                <Apparition key={titre} sens="zoom" delai={i * 120} h="full">
+                <Apparition key={titre[0]} sens="zoom" delai={i * 120} h="full">
                   <Stack
                     className="bdt-carte-inclinee"
                     style={{ ["--bdt-angle" as string]: `${[-3, 2.5, 2, -2.5][i]}deg` }}
@@ -228,10 +240,10 @@ export default function Accueil() {
                       </Text>
                     </HStack>
                     <Heading as="h3" fontSize="lg" fontWeight="700" color="nuit">
-                      {titre}
+                      {t(titre)}
                     </Heading>
                     <Text fontSize="sm" color="gris">
-                      {texte}
+                      {t(texte)}
                     </Text>
                   </Stack>
                 </Apparition>
@@ -240,17 +252,22 @@ export default function Accueil() {
             <Stack gap="6" order={{ base: 1, lg: 2 }}>
               <TitreSection
                 sombre
-                etiquette="Comment ça marche"
+                etiquette={tr("Comment ça marche", "How it works")}
                 titre={
                   <>
-                    4 étapes pour <MotEncadre sombre>révéler</MotEncadre> ton profil
+                    {tr("4 étapes pour ", "4 steps to ")}
+                    <MotEncadre sombre>{tr("révéler", "reveal")}</MotEncadre>
+                    {tr(" ton profil", " your profile")}
                   </>
                 }
-                texte="Pas besoin d'ordinateur ni de longues heures. Tout est enregistré au fur et à mesure : tu t'arrêtes quand tu veux, et tu reprends là où tu en étais, même depuis un autre téléphone."
+                texte={tr(
+                  "Pas besoin d'ordinateur ni de longues heures. Tout est enregistré au fur et à mesure : tu t'arrêtes quand tu veux, et tu reprends là où tu en étais, même depuis un autre téléphone.",
+                  "No computer or long hours needed. Everything is saved as you go: stop whenever you like and pick up where you left off, even from another phone.",
+                )}
               />
               <Box>
                 <BoutonPilule href="/inscription" variante="menthe">
-                  Je commence maintenant
+                  {tr("Je commence maintenant", "I'll start now")}
                 </BoutonPilule>
               </Box>
             </Stack>
@@ -264,28 +281,29 @@ export default function Accueil() {
           <TitreSection
             titre={
               <>
-                <MotEncadre>3 bonnes raisons</MotEncadre> de nous confier ton profil
+                <MotEncadre>{tr("3 bonnes raisons", "3 good reasons")}</MotEncadre>
+                {tr(" de nous confier ton profil", " to trust us with your profile")}
               </>
             }
           />
           <BoutonPilule href="/inscription" taille="petite">
-            Je me lance
+            {tr("Je me lance", "Let's go")}
           </BoutonPilule>
         </Flex>
         <Grid templateColumns={{ base: "1fr", lg: "0.9fr 1.3fr" }} gap={{ base: "8", lg: "10" }} alignItems="center" bg="white" borderRadius="32px" p={{ base: "4", md: "8" }} boxShadow="carte">
           <Stack gap="2">
             {RAISONS.map(({ icone: I, titre, texte }, i) => (
-              <Apparition key={titre} sens="gauche" delai={i * 120}>
+              <Apparition key={titre[0]} sens="gauche" delai={i * 120}>
                 <HStack className="bdt-raison" gap="4" align="flex-start" p="5" borderRadius="20px">
                   <Box className="bdt-raison-icone" w="12" h="12" borderRadius="16px" bg="brume" color="nuit" display="grid" placeItems="center" fontSize="xl" flexShrink={0}>
                     <I />
                   </Box>
                   <Box>
                     <Heading as="h3" fontSize="lg" fontWeight="700" color="nuit" mb="1">
-                      {titre}
+                      {t(titre)}
                     </Heading>
                     <Text fontSize="sm" color="gris">
-                      {texte}
+                      {t(texte)}
                     </Text>
                   </Box>
                 </HStack>
@@ -305,13 +323,18 @@ export default function Accueil() {
         <Container maxW="7xl" mb="8">
           <TitreSection
             centre
-            etiquette="Ton grade"
+            etiquette={tr("Ton grade", "Your grade")}
             titre={
               <>
-                Ton grade, <MotEncadre>expliqué</MotEncadre> sans détour
+                {tr("Ton grade, ", "Your grade, ")}
+                <MotEncadre>{tr("expliqué", "explained")}</MotEncadre>
+                {tr(" sans détour", " plainly")}
               </>
             }
-            texte="Il est calculé à partir de quatre éléments : ton diplôme, ton test de langue, le coaching et ton niveau dans ton métier. D'abord provisoire, il est confirmé par le cabinet après vérification de tes pièces."
+            texte={tr(
+              "Il est calculé à partir de quatre éléments : ton diplôme, ton test de langue, le coaching et ton niveau dans ton métier. D'abord provisoire, il est confirmé par le cabinet après vérification de tes pièces.",
+              "It's calculated from four elements: your degree, your language test, coaching and your level in your trade. Provisional at first, it is confirmed by the agency after checking your documents.",
+            )}
           />
         </Container>
         <CarrouselGrades />
@@ -322,18 +345,23 @@ export default function Accueil() {
         <Box mb="12">
           <TitreSection
             centre
-            etiquette="L'accompagnement du cabinet"
+            etiquette={tr("L'accompagnement du cabinet", "Agency support")}
             titre={
               <>
-                Des services <MotEncadre>concrets</MotEncadre> pour combler ce qui te manque
+                {tr("Des services ", "")}
+                <MotEncadre>{tr("concrets", "Practical")}</MotEncadre>
+                {tr(" pour combler ce qui te manque", " services to fill your gaps")}
               </>
             }
-            texte="Un élément manque à ton dossier ? Le service qui le comble t'est proposé automatiquement. Un clic sur « Je suis intéressé(e) » et le cabinet te recontacte."
+            texte={tr(
+              "Un élément manque à ton dossier ? Le service qui le comble t'est proposé automatiquement. Un clic sur « Je suis intéressé(e) » et le cabinet te recontacte.",
+              "Something missing from your file? The service that fills it is suggested automatically. One tap on \"I'm interested\" and the agency gets back to you.",
+            )}
           />
         </Box>
         <SimpleGrid columns={{ base: 1, sm: 2, lg: 4 }} gap="5">
           {SERVICES.map(({ emplacement, icone: I, titre, texte, apport }, i) => (
-            <Apparition key={titre} delai={i * 120} h="full">
+            <Apparition key={titre[0]} delai={i * 120} h="full">
               <Stack className="bdt-carte-service group" h="full" bg="white" borderRadius="24px" overflow="hidden" boxShadow="carte" borderWidth="1px" borderColor="nuit/5" gap="0">
                 <Box position="relative" h="190px" overflow="hidden">
                   <Box className="bdt-zoom-image" position="absolute" inset="0">
@@ -345,14 +373,14 @@ export default function Accueil() {
                 </Box>
                 <Stack p="5" gap="2" flex="1">
                   <Heading as="h3" fontSize="lg" fontWeight="700" color="nuit">
-                    {titre}
+                    {t(titre)}
                   </Heading>
                   <Text fontSize="sm" color="gris" flex="1">
-                    {texte}
+                    {t(texte)}
                   </Text>
                   <HStack gap="2" pt="3" mt="1" borderTopWidth="1px" borderColor="nuit/5" fontSize="xs" fontWeight="600" color="emeraude.700">
                     <LuCheck />
-                    <Text>{apport}</Text>
+                    <Text>{t(apport)}</Text>
                   </HStack>
                 </Stack>
               </Stack>
@@ -360,7 +388,7 @@ export default function Accueil() {
           ))}
         </SimpleGrid>
         <Flex justify="center" mt="10">
-          <BoutonPilule href="/inscription">Découvrir mes services</BoutonPilule>
+          <BoutonPilule href="/inscription">{tr("Découvrir mes services", "Discover my services")}</BoutonPilule>
         </Flex>
       </Container>
 
@@ -370,31 +398,36 @@ export default function Accueil() {
           <Box mb="12">
             <TitreSection
               centre
-              etiquette="Les domaines"
+              etiquette={tr("Les domaines", "Fields")}
               titre={
                 <>
-                  Ton <MotEncadre>métier</MotEncadre> a sa place ici
+                  {tr("Ton ", "Your ")}
+                  <MotEncadre>{tr("métier", "trade")}</MotEncadre>
+                  {tr(" a sa place ici", " belongs here")}
                 </>
               }
-              texte="Du chantier à l'hôpital, de la cuisine à l'informatique : choisis ton domaine et mets en avant tes compétences. Si la tienne n'est pas dans la liste, tu peux la proposer."
+              texte={tr(
+                "Du chantier à l'hôpital, de la cuisine à l'informatique : choisis ton domaine et mets en avant tes compétences. Si la tienne n'est pas dans la liste, tu peux la proposer.",
+                "From building sites to hospitals, kitchens to IT: choose your field and highlight your skills. If yours isn't listed, you can suggest it.",
+              )}
             />
           </Box>
           <SimpleGrid columns={{ base: 1, sm: 2, lg: 4 }} gap="4">
             {METIERS.map(({ icone: I, nom, competences }, i) => (
-              <Apparition key={nom} sens="zoom" delai={(i % 4) * 90} h="full">
+              <Apparition key={nom[0]} sens="zoom" delai={(i % 4) * 90} h="full">
                 <Stack className="bdt-carte-metier" h="full" bg="fond" borderRadius="22px" p="5" gap="3" borderWidth="1px" borderColor="nuit/5">
                   <HStack gap="3">
                     <Box className="bdt-carte-metier-icone" w="11" h="11" borderRadius="14px" bg="white" color="emeraude.700" display="grid" placeItems="center" fontSize="lg" boxShadow="carte">
                       <I />
                     </Box>
                     <Heading as="h3" fontSize="lg" fontWeight="700" color="nuit">
-                      {nom}
+                      {t(nom)}
                     </Heading>
                   </HStack>
                   <Flex gap="1.5" wrap="wrap">
                     {competences.map((c) => (
-                      <Text key={c} fontSize="xs" bg="white" color="gris" px="2.5" py="1" borderRadius="full" borderWidth="1px" borderColor="nuit/5">
-                        {c}
+                      <Text key={c[0]} fontSize="xs" bg="white" color="gris" px="2.5" py="1" borderRadius="full" borderWidth="1px" borderColor="nuit/5">
+                        {t(c)}
                       </Text>
                     ))}
                   </Flex>
@@ -406,10 +439,10 @@ export default function Accueil() {
                 <Stack className="bdt-cliquable" h="full" bg="emeraude.600" color="white" borderRadius="22px" p="5" gap="2" justify="center">
                   <LuBriefcaseBusiness size={26} />
                   <Text fontWeight="700" fontSize="lg">
-                    Et ton métier ?
+                    {tr("Et ton métier ?", "And your trade?")}
                   </Text>
                   <Text fontSize="sm" color="whiteAlpha.900">
-                    Crée ton profil et dis-nous ce que tu sais faire →
+                    {tr("Crée ton profil et dis-nous ce que tu sais faire →", "Create your profile and tell us what you can do →")}
                   </Text>
                 </Stack>
               </Link>
@@ -431,11 +464,13 @@ export default function Accueil() {
                 <LuCompass />
               </Box>
               <Heading as="h3" fontSize={{ base: "xl", md: "2xl" }} fontWeight="700" position="relative">
-                Et côté recruteurs ?
+                {tr("Et côté recruteurs ?", "What about recruiters?")}
               </Heading>
               <Text color="whiteAlpha.900" position="relative">
-                Les recruteurs accèdent à la plateforme uniquement sur invitation du cabinet, pour une durée limitée. Ils consultent des
-                profils anonymisés et font leur sélection. C&apos;est ensuite le cabinet qui organise la mise en relation.
+                {tr(
+                  "Les recruteurs accèdent à la plateforme uniquement sur invitation du cabinet, pour une durée limitée. Ils consultent des profils anonymisés et font leur sélection. C'est ensuite le cabinet qui organise la mise en relation.",
+                  "Recruiters access the platform only by invitation from the agency, for a limited time. They browse anonymised profiles and make their selection. The agency then arranges the introduction.",
+                )}
               </Text>
             </Stack>
           </Apparition>
@@ -446,11 +481,13 @@ export default function Accueil() {
                 <LuEyeOff />
               </Box>
               <Heading as="h3" fontSize={{ base: "xl", md: "2xl" }} fontWeight="700">
-                Tes coordonnées restent privées
+                {tr("Tes coordonnées restent privées", "Your contact details stay private")}
               </Heading>
               <Text>
-                Ton téléphone, ton e-mail, ton adresse et tes documents ne sont jamais montrés aux recruteurs. Tu décides si ton profil
-                peut leur être présenté, et tu peux changer d&apos;avis à tout moment.
+                {tr(
+                  "Ton téléphone, ton e-mail, ton adresse et tes documents ne sont jamais montrés aux recruteurs. Tu décides si ton profil peut leur être présenté, et tu peux changer d'avis à tout moment.",
+                  "Your phone, email, address and documents are never shown to recruiters. You decide whether your profile may be introduced to them, and you can change your mind at any time.",
+                )}
               </Text>
             </Stack>
           </Apparition>
@@ -462,10 +499,12 @@ export default function Accueil() {
         <Box mb="10">
           <TitreSection
             centre
-            etiquette="Questions fréquentes"
+            etiquette={tr("Questions fréquentes", "FAQ")}
             titre={
               <>
-                Tu te poses des <MotEncadre>questions</MotEncadre> ?
+                {tr("Tu te poses des ", "Got ")}
+                <MotEncadre>questions</MotEncadre>
+                {tr(" ?", "?")}
               </>
             }
           />
@@ -484,13 +523,15 @@ export default function Accueil() {
               <Stack gap="5" p={{ base: "8", md: "14" }} justify="center" position="relative">
                 <Logo />
                 <Heading as="h2" fontSize={{ base: "30px", md: "44px" }} lineHeight="1.25" fontWeight="700" color="nuit">
-                  Pourquoi attendre ? Dépose <MotEncadre>ton profil</MotEncadre> aujourd&apos;hui
+                  {tr("Pourquoi attendre ? Dépose ", "Why wait? Submit ")}
+                  <MotEncadre>{tr("ton profil", "your profile")}</MotEncadre>
+                  {tr(" aujourd'hui", " today")}
                 </Heading>
                 <Text color="gris">
-                  Quelques minutes suffisent pour commencer. Tu pourras compléter ton dossier à ton rythme.
+                  {tr("Quelques minutes suffisent pour commencer. Tu pourras compléter ton dossier à ton rythme.", "A few minutes are enough to start. You can complete your file at your own pace.")}
                 </Text>
                 <Box>
-                  <BoutonPilule href="/inscription">Créer mon profil gratuitement</BoutonPilule>
+                  <BoutonPilule href="/inscription">{tr("Créer mon profil gratuitement", "Create my profile for free")}</BoutonPilule>
                 </Box>
               </Stack>
               <Box position="relative" minH={{ base: "280px", md: "420px" }} overflow="hidden">
@@ -504,8 +545,8 @@ export default function Accueil() {
                 {[0, 1].map((copie) => (
                   <HStack key={copie} gap="0" flexShrink={0}>
                     {[...PUCES_BANDEAU, ...PUCES_BANDEAU].map((nom, i) => (
-                      <HStack key={`${nom}-${i}`} gap="6" px="6" fontWeight="600" whiteSpace="nowrap">
-                        <Text>{nom}</Text>
+                      <HStack key={`${nom[0]}-${i}`} gap="6" px="6" fontWeight="600" whiteSpace="nowrap">
+                        <Text>{t(nom)}</Text>
                         <Box color="menthe">
                           <LuSparkles />
                         </Box>
@@ -525,31 +566,39 @@ export default function Accueil() {
           <Grid templateColumns={{ base: "1fr", md: "1.4fr 1fr 1fr 1.2fr" }} gap="10">
             <Stack gap="4" maxW="sm">
               <Logo clair />
-              <Text fontSize="sm">{MARQUE.accroche} Une plateforme pour préparer les talents camerounais aux opportunités à l&apos;international.</Text>
-            </Stack>
-            <Stack gap="3" fontSize="sm">
-              <Text fontWeight="700" color="white">
-                La plateforme
+              <Text fontSize="sm">
+                {tr(
+                  `${MARQUE.accroche} Une plateforme pour préparer les talents camerounais aux opportunités à l'international.`,
+                  "Your profile, your grade, your support. A platform that prepares Cameroonian talent for opportunities abroad.",
+                )}
               </Text>
-              <a className="bdt-lien-pied" href="#etapes">Comment ça marche</a>
-              <a className="bdt-lien-pied" href="#grades">Les grades</a>
-              <a className="bdt-lien-pied" href="#services">Les services</a>
-              <a className="bdt-lien-pied" href="#questions">Questions fréquentes</a>
             </Stack>
             <Stack gap="3" fontSize="sm">
               <Text fontWeight="700" color="white">
-                Mon espace
+                {tr("La plateforme", "The platform")}
               </Text>
-              <Link className="bdt-lien-pied" href="/inscription">Créer mon profil</Link>
-              <Link className="bdt-lien-pied" href="/connexion">Se connecter</Link>
-              <Text>Recruteurs : accès sur invitation du cabinet</Text>
+              <a className="bdt-lien-pied" href="#etapes">{tr("Comment ça marche", "How it works")}</a>
+              <a className="bdt-lien-pied" href="#grades">{tr("Les grades", "Grades")}</a>
+              <a className="bdt-lien-pied" href="#services">{tr("Les services", "Services")}</a>
+              <a className="bdt-lien-pied" href="#questions">{tr("Questions fréquentes", "FAQ")}</a>
             </Stack>
             <Stack gap="3" fontSize="sm">
               <Text fontWeight="700" color="white">
-                Tes données
+                {tr("Mon espace", "My space")}
+              </Text>
+              <Link className="bdt-lien-pied" href="/inscription">{tr("Créer mon profil", "Create my profile")}</Link>
+              <Link className="bdt-lien-pied" href="/connexion">{tr("Se connecter", "Log in")}</Link>
+              <Text>{tr("Recruteurs : accès sur invitation du cabinet", "Recruiters: access by agency invitation")}</Text>
+            </Stack>
+            <Stack gap="3" fontSize="sm">
+              <Text fontWeight="700" color="white">
+                {tr("Tes données", "Your data")}
               </Text>
               <Text>
-                Protégées conformément à la loi camerounaise n° 2024/017. Tu peux demander leur suppression à tout moment.
+                {tr(
+                  "Protégées conformément à la loi camerounaise n° 2024/017. Tu peux demander leur suppression à tout moment.",
+                  "Protected under Cameroonian law no. 2024/017. You can request their deletion at any time.",
+                )}
               </Text>
             </Stack>
           </Grid>
@@ -558,7 +607,7 @@ export default function Accueil() {
               © {new Date().getFullYear()} {MARQUE.nom}
             </Text>
             <Text maxW="2xl" textAlign={{ md: "right" }}>
-              {MARQUE.avertissement}
+              {tr(MARQUE.avertissement, "This platform does not promise a job, a visa or departure. It helps you prepare and be introduced to recruiters.")}
             </Text>
           </Flex>
         </Container>

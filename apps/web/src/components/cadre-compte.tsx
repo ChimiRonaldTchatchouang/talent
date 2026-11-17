@@ -8,12 +8,15 @@ import { LuCheck } from "react-icons/lu";
 import { Photo } from "./accueil/portraits";
 import { PastilleGrade } from "./badges";
 import { Logo } from "./marque";
+import { BasculeLangue } from "./accueil/entete";
+import { useLangue } from "@/lib/preferences";
 
 /**
  * Mise en page des écrans de compte (connexion, inscription, mot de passe) : une carte en deux volets,
  * illustration à gauche et formulaire épuré à droite. Sur téléphone, le volet gauche devient un bandeau compact.
  */
 export function CadreCompte({ titre, sousTitre, children, pied }: { titre: string; sousTitre?: ReactNode; children: ReactNode; pied?: ReactNode }) {
+  const { tr } = useLangue();
   return (
     <Box minH="100dvh" display="grid" placeItems="center" px={{ base: "0", md: "6" }} py={{ base: "0", md: "10" }} bgGradient="to-br" gradientFrom="brume" gradientTo="fond">
       <Grid
@@ -31,11 +34,11 @@ export function CadreCompte({ titre, sousTitre, children, pied }: { titre: strin
       >
         {/* Volet gauche : marque, accroche, illustration */}
         <Stack bg="nuit" color="white" p={{ base: "6", md: "10" }} gap={{ base: "3", md: "6" }} position="relative" overflow="hidden">
-          <Link href="/" aria-label="Retour à l'accueil">
+          <Link href="/" aria-label={tr("Retour à l'accueil", "Back to home")}>
             <Logo clair />
           </Link>
           <Text fontSize={{ base: "md", md: "xl" }} color="whiteAlpha.900" maxW="xs" lineHeight="1.4">
-            {MARQUE.accroche}
+            {tr(MARQUE.accroche, "Your profile, your grade, your support.")}
           </Text>
           <Box display={{ base: "none", md: "block" }} flex="1" position="relative" minH="340px">
             {/* Illustration posée dans une forme arrondie, avec deux petites cartes qui flottent */}
@@ -56,14 +59,17 @@ export function CadreCompte({ titre, sousTitre, children, pied }: { titre: strin
               </Text>
             </HStack>
             <HStack className="bdt-flottant bdt-flottant-lent" position="absolute" right="0" bottom="22%" bg="menthe" color="nuit" borderRadius="full" px="3" py="1.5" gap="1.5" fontSize="sm" fontWeight="600" boxShadow="lg">
-              <LuCheck aria-hidden /> Dossier envoyé
+              <LuCheck aria-hidden /> {tr("Dossier envoyé", "File sent")}
             </HStack>
           </Box>
           <Box position="absolute" right="-16" top="-16" w="48" h="48" borderRadius="full" bg="whiteAlpha.100" display={{ base: "none", md: "block" }} />
         </Stack>
 
         {/* Volet droit : formulaire */}
-        <Stack justify={{ base: "flex-start", md: "center" }} px={{ base: "6", md: "14" }} py={{ base: "8", md: "12" }} gap="7">
+        <Stack justify={{ base: "flex-start", md: "center" }} px={{ base: "6", md: "14" }} py={{ base: "8", md: "12" }} gap="7" position="relative">
+          <Box position="absolute" top={{ base: "4", md: "6" }} right={{ base: "4", md: "6" }}>
+            <BasculeLangue />
+          </Box>
           <Stack gap="2" className="bdt-page">
             <Heading as="h1" fontSize={{ base: "26px", md: "30px" }} color="nuit" fontWeight="700">
               {titre}

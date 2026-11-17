@@ -4,6 +4,7 @@ import { Alert, Button, Field, Input, Stack } from "@chakra-ui/react";
 import { useSearchParams } from "next/navigation";
 import { type FormEvent, Suspense, useState } from "react";
 import { CadreCompte, Lien } from "@/components/cadre-compte";
+import { useLangue } from "@/lib/preferences";
 import { api, ErreurClient, messageErreur } from "@/lib/api";
 
 function Formulaire() {
@@ -12,6 +13,7 @@ function Formulaire() {
   const [fait, setFait] = useState<string | null>(null);
   const [erreur, setErreur] = useState<string | null>(null);
   const [envoi, setEnvoi] = useState(false);
+  const { tr } = useLangue();
 
   async function soumettre(e: FormEvent) {
     e.preventDefault();
@@ -33,7 +35,7 @@ function Formulaire() {
           <Alert.Indicator />
           <Alert.Title>{fait}</Alert.Title>
         </Alert.Root>
-        <Lien href="/connexion">Se connecter</Lien>
+        <Lien href="/connexion">{tr("Se connecter", "Log in")}</Lien>
       </Stack>
     );
   }
@@ -41,13 +43,13 @@ function Formulaire() {
     <form onSubmit={soumettre} noValidate>
       <Stack gap="5">
         <Field.Root invalid={!!erreur}>
-          <Field.Label>Nouveau mot de passe</Field.Label>
+          <Field.Label>{tr("Nouveau mot de passe", "New password")}</Field.Label>
           <Input variant="flushed" size="lg" type="password" autoComplete="new-password" value={motDePasse} onChange={(e) => setMotDePasse(e.target.value)} />
-          <Field.HelperText>8 caractères minimum.</Field.HelperText>
+          <Field.HelperText>{tr("8 caractères minimum.", "At least 8 characters.")}</Field.HelperText>
           <Field.ErrorText>{erreur}</Field.ErrorText>
         </Field.Root>
         <Button type="submit" size="lg" colorPalette="emeraude" borderRadius="full" loading={envoi}>
-          Enregistrer
+          {tr("Enregistrer", "Save")}
         </Button>
       </Stack>
     </form>
@@ -55,8 +57,9 @@ function Formulaire() {
 }
 
 export default function Reinitialiser() {
+  const { tr } = useLangue();
   return (
-    <CadreCompte titre="Nouveau mot de passe">
+    <CadreCompte titre={tr("Nouveau mot de passe", "New password")}>
       <Suspense>
         <Formulaire />
       </Suspense>

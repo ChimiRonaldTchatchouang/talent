@@ -4,12 +4,14 @@ import { Alert, Spinner, Stack } from "@chakra-ui/react";
 import { useSearchParams } from "next/navigation";
 import { Suspense, useEffect, useRef, useState } from "react";
 import { CadreCompte, Lien } from "@/components/cadre-compte";
+import { useLangue } from "@/lib/preferences";
 import { api, messageErreur } from "@/lib/api";
 
 function Confirmation() {
   const jeton = useSearchParams().get("jeton") ?? "";
   const [resultat, setResultat] = useState<{ ok: boolean; message: string } | null>(null);
   const dejaFait = useRef(false);
+  const { tr } = useLangue();
 
   useEffect(() => {
     if (dejaFait.current) return;
@@ -26,14 +28,15 @@ function Confirmation() {
         <Alert.Indicator />
         <Alert.Title>{resultat.message}</Alert.Title>
       </Alert.Root>
-      <Lien href="/candidat">Aller à mon dossier</Lien>
+      <Lien href="/candidat">{tr("Aller à mon dossier", "Go to my file")}</Lien>
     </Stack>
   );
 }
 
 export default function ConfirmerEmail() {
+  const { tr } = useLangue();
   return (
-    <CadreCompte titre="Confirmation de ton e-mail">
+    <CadreCompte titre={tr("Confirmation de ton e-mail", "Email confirmation")}>
       <Suspense>
         <Confirmation />
       </Suspense>

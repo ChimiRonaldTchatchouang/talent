@@ -5,43 +5,45 @@ import { Box, HStack, Stack, Text } from "@chakra-ui/react";
 import { useEffect, useRef, useState } from "react";
 import { LuArrowLeft, LuArrowRight, LuQuote } from "react-icons/lu";
 import { PastilleGrade } from "@/components/badges";
+import { useLangue } from "@/lib/preferences";
 
 /** Ce que veut dire chaque grade, et la suite pour le candidat (règles de la section 6). */
-const GRADES: { grade: Grade; titre: string; texte: string; suite: string }[] = [
+const GRADES: { grade: Grade; titre: [string, string]; texte: [string, string]; suite: [string, string] }[] = [
   {
     grade: "A",
-    titre: "Tout est réuni",
-    texte: "Diplôme, test de langue réussi, coaching et bon niveau dans ton métier : ton profil est complet.",
-    suite: "Dès que le cabinet a vérifié tes pièces, ton profil peut être présenté aux recruteurs.",
+    titre: ["Tout est réuni", "You have it all"],
+    texte: ["Diplôme, test de langue réussi, coaching et bon niveau dans ton métier : ton profil est complet.", "Degree, language test passed, coaching and a good level in your trade: your profile is complete."],
+    suite: ["Dès que le cabinet a vérifié tes pièces, ton profil peut être présenté aux recruteurs.", "Once the agency has checked your documents, your profile can be introduced to recruiters."],
   },
   {
     grade: "B",
-    titre: "Presque prêt",
-    texte: "Tu as le diplôme, le test de langue et le niveau. Il ne te manque que le coaching.",
-    suite: "Une demande de coaching auprès du cabinet, et tu passes au grade A.",
+    titre: ["Presque prêt", "Almost there"],
+    texte: ["Tu as le diplôme, le test de langue et le niveau. Il ne te manque que le coaching.", "You have the degree, the language test and the level. Only coaching is missing."],
+    suite: ["Une demande de coaching auprès du cabinet, et tu passes au grade A.", "Ask the agency for coaching, and you move up to grade A."],
   },
   {
     grade: "C",
-    titre: "Une étape à franchir",
-    texte: "Tu as un diplôme, mais il te manque le test de langue ou une mise à niveau dans ton domaine.",
-    suite: "Le cabinet te propose la formation aux tests de langue ou des séances de mise à niveau.",
+    titre: ["Une étape à franchir", "One step to take"],
+    texte: ["Tu as un diplôme, mais il te manque le test de langue ou une mise à niveau dans ton domaine.", "You have a degree, but you're missing the language test or upskilling in your field."],
+    suite: ["Le cabinet te propose la formation aux tests de langue ou des séances de mise à niveau.", "The agency offers language test training or upskilling sessions."],
   },
   {
     grade: "D",
-    titre: "Ton expérience compte",
-    texte: "Tu n'as pas de diplôme, mais tu as de l'expérience. Elle a de la valeur et elle est prise en compte.",
-    suite: "Le cabinet t'oriente vers les services qui renforcent ton profil : langues et coaching.",
+    titre: ["Ton expérience compte", "Your experience counts"],
+    texte: ["Tu n'as pas de diplôme, mais tu as de l'expérience. Elle a de la valeur et elle est prise en compte.", "You have no degree, but you have experience. It has value and it is taken into account."],
+    suite: ["Le cabinet t'oriente vers les services qui renforcent ton profil : langues et coaching.", "The agency guides you to services that strengthen your profile: languages and coaching."],
   },
   {
     grade: "HORS_BASSIN",
-    titre: "On commence ensemble",
-    texte: "Pas encore de diplôme ni d'expérience ? Ce n'est pas une porte fermée.",
-    suite: "Le cabinet étudie ton dossier et te conseille sur la meilleure façon de démarrer.",
+    titre: ["On commence ensemble", "Let's start together"],
+    texte: ["Pas encore de diplôme ni d'expérience ? Ce n'est pas une porte fermée.", "No degree or experience yet? The door isn't closed."],
+    suite: ["Le cabinet étudie ton dossier et te conseille sur la meilleure façon de démarrer.", "The agency reviews your file and advises you on the best way to start."],
   },
 ];
 
 /** Carrousel des grades : défilement au doigt sur téléphone, flèches et points sur ordinateur. */
 export function CarrouselGrades() {
+  const { tr } = useLangue();
   const piste = useRef<HTMLDivElement>(null);
   const [actif, setActif] = useState(0);
 
@@ -85,7 +87,7 @@ export function CarrouselGrades() {
         px={{ base: "4", md: "calc(50vw - 260px)" }}
         py="4"
         css={{ scrollbarWidth: "none", "&::-webkit-scrollbar": { display: "none" } }}
-        aria-label="Les grades"
+        aria-label={tr("Les grades", "Grades")}
       >
         {GRADES.map(({ grade, titre, texte, suite }, i) => {
           const couleur = grade === "HORS_BASSIN" ? "grade.hors" : `grade.${grade}`;
@@ -122,7 +124,7 @@ export function CarrouselGrades() {
                   {LIBELLES_GRADES[grade].lettre}
                 </Text>
                 <Text fontWeight="600" position="relative">
-                  {LIBELLES_GRADES[grade].libelle}
+                  {grade === "A" ? tr(LIBELLES_GRADES.A.libelle, "Job-ready") : grade === "B" ? tr(LIBELLES_GRADES.B.libelle, "Coaching missing") : grade === "C" ? tr(LIBELLES_GRADES.C.libelle, "Upskilling required") : grade === "D" ? tr(LIBELLES_GRADES.D.libelle, "Experience without a degree") : tr(LIBELLES_GRADES.HORS_BASSIN.libelle, "Outside the pool — to be guided")}
                 </Text>
               </Stack>
               <Stack flex="1" p="6" gap="3">
@@ -130,15 +132,15 @@ export function CarrouselGrades() {
                   <LuQuote />
                 </Box>
                 <Text className="bdt-encadre-simple" fontWeight="700" color="emeraude.700" fontSize="lg" alignSelf="flex-start">
-                  {titre}
+                  {tr(...titre)}
                 </Text>
                 <Text color="gris" fontSize="sm">
-                  {texte}
+                  {tr(...texte)}
                 </Text>
                 <HStack gap="2.5" mt="auto" pt="3" borderTopWidth="1px" borderColor="nuit/5" align="flex-start">
                   {grade !== "HORS_BASSIN" && <PastilleGrade grade={grade} taille="sm" />}
                   <Text fontSize="sm" color="nuit" fontWeight="500">
-                    {suite}
+                    {tr(...suite)}
                   </Text>
                 </HStack>
               </Stack>
@@ -148,7 +150,7 @@ export function CarrouselGrades() {
       </Box>
 
       <HStack justify="center" gap="4">
-        <BoutonRond label="Grade précédent" onClick={() => allerA(actif - 1)} desactive={actif === 0}>
+        <BoutonRond label={tr("Grade précédent", "Previous grade")} onClick={() => allerA(actif - 1)} desactive={actif === 0}>
           <LuArrowLeft />
         </BoutonRond>
         <HStack gap="2">
@@ -156,7 +158,7 @@ export function CarrouselGrades() {
             <Box
               as="button"
               key={grade}
-              aria-label={`Voir le grade ${LIBELLES_GRADES[grade].lettre}`}
+              aria-label={`${tr("Voir le grade", "See grade")} ${LIBELLES_GRADES[grade].lettre}`}
               onClick={() => allerA(i)}
               h="2.5"
               w={i === actif ? "8" : "2.5"}
@@ -167,7 +169,7 @@ export function CarrouselGrades() {
             />
           ))}
         </HStack>
-        <BoutonRond label="Grade suivant" onClick={() => allerA(actif + 1)} desactive={actif === GRADES.length - 1}>
+        <BoutonRond label={tr("Grade suivant", "Next grade")} onClick={() => allerA(actif + 1)} desactive={actif === GRADES.length - 1}>
           <LuArrowRight />
         </BoutonRond>
       </HStack>
